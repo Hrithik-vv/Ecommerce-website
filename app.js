@@ -1,12 +1,26 @@
 const express =require("express")
 const app =express();
-require("dotenv").config();
+const path = require("path");
+const env =require("dotenv").config();
 const connectDB = require("./config/db");
-// Call the function to connect to MongoDB
+const userRouter = require("./routes/userRouter");
 connectDB();
 
 
-app.listen(3000, ()=>{
+
+app.use(express.json());
+app.use(express.urlencoded({extended:true}))
+
+
+app.set("view engine","ejs");
+app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
+app.use(express.static(path.join(__dirname,"public")));
+
+
+
+
+const PORT=3000 || process.env.PORT;
+app.listen(PORT, ()=>{
     console.log("Server Running on port 3000");
     
 })
