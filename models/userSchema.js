@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
   name: {
     type: String,
-    required: ture,
+    required:true,
   },
   email: {
     type: String,
