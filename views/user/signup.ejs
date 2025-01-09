@@ -136,17 +136,17 @@
                     />
                     <div id="error2" class="error-message"></div>
                   </div>
-                  <div class="form-group">
+                  <!-- <div class="form-group">
                     <label for="phone">Phone Number</label>
                     <input
                       type="text"
                       class="form-control"
-                      name = "phome"
+                      name = "phone"
                       id="phone"
                       placeholder="Enter phone number"
                     />
                     <div id="error3" class="error-message"></div>
-                  </div>
+                  </div> -->
                   <div class="form-group">
                     <label for="password">Password</label>
                     <input
@@ -169,9 +169,15 @@
                     />
                     <div id="error5" class="error-message"></div>
                   </div>
+                  <%if(locals.message && message.length>0){%>
+              <div class="alert alert-danger text-center">
+                <%=message%>
+              </div>
+              <%}%>
                   <div
                     class="d-flex justify-content-between align-items-center"
                   >
+                 
                     <button type="submit" class="btn btn-primary">
                       Sign Up
                     </button>
@@ -179,13 +185,13 @@
                       <p>or sign up with</p>
                     </div>
                     <div class="social-btns">
-                      <button type="button" class="btn btn-outline-danger">
+                      <a href="/auth/google" type="button" class="btn btn-outline-danger">
                         <img
                           src="/images/googlesignup (2).png"
                           alt="Google Logo"
                           style="width: 24px; height: 24px"
                         />
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </form>
@@ -250,23 +256,23 @@ function emailValidateChecking(e) {
   }
 }
 
-function phoneValidateChecking(e) {
-  const phoneval = phoneid.value;
+// function phoneValidateChecking(e) {
+//   const phoneval = phoneid.value;
 
-  if (phoneval.trim() === "") {
-    error3.style.display = "block";
-    error3.innerHTML = "Enter a valid phone number";
-  } else if (phoneval.length !== 10) {
-    error3.style.display = "block";
-    error3.innerHTML = "Enter 10 digits";
-  } else if (/^(.)\1{9}$/.test(phoneval)) {
-    error3.style.display = "block";
-    error3.innerHTML = "Phone number cannot be all identical digits";
-  } else {
-    error3.style.display = "none";
-    error3.innerHTML = "";
-  }
-}function passValidateChecking(e) {
+//   if (phoneval.trim() === "") {
+//     error3.style.display = "block";
+//     error3.innerHTML = "Enter a valid phone number";
+//   } else if (phoneval.length !== 10) {
+//     error3.style.display = "block";
+//     error3.innerHTML = "Enter 10 digits";
+//   } else if (/^(.)\1{9}$/.test(phoneval)) {
+//     error3.style.display = "block";
+//     error3.innerHTML = "Phone number cannot be all identical digits";
+//   } else {
+//     error3.style.display = "none";
+//     error3.innerHTML = "";
+//   }}
+function passValidateChecking(e) {
   const passval = passid.value;
   const cpassval = cpassid.value;
   const alpha = /[a-zA-Z]/;
@@ -306,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
   signform.addEventListener("submit", function (e) {
     nameValidateChecking();
     emailValidateChecking();
-    phoneValidateChecking();
+    // phoneValidateChecking();
     passValidateChecking();
 
     if (

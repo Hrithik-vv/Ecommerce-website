@@ -3,8 +3,11 @@ const app =express();
 const path = require("path");
 const env =require("dotenv").config();
 const session =require("express-session")
+const passport = require("./config/passport")
 const connectDB = require("./config/db");
 const userRouter = require("./routes/userRouter");
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
 
 connectDB();
 
@@ -24,6 +27,8 @@ app.use(session({
     }
 }))
 
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.set("view engine","ejs");
 app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
