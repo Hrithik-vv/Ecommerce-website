@@ -217,13 +217,35 @@ const login = async (req, res) => {
       return res.render("login", { message: "Incorrect Password" });
     }
 
-    req.session.user = findUser._id;
+    req.session.user = findUser;
+       
+    req.session.userId = findUser._id;
     res.redirect("/");
+
+    
   } catch (error) {
     console.error("login error", error);
     res.render("login", { message: "login failed. Please try again later" });
   }
 };
+
+const logout =async (req,res) =>{
+  try {
+    
+    req.session.destroy((err)=>{
+      if(err){
+        console.log("session destruction error",err.message);
+        return res.redirect("/pageNotFound")
+      }
+      return  res.redirect("/login")
+    })
+  } catch (error) {
+    
+    console.log("Logout error",error);
+    res.redirect("/pageNotFound")
+    
+  }
+}
 
 module.exports = {
   loadHomepage,
@@ -234,5 +256,6 @@ module.exports = {
   loadOtpPage,
   loadLogin,
   login,
-  resendOtp
+  resendOtp,
+  logout
 };

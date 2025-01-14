@@ -140,11 +140,9 @@
                 />
                 <div id="error2" class="error-message"></div>
               </div>
-             
+
               <%if(locals.message && message.length>0){%>
-              <div class="alert alert-danger text-center">
-                <%=message%>
-              </div>
+              <div class="alert alert-danger text-center"><%=message%></div>
               <%}%>
               <div class="d-flex justify-content-between align-items-center">
                 <button type="submit" class="btn btn-primary">Log In</button>
@@ -224,4 +222,3 @@
     </script>
   </body>
 </html>
-
