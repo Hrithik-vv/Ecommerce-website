@@ -7,6 +7,7 @@ const passport = require("./config/passport");
 const connectDB = require("./config/db");
 const userRouter = require("./routes/userRouter");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const adminRouter =require('./routes/adminRouter')
 
 connectDB();
 
@@ -35,11 +36,16 @@ app.use((req, res, next) => {
 });
 
 app.set("view engine", "ejs");
-app.set("views", [path.join(__dirname, 'views/user'), path.join(__dirname, 'views/admin')]);
+app.set("views", [
+    path.join(__dirname, 'views/user'),
+    path.join(__dirname, 'views/admin')
+]);
 app.use(express.static(path.join(__dirname, "public")));
 
 // Define Routes
 app.use("/", userRouter);
+// Admin Router
+app.use('/admin', adminRouter);
 
 // Start Server
 const PORT = 3000 || process.env.PORT;
