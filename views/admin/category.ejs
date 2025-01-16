@@ -5,69 +5,218 @@
     href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"
   />
   <style>
-    .col-md-3 {
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      margin: 10px;
-    }
+/* Main Layout */
+.content-main {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
 
-    .form-label {
-      margin-bottom: 8px;
-    }
+.content-header {
+  margin-bottom: 2rem;
+}
 
-    .form-control {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
+.content-title {
+  color: #2c3e50;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
 
-    .d-grid {
-      margin-top: 20px;
-    }
+/* Search Bar */
+.search-container {
+  max-width: 500px;
+  margin: 0 auto 2rem;
+}
 
-    .btn-primary {
-      background-color: #007bff;
-      color: #fff;
-      border: 1px solid #007bff;
-      border-radius: 5px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
+.input-group {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
 
-    .btn-primary:hover {
-      background-color: #0056b3;
-      border-color: #0056b3;
-    }
+.input-group:focus-within {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-    .pagination-container {
-      text-align: center;
-    }
+.input-group input {
+  border: none;
+  padding: 0.75rem 1rem;
+}
 
-    .pagination {
-      display: inline-block;
-    }
+.input-group .btn {
+  color: #6c757d;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  transition: color 0.3s ease;
+}
 
-    .pagination a,
-    .pagination .current-page {
-      display: inline-block;
-      padding: 5px 10px;
-      margin: 0 2px;
-      border: 1px solid #ddd;
-      text-decoration: none;
-      color: #333;
-    }
+.input-group .btn:hover {
+  color: #2c3e50;
+}
 
-    .pagination a:hover {
-      background-color: #f5f5f5;
-    }
+/* Card Styles */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background: white;
+}
 
-    .error-message {
-      color: red;
-    }
+.card-body {
+  padding: 2rem;
+}
+
+/* Form Styles */
+.col-md-3 {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.form-label {
+  color: #2c3e50;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+.error-message {
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Table Styles */
+.table {
+  margin-top: 1rem;
+}
+
+.table thead th {
+  background-color: #f8fafc;
+  color: #4a5568;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 1rem;
+}
+
+.table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Button Styles */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #4299e1;
+  border-color: #4299e1;
+}
+
+.btn-primary:hover {
+  background-color: #3182ce;
+  border-color: #3182ce;
+}
+
+.btn-info {
+  background-color: #4fd1c5;
+  border-color: #4fd1c5;
+}
+
+.btn-info:hover {
+  background-color: #38b2ac;
+  border-color: #38b2ac;
+}
+
+.btn-danger {
+  background-color: #f56565;
+  border-color: #f56565;
+}
+
+.btn-success {
+  background-color: #48bb78;
+  border-color: #48bb78;
+}
+
+/* Status Badges */
+.badge {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+}
+
+.alert-success {
+  background-color: #c6f6d5;
+  color: #2f855a;
+}
+
+.alert-danger {
+  background-color: #fed7d7;
+  color: #c53030;
+}
+
+/* Pagination */
+.pagination-container {
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+.pagination a, 
+.pagination .current-page {
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+  background-color: #ebf4ff;
+  border-color: #4299e1;
+  color: #4299e1;
+}
+
+.pagination .current-page {
+  background-color: #4299e1;
+  border-color: #4299e1;
+  color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .content-main {
+    padding: 1rem;
+  }
+  
+  .col-md-3,
+  .col-md-8 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .table-responsive {
+    margin-top: 1rem;
+  }
+  
+}
   </style>
 </head>
 <body>
@@ -80,17 +229,18 @@
     <header class="card-header text-center mb-20">
       <form action="/admin/category/" method="get" class="d-inline">
         <div
-          class="input-group input-group-sm border border-1 border-grey rounded-pill"
-          style="width: 500px; margin-left: 230px"
-        >
-          <input
-            type="text"
-            class="form-control border-0 rounded-pill mt-3"
-            placeholder="Search categories"
-            name="search"
-          />
-          <button class="btn" type="submit">Search</button>
-        </div>
+        class="input-group input-group-sm search-bar"
+        style="width: 300px; margin-left: 1px;"
+      >
+        <input
+          type="text"
+          class="form-control search-input"
+          placeholder="Search categories"
+          name="search"
+        />
+        <button class="btn search-btn" type="submit">Search</button>
+      </div>
+      
       </form>
     </header>
     <div class="card">
@@ -138,8 +288,8 @@
                     <th class="text-center"></th>
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Offer Price</th>
-                    <th>Offer</th>
+                    <!-- <th>Offer Price</th>
+                    <th>Offer</th> -->
                     <th>Status</th>
                     <th>List/Unlist</th>
                     <th class="text-start">Edit</th>
@@ -151,37 +301,43 @@
                     <td></td>
                     <td class="text-start"><%=category.name%></td>
                     <td class="text-start"><%=category.description%></td>
-                    <td></td>
-                    <td class="text-start">
-                      <button class="btn btn-info" style="width: 100px">
+                    
+                    <!-- <td class="text-start"> -->
+                      <!-- <button class="btn btn-info" style="width: 100px">
                         <a href="#" class="text-white">Add Offer</a>
-                      </button>
-                      <button class="btn btn-info" style="width: 100px">
+                      </button> -->
+                      <!-- <button class="btn btn-info" style="width: 100px">
                         <a href="#" class="text-white">Remove</a>
-                      </button>
-                    </td>
+                      </button> -->
+                    <!-- </td> -->
                     <td class="text-start">
+                      <%if(category.isListed){%>
                       <span
                         class="badge rounded-pill alert-success"
                         style="width: 60px"
                         >Listed</span
                       >
+                      <%}else{%>
                       <span
                         class="badge rounded-pill alert-danger"
                         style="width: 60px"
                         >Unlisted</span
                       >
+                      <%}%>
                     </td>
                     <td class="text-start">
+                      <%if(category.isListed){%>
                       <button class="btn btn-danger" style="width: 70px">
-                        <a href="#" class="text-white">Unlist</a>
+                        <a href="/admin/listCategory?id=<%=category._id%>" class="text-white">Unlist</a>
                       </button>
+                      <%}else{%>
                       <button class="btn btn-success" style="width: 70px">
-                        <a href="" class="text-white">List</a>
+                        <a href="/admin/unlistCategory?id=<%=category._id%>" class="text-white">List</a>
                       </button>
+                      <%}%>
                     </td>
                     <td class="text-start">
-                      <a href="" class="btn btn-info text-white">Edit</a>
+                      <a href="/admin/editCategory?id=<%=category._id%>" class="btn btn-info text-white">Edit</a>
                     </td>
                   </tr>
                   <%})%>
