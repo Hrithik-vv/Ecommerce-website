@@ -1,4 +1,4 @@
-const mongoose = reguire("mongoose")
+const mongoose = require("mongoose")
 const {Schema} = mongoose;  
 
 
@@ -14,7 +14,7 @@ const brandSchema = new Schema({
     },
     isBlocked : {
         TYPE : Boolean,
-        default : Date.now
+        default : Date
     }
 })
 

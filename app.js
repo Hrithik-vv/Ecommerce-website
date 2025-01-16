@@ -47,6 +47,9 @@ app.use("/", userRouter);
 // Admin Router
 app.use('/admin', adminRouter);
 
+app.use("/uploads", express.static("uploads"));
+
+
 // Start Server
 const PORT = 3000 || process.env.PORT;
 app.listen(PORT, () => {

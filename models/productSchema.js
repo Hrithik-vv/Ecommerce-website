@@ -4,24 +4,25 @@ const { Schema } = mongoose;
 const productSchema = new Schema({
     productName: {
         type: String,
-        required: true
+        
     },
     description: {
         type: String,
-        required: true
+        
     },
     brand: {
         type: String,
-        required: true
+       
     },
     category: {
-        type: Schema.Types.ObjectId,
+        type: String,
+        
         ref: "Category",
-        required: true
+        
     },
     salePrice: {
         type: Number,
-        required: true
+        
     },
     productOffer: { // Fixed typo from "prooductOffer" to "productOffer"
         type: Number,
@@ -33,11 +34,11 @@ const productSchema = new Schema({
     },
     color: {
         type: String,
-        required: true
+        
     },
     productImage: {
         type: [String],
-        required: true
+        
     },
     isBlocked: {
         type: Boolean,
@@ -46,8 +47,20 @@ const productSchema = new Schema({
     status: {
         type: String,
         enum: ["Available", "out of stock", "Discontinued"], // Fixed typo in enum values
-        required: true,
+       
         default: "Available"
+    },
+    image1:{
+        type:String
+    },
+    image2:{
+        type:String
+    },
+    image3:{
+        type:String
+    },
+    image4:{
+        type:String
     }
 }, { timestamps: true });
 

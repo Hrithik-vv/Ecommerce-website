@@ -1,42 +1,47 @@
 const express = require("express");
 const router = express.Router();
-const adminController = require("../controllers/admin/adminController"); 
-const customerController = require("../controllers/admin/customerContoller")
-const categoryController = require("../controllers/admin/categoryController")
-const {userAuth,adminAuth}= require("../middlewares/auth")
+const adminController = require("../controllers/admin/adminController");
+const customerController = require("../controllers/admin/customerContoller");
+const categoryController = require("../controllers/admin/categoryController");
+const brandController = require("../controllers/admin/brandController");
+const productController = require("../controllers/admin/productCotroller");
+const addproductConroller = require("../controllers/admin/addproductController")
+const { userAuth, adminAuth } = require("../middlewares/auth");
 
+// Multer setup
+const multer = require("multer");
+const storage = require("../helpers/multer");
+const upload = multer({ storage: storage }); // Create the upload middleware
 
+// Error Management
+router.get("/pageerror", adminController.pageerror);
 
-
-router.get("/pageerror",adminController.pageerror)
-//login Management
+// Login Management
 router.get("/login", adminController.loadLogin);
-router.post("/login",adminController.login)
-router.get("/dashboard",adminAuth,adminController.loadDashboard)
-router.get("/logout",adminController.logout)
-//Customer Management
-router.get("/users",adminAuth,customerController.customerInfo)
-router.get ("/blockCustomer",adminAuth,customerController.customerBlocked)
-router.get ("/unblockCustomer",adminAuth,customerController.customerunBlocked)
-//Category Management
-router.get("/category",adminAuth,categoryController.categoryInfo);
-router.post("/addCategory",adminAuth,categoryController.addCategory);
-// router.post("/addCategoryOffer",adminAuth,categoryController.addCategoryOffer);
-// router.post("/removeCategoryOffer",adminAuth,categoryController.removeCategoryOffer);
-router.get("/listCategory",adminAuth,categoryController.getListCategory)
-router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory)
-router.get("/editCategory",adminAuth,categoryController.getEditCategory)
-router.post("/editCategory/:id",adminAuth,categoryController.editCategory)
+router.post("/login", adminController.login);
+router.get("/dashboard", adminAuth, adminController.loadDashboard);
+router.get("/logout", adminController.logout);
+
+// Customer Management
+router.get("/users", adminAuth, customerController.customerInfo);
+router.get("/blockCustomer", adminAuth, customerController.customerBlocked);
+router.get("/unblockCustomer", adminAuth, customerController.customerunBlocked);
+
+// Category Management
+router.get("/category", adminAuth, categoryController.categoryInfo);
+router.post("/addCategory", adminAuth, categoryController.addCategory);
+router.get("/listCategory", adminAuth, categoryController.getListCategory);
+router.get("/unlistCategory", adminAuth, categoryController.getUnlistCategory);
+router.get("/editCategory", adminAuth, categoryController.getEditCategory);
+router.post("/editCategory/:id", adminAuth, categoryController.editCategory);
+
+// Brand Management
+router.get("/brands", adminAuth, brandController.getBrandPage);
+router.post("/addBrand", upload.single("image"), brandController.addBrand);
 
 
 
-
-
-
-
-
-
-
-
-
+router.get("/product", adminAuth,productController.loadproduct);
+router.get("/addproduct",adminAuth,addproductConroller.loadaddproduct)
+router.post("/addproduct",adminAuth,addproductConroller.addproduct)
 module.exports = router;

@@ -1,0 +1,235 @@
+<%- include("../../views/partials/admin/adminHeader.ejs") %>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        /* Header Styling */
+        .content-header {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .content-header .content-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        /* Search Form Styling */
+        header.card-header {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            width: 500px;
+            margin: 0 auto;
+        }
+
+        .input-group .form-control {
+            border-radius: 25px;
+            padding: 12px 15px;
+        }
+
+        .input-group .btn {
+            background-color: #007bff;
+            color: white;
+            border-radius: 25px;
+            font-size: 14px;
+            padding: 10px 15px;
+        }
+
+        .input-group .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Table Styling */
+        .table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .table th {
+            background-color: #f1f1f1;
+            color: #343a40;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Action Buttons Styling */
+        .btn {
+            width: 100px;
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        .btn-info a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-danger a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-success a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-info:hover,
+        .btn-danger:hover,
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+        /* Footer Styling */
+        footer {
+            padding: 20px;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+
+        /* Pagination Styling */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination .page-item {
+            margin-right: 5px;
+        }
+
+        .pagination .page-link {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 25px;
+            color: #007bff;
+            border: 1px solid #ddd;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<div class="content-header">
+    <div>
+        <h2 class="content-title card-title">Products</h2>
+    </div>
+</div>
+
+<header class="card-header text-center mb-20">
+    <form action="" method="get" class="d-inline">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
+            <button class="btn border-0" type="submit">Search</button>
+        </div>
+    </form>
+</header>
+
+<div class="right mt-5">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"><b>Product name</b></th>
+               
+                <th scope="col"><b>Category</b></th>
+                <th scope="col"><b>Sale Price</b></th>
+                
+                <th scope="col"><b>Offer</b></th>
+                <th scope="col"><b>Quantity</b></th>
+                <th scope="col"><b>Action</b></th>
+                <th scope="col"><b>Edit</b></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <%  products.forEach(products => { %>
+                    <td><%= products.productName %></td>
+                    <td><%= products.category %> </td>
+                    <td><%= products.salePrice %> </td>
+                    <td><%= products.productOffer %> </td>
+                    <td><%= products.quantity %> </td>
+
+                    <!-- <td>   -->
+
+                        <!-- <button class="btn btn-info">
+                            <a href="#" class="text-white">Add Offer</a>
+                        </button> -->
+                        <!-- <button class="btn btn-info">
+                            <a href="#" class="text-white">Remove</a>
+                        </button>
+                    </td> -->
+                    <!-- <td></td> -->
+                    <td>
+                        <button class="btn btn-danger">
+                            <a href="#" class="text-white">Block</a>
+                        </button>
+                        <button class="btn btn-success">
+                            <a href="#" class="text-white">Unblock</a>
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-info">
+                            <a href="#" class="text-white">Edit</a>
+                        </button>
+                    </td>
+                </tr>
+               <% })%>
+               
+                   
+        </tbody>
+    </table>
+</div>
+
+<div class="container mt-3">
+    <!-- Additional content can be added here -->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<%- include("../../views/partials/admin/adminFooter.ejs") %>
