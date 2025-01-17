@@ -34,7 +34,11 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-3">
-            <form method="post" action="/admin/addBrand" enctype="multipart/form-data">
+          <form
+            method="post"
+            action="/admin/addBrand"
+            enctype="multipart/form-data"
+          >
             <div class="mb-4">
               <label for="product_name" class="form-label">Brand Name</label>
               <input
@@ -46,11 +50,11 @@
             </div>
             <label for="product_name" class="form-label">Brand Image</label>
             <div class="input-upload">
-              <img src="" alt=""/>
+              <img src="" alt="" />
               <input class="form-control border" name="image" type="file" />
             </div>
             <div class="d-grid">
-                <button type="submit" class="btn btn-primary">Add Brand</button>
+              <button type="submit" class="btn btn-primary">Add Brand</button>
             </div>
           </form>
         </div>
@@ -126,7 +130,6 @@
       </div>
     </div>
   </div>
-  <div class="pagination-container">
-</div>
+  <div class="pagination-container"></div>
 </section>
 <%- include("../../views/partials/admin/adminFooter.ejs") %>

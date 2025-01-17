@@ -39,9 +39,9 @@ router.post("/editCategory/:id", adminAuth, categoryController.editCategory);
 router.get("/brands", adminAuth, brandController.getBrandPage);
 router.post("/addBrand", upload.single("image"), brandController.addBrand);
 
-
-
+// Product Management R
 router.get("/product", adminAuth,productController.loadproduct);
 router.get("/addproduct",adminAuth,addproductConroller.loadaddproduct)
 router.post("/addproduct",adminAuth,addproductConroller.addproduct)
+
 module.exports = router;

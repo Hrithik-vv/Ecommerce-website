@@ -22,7 +22,7 @@ const loadHomepage = async (req, res) => {
       const userData = await User.findOne({ _id: user._id });
       res.render("home", { user: userData });
     } else {
-      return res.render("home",{user});
+      return res.render("home", { user });
     }
   } catch (error) {
     console.log("Home page not found");
@@ -41,13 +41,10 @@ const loadSignup = async (req, res) => {
 };
 
 // otp generator
-
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 //  Send verification email with OTP
-
-
 async function sendVerificationEmail(email, otp) {
   try {
     const transporter = nodemailer.createTransport({
@@ -75,8 +72,6 @@ async function sendVerificationEmail(email, otp) {
     return false;
   }
 }
-
-
 
 //handle user signup
 const signup = async (req, res) => {
@@ -113,15 +108,14 @@ const signup = async (req, res) => {
   }
 };
 
-
-
+// Render OTP verification page
 const loadOtpPage = async (req, res) => {
   try {
     res.render("verify-otp", { message: "" });
   } catch (error) {}
 };
-// Hash password using
 
+// Hash password using
 const securePassword = async (password) => {
   try {
     const passwordHash = await bcrypt.hash(password, 10);
@@ -161,25 +155,34 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+// Resend OTP
 const resendOtp = async (req, res) => {
   try {
     const user = req.session.userData;
 
     if (!user) {
-      return res.status(400).json({ success: false, message: "Session expired. Please sign up again." });
+      return res.status(400).json({
+        success: false,
+        message: "Session expired. Please sign up again.",
+      });
     }
 
     const otp = generateOtp();
     const emailSent = await aswinfn(otp, user.email);
 
     if (!emailSent) {
-      return res.status(500).json({ success: false, message: "Failed to send OTP. Try again later." });
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP. Try again later.",
+      });
     }
 
     req.session.userOtp = otp;
     console.log("Resent OTP:", otp);
 
-    res.status(200).json({ success: true, message: "OTP resent successfully." });
+    res
+      .status(200)
+      .json({ success: true, message: "OTP resent successfully." });
   } catch (error) {
     console.error("Error resending OTP", error);
     res.status(500).json({ success: false, message: "An error occurred." });
@@ -200,7 +203,6 @@ const loadLogin = async (req, res) => {
 };
 
 // Handle user login
-
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -218,34 +220,29 @@ const login = async (req, res) => {
     }
 
     req.session.user = findUser;
-       
+
     req.session.userId = findUser._id;
     res.redirect("/");
-
-    
   } catch (error) {
     console.error("login error", error);
     res.render("login", { message: "login failed. Please try again later" });
   }
 };
 
-const logout =async (req,res) =>{
+const logout = async (req, res) => {
   try {
-    
-    req.session.destroy((err)=>{
-      if(err){
-        console.log("session destruction error",err.message);
-        return res.redirect("/pageNotFound")
+    req.session.destroy((err) => {
+      if (err) {
+        console.log("session destruction error", err.message);
+        return res.redirect("/pageNotFound");
       }
-      return  res.redirect("/login")
-    })
+      return res.redirect("/login");
+    });
   } catch (error) {
-    
-    console.log("Logout error",error);
-    res.redirect("/pageNotFound")
-    
+    console.log("Logout error", error);
+    res.redirect("/pageNotFound");
   }
-}
+};
 
 module.exports = {
   loadHomepage,
@@ -257,5 +254,5 @@ module.exports = {
   loadLogin,
   login,
   resendOtp,
-  logout
+  logout,
 };

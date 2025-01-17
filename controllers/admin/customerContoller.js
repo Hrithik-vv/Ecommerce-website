@@ -1,15 +1,18 @@
 const User = require("../../models/userSchema");
 
+// Fetch  paginated 
 const customerInfo = async (req, res) => {
   try {
     let search = "";
     if (req.query.search) {
       search = req.query.search;
     }
+
     let page = 1;
     if (req.query.page) {
       page = req.query.page;
     }
+
     const limit = 3;
     const userData = await User.find({
       isAdmin: false,
@@ -30,39 +33,42 @@ const customerInfo = async (req, res) => {
       ],
     }).countDocuments();
 
-    res.render("customers",{data: userData , totalPages: count, currentPage : 1});
+    res.render("customers", {
+      data: userData,
+      totalPages: count,
+      currentPage: 1,
+    });
   } catch (error) {}
 };
 
-const customerBlocked =async (req,res)=>{
-    try{
-        let id = req.query.id;
-        await User.updateOne({_id: id}, {$set: { isBlocked: true}});
-        res.redirect("/admin/users");
-    }catch (error){
-        console.log('block error',error);
-        
-        res.redirect("/pageerror");
-    }
-}
+// Block  customer account
+const customerBlocked = async (req, res) => {
+  try {
+    let id = req.query.id;
+    await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
+    res.redirect("/admin/users");
+  } catch (error) {
+    console.log("block error", error);
 
+    res.redirect("/pageerror");
+  }
+};
 
-const customerunBlocked = async (req,res)=>{
-    try {
-        let id = req.query.id;
-        await User.updateOne({_id: id}, {$set:{isBlocked:false}});
-        res.redirect("/admin/users")
-    } catch (error) {
-        console.log(' unblock error',error);
-        
-        res.redirect("/pageerror");
-        
-    }
-}
+// Unblock customer account
+const customerunBlocked = async (req, res) => {
+  try {
+    let id = req.query.id;
+    await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
+    res.redirect("/admin/users");
+  } catch (error) {
+    console.log(" unblock error", error);
+
+    res.redirect("/pageerror");
+  }
+};
 
 module.exports = {
   customerInfo,
   customerBlocked,
   customerunBlocked,
-
 };
