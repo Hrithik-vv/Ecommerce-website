@@ -46,86 +46,7 @@
       <div id="mobile-menu-wrap"></div>
       <div class="offcanvas__text"></div>
     </div>
-    <!-- <style> -->
-      /* .header__nav__option .sign-in-link {
-        font-size: 16px;
-        color: #333;
-        margin-right: 10px;
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      .header__nav__option .sign-in-link:hover {
-        color: #ff7f50;
-      }
-      .header__nav__option{
-        padding-top: 0%;
-      }
-
-      .dropdown {
-        position: relative;
-        display: inline-block;
-      }
-
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        right: 0;
-      }
-
-      .dropdown-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        width: 100%;
-      }
-
-      .dropdown-content a:hover {
-        background-color: #0c0b0b;
-      }
-
-      .dropdown:hover .dropdown-content {
-        display: block;
-      }
-
-      .header {
-        position: relative;
-        z-index: 400;
-       
-      }
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-      }
-
-       .log-1 {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        padding: 15px 20px;
-        
-        color: white;
-        border-radius: 8px;
-      
-        text-align: center;
-        }
-
-        .log-1 h3 {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: bold;
-        }
-      ul{
-        align-items: center;
-      } */
-              
-    /* </style> */
+   
 
     <style>
       .header .container {
@@ -134,10 +55,32 @@
           align-items: center;
           position: relative;
       }
+      /* .log-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f8ff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  } */
 
-      .log-1 {
+  .log-1 h1 {
+    font-family: 'Arial', sans-serif;
+    font-size: 3rem;
+    font-weight: bold;
+    color: #010203;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 0;
+  }
+
+      .log-1 h1{
           position: absolute;
-          left: 20px;
+          margin-left: 1px;
+          margin: 0%;
+          right: 84%;
+          top: 10%;
+
           
       }
 
@@ -169,6 +112,50 @@
           width: auto;
           margin: 0 auto;
       }
+      .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 6%;
+  box-shadow: 0px 8px 16px rgba(10, 8, 8, 0.2);
+  z-index: 9999; /* Ensure it appears above other content */
+  padding: 5px;
+}
+
+
+.dropdown-content li {
+  list-style: none;
+}
+
+.dropdown-content a {
+  color: black;
+  text-decoration: none;
+  display: block;
+  padding: 8px 8px;
+  
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+  align-items: center;
+  
+}
+.dropdown{
+  align-items: center;
+  font-size: larger;
+ 
+
+}
+
 
       @media (max-width: 768px) {
           .header__menu {
@@ -229,7 +216,7 @@
             <div class="header__nav__option">
               <% if (user) {  %>
               <div class="dropdown">
-                <a href="#" class="sign-in-link"><%= locals.user.name %></a>
+                <a href="#" class="sign-in-link" style="color: #010203;"><%= locals.user.name %></a>
                 <div class="dropdown-content">
                   <li class="active"><a href="./index.html">Home</a></li>
                   <li><a href="./shop.html">Shop</a></li>

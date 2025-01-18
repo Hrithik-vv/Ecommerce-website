@@ -21,26 +21,25 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     console.log(req.body);
 
-    // Find the user 
+    // Find the user
     const admin = await User.findOne({ email, isAdmin: true });
-    console.log(admin);
 
     if (admin) {
-      const passwordMatch = await bcrypt.compare(password, admin.password); // Add `await` here
-      console.log();
+      const passwordMatch = await bcrypt.compare(password, admin.password);
+      console.log('Password match check');
 
       if (passwordMatch) {
         req.session.admin = true;
-        return res.redirect("admin/dashboard");
+        return res.redirect("/admin/dashboard");
       } else {
-        return res.redirect("/login");
+        return res.render("adminLogin", { message: "Invalid password." });
       }
     } else {
-      return res.redirect("/login");
+      return res.render("adminLogin", { message: "Admin not found." });
     }
   } catch (error) {
     console.log("login error", error);
-    return res.redirect("pageerror");
+    return res.redirect("/pageerror");
   }
 };
 
@@ -53,9 +52,11 @@ const loadDashboard = async (req, res) => {
     } catch (error) {
       res.redirect("/pageerror");
     }
+  } else {
+    return res.redirect("/admin/login"); // Redirect to login if not authenticated
   }
-  // res.render('dashboard')
 };
+
 
 //Admin Logout
 const logout = async (req, res) => {

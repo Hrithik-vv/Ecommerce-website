@@ -1,7 +1,15 @@
 const Product = require("../../models/productSchema");
+const Category = require("../../models/categorySchema");  // Add Category model import
 
-const loadaddproduct = (req, res) => {
-  res.render("addproduct");
+// Controller function to load the add product page with category data
+const loadaddproduct = async (req, res) => {
+  try {
+    const categories = await Category.find({});  // Fetch all categories from the database
+    res.render("addproduct", { categoryInfo: categories });  // Pass categories to the view
+  } catch (error) {
+    console.error(error);
+    res.redirect("/pageerror");  // Redirect to an error page if there's an issue
+  }
 };
 
 // Controller function to handle the addition of a new product
@@ -19,9 +27,7 @@ const addproduct = (req, res) => {
     image2,
     image3,
     image4,
-
   } = req.body;
-  console.log(image4);
   
   const newproduct = new Product({
     category,
@@ -42,6 +48,7 @@ const addproduct = (req, res) => {
 
   res.redirect("/admin/product");
 };
+
 module.exports = {
   addproduct,
   loadaddproduct,

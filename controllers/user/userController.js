@@ -233,16 +233,19 @@ const logout = async (req, res) => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        console.log("session destruction error", err.message);
+        console.log("Session destruction error:", err.message);
         return res.redirect("/pageNotFound");
       }
-      return res.redirect("/login");
+      // After session is destroyed, clear the session cookie
+      res.clearCookie("connect.sid"); // "connect.sid" is the default session cookie name
+      return res.redirect("");
     });
   } catch (error) {
     console.log("Logout error", error);
     res.redirect("/pageNotFound");
   }
 };
+
 
 module.exports = {
   loadHomepage,

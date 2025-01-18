@@ -6,8 +6,8 @@
   />
 </head>
 
-<style>
-  /* Layout and Container Styles */
+<!-- <style>
+  Layout and Container Styles
 .content-main {
   padding: 2rem;
   max-width: 1200px;
@@ -183,7 +183,9 @@ textarea.form-control {
 
 @media (max-width: 640px) {
   .card-body {
-    padding: 1rem;
+    padding:0%;
+    margin-left: 10%;
+
   }
   
   .btn {
@@ -194,8 +196,267 @@ textarea.form-control {
     font-size: 1.5rem;
   }
 }
-</style>
+</style> -->
+<style>
+  /* Core Variables */
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #8da7ab;
+  --success-color: #22c55e;
+  --danger-color: #dc3545;
+  --background-color: #f8fafc;
+  --card-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
+/* Layout Styles */
+.content-main {
+  margin-bottom: 2rem;
+  width: 100%;
+  display: flex;
+  justify-content: center; padding: 3rem;
+  background-color: var(--background-color);
+  min-height: 100vh;
+  
+}
+
+.content-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+
+}
+
+.content-title {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 40px;
+  align-items: center;
+  
+}
+
+
+/* Card Styles */
+.card {
+  background: var(--card-bg);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+  margin-top: 140px;
+  
+}
+
+.card-header {
+  padding: 1.25rem;
+  background: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.card-header h4 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  
+}
+
+.card-body {
+  padding: 1.5rem;
+  
+}
+
+/* Form Controls */
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-control,
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background-color: var(--card-bg);
+}
+
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Grid System */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -0.75rem;
+}
+
+.col-lg-4, .col-lg-6, .col-sm-6 {
+  padding: 0.75rem;
+}
+
+.col-lg-4 {
+  flex: 0 0 33.333333%;
+  max-width: 33.333333%;
+}
+
+.col-lg-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+/* Image Upload Section */
+.thumbnails-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background-color);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.image-upload-container {
+  margin-bottom: 1.5rem;
+}
+
+.image-preview {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 2px dashed var(--border-color);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+}
+
+/* Error Messages */
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Image Cropper */
+.image-cropper {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-color);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.image-cropper img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .col-lg-4, .col-lg-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .content-main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .form-control, 
+  .form-select {
+    font-size: 16px; /* Prevent zoom on mobile */
+  }
+  
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Custom File Input */
+.custom-file-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.custom-file-input input[type="file"] {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  cursor: pointer;
+}
+
+.custom-file-label {
+  padding: 0.75rem;
+  background: var(--background-color);
+  border: 1px dashed var(--border-color);
+  border-radius: 0.5rem;
+  text-align: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-file-label:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+</style>
 <section class="content-main">
   <div class="row">
     <div class="col-9">
@@ -294,14 +555,13 @@ textarea.form-control {
                 <div class="row gx-2">
                   <div class="col-sm-6 mb-3">
                     <label class="form-label">Category</label>
-                    <select
-                      class="form-select border"
-                      style="width: 150px"
-                      name="category"
-                    >
+                    <select class="form-select border" name="category" style="width: 150px">
                       <option value="">Select Category</option>
-                      <!-- Add category options dynamically -->
+                      <% categoryInfo.forEach(category => { %>
+                        <option value="<%= category._id %>"><%= category.name %></option>
+                      <% }) %>
                     </select>
+                    
                     <div id="category-error" class="error-message"></div>
                   </div>
                 </div>

@@ -39,7 +39,7 @@
 }
 
 .input-group {
-  background: white;
+  /* background: white; */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   transition: all 0.3s ease;
 }
@@ -94,6 +94,32 @@
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
+.input-group {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+}
+
+.input-group .form-control {
+  border-radius: 25px 0 0 25px;
+  padding: 12px 15px;
+  border: 1px solid #ced4da;
+}
+
+.input-group .btn {
+  background-color: #007bff;
+  color: white;
+  border-radius: 0 25px 25px 0;
+  font-size: 14px;
+  padding: 10px 15px;
+  border: 1px solid #007bff;
+}
+
+.input-group .btn:hover {
+  background-color: #0056b3;
+}
+
 
 .form-control {
   border: 1px solid #e2e8f0;
@@ -246,20 +272,18 @@
     </div>
     <header class="card-header text-center mb-20">
       <form action="/admin/category/" method="get" class="d-inline">
-        <div
-          class="input-group input-group-sm search-bar"
-          style="width: 300px; margin-left: 1px"
-        >
+        <div class="input-group">
           <input
             type="text"
-            class="form-control search-input"
-            placeholder="Search categories"
+            class="form-control"
+            placeholder="Search products or brands"
             name="search"
           />
-          <button class="btn search-btn" type="submit">Search</button>
+          <button class="btn" type="submit">Search</button>
         </div>
       </form>
     </header>
+    
     <div class="card">
       <div class="card-body">
         <div class="row">

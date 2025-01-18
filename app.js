@@ -60,5 +60,21 @@ const PORT = 3000 || process.env.PORT;
 app.listen(PORT, () => {
   console.log("Server Running on port 3000");
 });
+app.get("/check-session", (req, res) => {
+  if (req.session.user) {
+    res.send("User is logged in.");
+  } else {
+    res.send("No session found.");
+  }
+});
+// Ensure you are passing categories to the view
+app.get('/admin/addproduct', (req, res) => {
+  Category.find({}, (err, categories) => {
+    if (err) throw err;
+    res.render('admin/addproduct', { categories });
+  });
+});
+
+
 
 module.exports = app;

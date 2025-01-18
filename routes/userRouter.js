@@ -1,9 +1,11 @@
+// routes/userRouter.js
+
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user/userController");
 const passport = require("../config/passport");
-
-// Error and Home 
+// const userAuth = require("../middlewares/")
+// Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/", userController.loadHomepage);
 
@@ -11,12 +13,12 @@ router.get("/", userController.loadHomepage);
 router.get("/signup", userController.loadSignup);
 router.post("/signup", userController.signup);
 
-// OTP Verification 
+// OTP Verification
 router.get("/verify-otp", userController.loadOtpPage);
 router.post("/verify-otp", userController.verifyOtp);
 router.post("/resend-otp", userController.resendOtp);
 
-// Google Authentication 
+// Google Authentication
 router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -33,5 +35,8 @@ router.get(
 router.get("/login", userController.loadLogin);
 router.post("/login", userController.login);
 router.get("/logout", userController.logout);
+
+// User profile (Protected by userAuth)
+// router.get("/userProfile", userAuth, userController.userProfile); // Protected route
 
 module.exports = router;
