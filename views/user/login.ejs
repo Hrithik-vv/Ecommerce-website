@@ -109,6 +109,18 @@
         font-size: 0.75rem;
         display: none;
       }
+      .forgot-password-link {
+        font-size: 0.875rem;
+        color: #007bff;
+        text-decoration: none;
+        background-color: transparent;
+      }
+
+      .forgot-password-link:hover {
+        color: #005ab9;
+        text-decoration: underline;
+  
+      }
     </style>
   </head>
   <body>
@@ -140,6 +152,12 @@
                 />
                 <div id="error2" class="error-message"></div>
               </div>
+              <!-- forgotPasswrod -->
+              <div class="form-group d-flex justify-content-end">
+                <a href="/forgot-password" class="" forgot-password-link ms-auto
+                  >Forgot Password</a
+                >
+              </div>
 
               <%if(locals.message && message.length>0){%>
               <div class="alert alert-danger text-center"><%=message%></div>
@@ -163,10 +181,15 @@
           </div>
           <div class="login-image">
             <a href="/">
-              <img src="/images/Screenshot 2025-01-17 001923.png" alt="Shopping Site" />
+              <img
+                src="/images/Screenshot 2025-01-17 001923.png"
+                alt="Shopping Site"
+              />
             </a>
             <div class="text-center mt-2">
-              <a href="./signup" class="sign-up-link">Not registered? Sign up</a>
+              <a href="./signup" class="sign-up-link"
+                >Not registered? Sign up</a
+              >
             </div>
           </div>
         </div>

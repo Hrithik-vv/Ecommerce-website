@@ -193,6 +193,7 @@
 
   <div class="right mt-5">
     <table class="table">
+      
       <thead>
         <tr>
           <th scope="col"><b>Product name</b></th>
@@ -205,29 +206,34 @@
         </tr>
       </thead>
       <tbody>
-        <% products.forEach(products => { %>
-        <tr>
-          <td><%= products.productName %></td>
-          <td><%= products.category %></td>
-          <td><%= products.salePrice %></td>
-          <td><%= products.productOffer %></td>
-          <td><%= products.quantity %></td>
-          <td>
-            <button class="btn btn-danger">
-              <a href="#" class="text-white">Block</a>
-            </button>
-            <button class="btn btn-success">
-              <a href="#" class="text-white">Unblock</a>
-            </button>
-          </td>
-          <td>
-            <button class="btn btn-info">
-              <a href="#" class="text-white">Edit</a>
-            </button>
-          </td>
-        </tr>
-        <% })%>
+        <% products.forEach(product => { %>
+          <tr>
+            <td><%= product.productName %></td>
+            <td><%= product.category %></td>
+            <td><%= product.salePrice %></td>
+            <td><%= product.productOffer %></td>
+            <td><%= product.quantity %></td>
+            <td>
+              <% if (!product.isBlocked) { %>
+                <button class="btn btn-danger">
+                  <a href="/admin/blockProduct?id=<%= product._id %>" class="text-white">Block</a>
+                </button>
+              <% } else { %>
+                <button class="btn btn-success">
+                  <a href="/admin/unblockProduct?id=<%= product._id %>" class="text-white">Unblock</a>
+                </button>
+              <% } %>
+            </td>
+            <td>
+              <button class="btn btn-info">
+                <a href="#" class="text-white">Edit</a>
+              </button>
+            </td>
+          </tr>
+          <% }) %>
+          
       </tbody>
+      
     </table>
   </div>
 </div>

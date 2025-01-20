@@ -17,18 +17,61 @@
 }
 
 /* Centered Header */
-.content-header {
-  margin-bottom: 2rem;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
+   /* Main Layout */
+   .content-main {
+      padding: 2rem;
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
 
-.content-title {
-  color: #2c3e50;
-  font-size: 1.75rem;
-  font-weight: 600;
-}
+    /* Centered Header */
+    .content-header {
+      margin: 20px auto;
+    }
+
+    .content-header .content-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #343a40;
+      margin-right: 700px;
+    }
+
+    /* Rest of your existing styles... */
+    /* Search Form Styling */
+    header.card-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      display: flex;
+    }
+
+    .input-group .form-control {
+      border-radius: 25px 0 0 25px;
+      padding: 12px 15px;
+      border: 1px solid #ced4da;
+    }
+
+    .input-group .btn {
+      background-color: #007bff;
+      color: white;
+      border-radius: 0 25px 25px 0;
+      font-size: 14px;
+      padding: 10px 15px;
+      border: 1px solid #007bff;
+    }
+
+    .input-group .btn:hover {
+      background-color: #0056b3;
+    }
 
 /* Search Bar */
 .search-container {
@@ -214,37 +257,35 @@
   color: #c53030;
 }
 
-/* Pagination */
-.pagination-container {
-  margin-top: 2rem;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-}
+ /* Pagination Styles */
+ .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+  }
 
-.pagination a,
-.pagination .current-page {
-  padding: 0.5rem 1rem;
-  margin: 0 0.25rem;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  color: #4a5568;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
+  .pagination .page-item {
+    margin: 0 5px;
+  }
 
-.pagination a:hover {
-  background-color: #ebf4ff;
-  border-color: #4299e1;
-  color: #4299e1;
-}
+  .pagination .page-link {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    color: #007bff;
+    text-decoration: none;
+  }
 
-.pagination .current-page {
-  background-color: #4299e1;
-  border-color: #4299e1;
-  color: white;
-}
+  .pagination .active .page-link {
+    background-color: #ffffff;
+    color: #567cee;
+  }
 
+  .pagination .page-link:hover {
+    background-color: #0056b3;
+    color: #fff;
+  }
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .content-main {
@@ -267,9 +308,9 @@
   <section class="content-main">
     <div class="content-header">
       <div>
-        <h2 class="content-title card-title">Category</h2>
+        <h2 class="content-title card-title">Customers</h2>
       </div>
-    </div>
+      </div>
     <header class="card-header text-center mb-20">
       <form action="/admin/category/" method="get" class="d-inline">
         <div class="input-group">
@@ -402,18 +443,40 @@
       </div>
     </div>
 
-    <div class="pagination-container">
-      <% if (currentPage > 1) { %>
-      <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
-      <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
-      currentPage) { %>
-      <span class="current-page"><%= i %></span>
-      <% } else { %>
-      <a href="?page=<%= i %>"><%= i %></a>
-      <% } %> <% } %> <% if (currentPage < totalPages) { %>
-      <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+  <!-- Pagination Section -->
+<div class="container mt-4">
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center mb-4">
+      <!-- Previous Button -->
+      <li class="page-item <%= (currentPage === 1) ? 'disabled' : '' %>">
+        <a
+          class="page-link"
+          href="?page=<%= currentPage - 1 %>"
+          tabindex="-1"
+          aria-disabled="true"
+          >&laquo; Previous</a
+        >
+      </li>
+
+      <!-- Page Numbers -->
+      <% for (let i = 1; i <= totalPages; i++) { %>
+      <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+      </li>
       <% } %>
-    </div>
+
+      <!-- Next Button -->
+      <li
+        class="page-item <%= (currentPage === totalPages) ? 'disabled' : '' %>"
+      >
+        <a class="page-link" href="?page=<%= currentPage + 1 %>"
+          >Next &raquo;</a
+        >
+      </li>
+    </ul>
+  </nav>
+</div>
+
   </section>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

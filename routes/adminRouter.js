@@ -43,5 +43,9 @@ router.post("/addBrand", upload.single("image"), brandController.addBrand);
 router.get("/product", adminAuth,productController.loadproduct);
 router.get("/addproduct",adminAuth,addproductConroller.loadaddproduct)
 router.post("/addproduct",adminAuth,addproductConroller.addproduct)
+router.get("/blockProduct",adminAuth,productController.blockProduct)
+router.get("/unblockProduct",adminAuth,productController.unblockProduct)
+
+
 
 module.exports = router;

@@ -1,5 +1,6 @@
 // const { options } = require("../../app");
 const User = require("../../models/userSchema"); //MONGO USER SCHEMA
+const product = require("../../models/productSchema");
 const env = require("dotenv").config(); //variable configuration
 const nodemailer = require("nodemailer"); // sending email
 const bcrypt = require("bcrypt"); //hashing
@@ -16,13 +17,17 @@ const pageNotFound = async (req, res) => {
 
 //load home with or whithout user
 const loadHomepage = async (req, res) => {
+  const products = await product.find({})
+console.log(products);
+
+  
   try {
     const user = req.session.user;
     if (user) {
       const userData = await User.findOne({ _id: user._id });
-      res.render("home", { user: userData });
+      res.render("home", { user: userData ,products});
     } else {
-      return res.render("home", { user });
+      return res.render("home", { user ,products});
     }
   } catch (error) {
     console.log("Home page not found");
@@ -247,7 +252,7 @@ const logout = async (req, res) => {
 };
 
 
-module.exports = {
+module.exports = { 
   loadHomepage,
   pageNotFound,
   loadSignup,
