@@ -9,6 +9,11 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     rel="stylesheet"
   />
+  <link
+    href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    rel="stylesheet"
+  />
+
   <style>
     :root {
       --primary-color: #4f46e5;
@@ -143,25 +148,37 @@
     }
 
     .preview-container {
-      display: none;
+      position: relative;
       margin-top: 10px;
     }
 
-    .preview-image {
+    preview-image {
       max-width: 200px;
       max-height: 200px;
+      display: block;
+      margin: 0 auto;
     }
 
-    .delete-button {
+    .delete-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 100;
+      top: 5px;
+      right: 5px;
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .cropper-container {
       max-width: 500px;
       margin: 10px 0;
+      display: none;
     }
 
     .actions-container {
@@ -191,7 +208,7 @@
 
 <body>
   <div class="container">
-    <form id="addform" action="/admin/addproduct" method="post">
+    <form id="addform" action="/admin/editproduct" method="post">
       <!-- Basic Information -->
       <div class="card">
         <h3 class="section-title">Basic Information</h3>
@@ -202,18 +219,20 @@
               type="text"
               id="product_name"
               name="productName"
+              value="<%= product.productName  %>"
               class="form-control"
               placeholder="Enter product name"
             />
             <div id="productName-error" class="error-message"></div>
           </div>
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label class="form-label">Brand</label>
             <select name="brand" class="form-control">
+
               <option value="">Select Brand</option>
             </select>
             <div id="brand-error" class="error-message"></div>
-          </div>
+          </div> -->
         </div>
         <div class="form-group">
           <label class="form-label">Description</label>
@@ -223,7 +242,9 @@
             class="form-control"
             rows="4"
             placeholder="Enter product description"
-          ></textarea>
+          >
+ <%= product.description  %></textarea
+          >
           <div id="description-error" class="error-message"></div>
         </div>
       </div>
@@ -232,22 +253,24 @@
       <div class="card">
         <h3 class="section-title">Pricing & Inventory</h3>
         <div class="form-row">
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label class="form-label">Regular Price</label>
             <input
               type="text"
               name="regularPrice"
               class="form-control"
+              value=""
               placeholder="$0.00"
             />
             <div id="regularPrice-error" class="error-message"></div>
-          </div>
+          </div> -->
           <div class="form-group">
             <label class="form-label">Sale Price</label>
             <input
               type="text"
               name="salePrice"
               class="form-control"
+              value="<%= product.salePrice  %>"
               placeholder="$0.00"
             />
             <div id="salePrice-error" class="error-message"></div>
@@ -258,6 +281,7 @@
               type="number"
               name="quantity"
               class="form-control"
+              value="<%= product.quantity  %>"
               placeholder="0"
             />
             <div id="quantity-error" class="error-message"></div>
@@ -285,6 +309,7 @@
               type="text"
               name="color"
               class="form-control"
+              value="<%= product.color  %>"
               placeholder="Enter color"
             />
             <div id="color-error" class="error-message"></div>
@@ -292,7 +317,7 @@
         </div>
       </div>
 
-      <!-- Image Upload -->
+      <!-- Image Upload Section -->
       <div class="card">
         <h3 class="section-title">Product Images</h3>
         <p class="mb-3">
@@ -314,173 +339,266 @@
                 name="images"
                 accept="image/png, image/jpeg, image/jpg"
                 style="display: none"
-                onchange="cropper(`<%= i %>`)"
+                onchange="handleImageSelect(`<%= i %>`)"
               />
             </div>
-            <div class="preview-container">
-              <img src="" alt="" id="prev<%= i %>" class="preview-image" />
+
+            <div class="preview-container" id="previewContainer<%= i %>">
+              <% if(product['image' + i]) { %>
+              <img
+                src="/<%= product['image' + i] %>"
+                alt="Image <%= i %>"
+                id="prev<%= i %>"
+                class="preview-image"
+              />
+              <button
+                type="button"
+                class="delete-btn"
+                onclick="confirmDelete(`<%= i %>`)"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+              <% } %>
             </div>
-            <div class="cropper-container" style="display: none">
-              <img src="" id="croppedImg<%= i %>" alt="" />
-              <div class="actions-container">
+
+            <div class="cropper-container" id="cropperContainer<%= i %>">
+              <img id="croppedImg<%= i %>" src="" style="max-width: 100%" />
+              <div class="actions-container mt-3">
                 <button
                   type="button"
-                  id="saveButton<%= i %>"
                   class="btn btn-primary"
+                  onclick="saveCroppedImage(`<%= i %>`)"
                 >
-                  Save Crop
+                  Save Cropped Image
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  onclick="cancelCropping(`<%= i %>`)"
+                >
+                  Cancel
                 </button>
               </div>
             </div>
+
+            <input
+              type="hidden"
+              id="photo<%= i %>"
+              name="image<%= i %>"
+              value="<%= product['image' + i] %>"
+            />
+            <input
+              type="hidden"
+              id="deleteImage<%= i %>"
+              name="deleteImage<%= i %>"
+              value="false"
+            />
           </div>
           <% } %>
         </div>
-        <div id="images-error" class="error-message"></div>
       </div>
-
-      <!-- Hidden inputs for cropped images -->
-      <input type="hidden" id="photo1" name="image1" />
-      <input type="hidden" id="photo2" name="image2" />
-      <input type="hidden" id="photo3" name="image3" />
-      <input type="hidden" id="photo4" name="image4" />
 
       <!-- Submit Button -->
       <div class="card">
         <button type="submit" class="btn btn-primary">
-          <i class="fas fa-save mr-2"></i> Publish Product
+          <i class="fas fa-save mr-2"></i> Edit Product
         </button>
       </div>
     </form>
   </div>
 
   <script>
-    // Initialize cropper instances object
     let croppers = {};
-    let croppedImages = {};
 
-    function cropper(imageNumber) {
+    function handleImageSelect(imageNumber) {
       const file = document.getElementById(`image${imageNumber}`).files[0];
+      if (!file) return;
+
       const reader = new FileReader();
-
       reader.onload = function (e) {
-        // Show cropper container and hide preview
-        const cropperContainer = document
-          .querySelector(`#image${imageNumber}`)
-          .closest(".form-group")
-          .querySelector(".cropper-container");
-        const previewContainer = document
-          .querySelector(`#image${imageNumber}`)
-          .closest(".form-group")
-          .querySelector(".preview-container");
+        // Hide preview and show cropper
+        document.getElementById(
+          `previewContainer${imageNumber}`
+        ).style.display = "none";
+        const cropperContainer = document.getElementById(
+          `cropperContainer${imageNumber}`
+        );
         cropperContainer.style.display = "block";
-        previewContainer.style.display = "none";
 
-        // Initialize cropper
         const image = document.getElementById(`croppedImg${imageNumber}`);
         image.src = e.target.result;
 
-        // Destroy existing cropper if it exists
         if (croppers[imageNumber]) {
           croppers[imageNumber].destroy();
         }
 
-        // Create new cropper
         croppers[imageNumber] = new Cropper(image, {
           aspectRatio: 1,
           viewMode: 1,
           autoCropArea: 1,
           background: false,
         });
-
-        // Add save button handler
-        document.getElementById(`saveButton${imageNumber}`).onclick =
-          function () {
-            saveCroppedImage(imageNumber);
-          };
       };
-
-      if (file) {
-        reader.readAsDataURL(file);
-      }
+      reader.readAsDataURL(file);
     }
 
     function saveCroppedImage(imageNumber) {
       if (!croppers[imageNumber]) return;
 
-      // Get cropped canvas
       const canvas = croppers[imageNumber].getCroppedCanvas();
-
-      // Convert to base64
       const croppedImageData = canvas.toDataURL("image/jpeg");
 
-      // Store cropped image data
-      croppedImages[imageNumber] = croppedImageData;
+      // Update hidden input and preview
       document.getElementById(`photo${imageNumber}`).value = croppedImageData;
-
-      // Update preview
       const previewImg = document.getElementById(`prev${imageNumber}`);
-      previewImg.src = croppedImageData;
+      if (!previewImg) {
+        const previewContainer = document.getElementById(
+          `previewContainer${imageNumber}`
+        );
+        const newPreviewImg = document.createElement("img");
+        newPreviewImg.id = `prev${imageNumber}`;
+        newPreviewImg.className = "preview-image";
+        newPreviewImg.src = croppedImageData;
 
-      // Show preview and hide cropper
-      const cropperContainer = document
-        .querySelector(`#image${imageNumber}`)
-        .closest(".form-group")
-        .querySelector(".cropper-container");
-      const previewContainer = document
-        .querySelector(`#image${imageNumber}`)
-        .closest(".form-group")
-        .querySelector(".preview-container");
-      cropperContainer.style.display = "none";
-      previewContainer.style.display = "block";
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.onclick = () => confirmDelete(imageNumber);
 
-      // Add delete button if it doesn't exist
-      if (!document.getElementById(`deleteButton${imageNumber}`)) {
-        const deleteButton = document.createElement("button");
-        deleteButton.id = `deleteButton${imageNumber}`;
-        deleteButton.className = "btn btn-danger mt-2";
-        deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
-        deleteButton.onclick = function () {
-          deleteImage(imageNumber);
-        };
-        previewContainer.appendChild(deleteButton);
+        previewContainer.appendChild(newPreviewImg);
+        previewContainer.appendChild(deleteBtn);
+      } else {
+        previewImg.src = croppedImageData;
       }
 
-      // Destroy cropper instance
+      // Show preview and hide cropper
+      document.getElementById(`previewContainer${imageNumber}`).style.display =
+        "block";
+      document.getElementById(`cropperContainer${imageNumber}`).style.display =
+        "none";
+
+      // Cleanup
       croppers[imageNumber].destroy();
       croppers[imageNumber] = null;
     }
 
+    function cancelCropping(imageNumber) {
+      if (croppers[imageNumber]) {
+        croppers[imageNumber].destroy();
+        croppers[imageNumber] = null;
+      }
+      document.getElementById(`image${imageNumber}`).value = "";
+      document.getElementById(`cropperContainer${imageNumber}`).style.display =
+        "none";
+      document.getElementById(`previewContainer${imageNumber}`).style.display =
+        "block";
+    }
+
+    async function confirmDelete(imageNumber) {
+      const result = await Swal.fire({
+        title: "Delete Image?",
+        text: "Are you sure you want to delete this image?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (result.isConfirmed) {
+        try {
+          // Get product ID from URL or hidden input
+          const productId = new URLSearchParams(window.location.search).get(
+            "id"
+          );
+
+          // If it's a new image that hasn't been saved yet
+          if (!productId) {
+            deleteImage(imageNumber);
+            Swal.fire("Deleted!", "The image has been removed.", "success");
+            return;
+          }
+
+          // For existing images, call the API
+          const response = await fetch(
+            `/admin/product/${productId}/image/${imageNumber}`,
+            {
+              method: "DELETE",
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            deleteImage(imageNumber);
+            Swal.fire("Deleted!", "The image has been deleted.", "success");
+          } else {
+            throw new Error(data.message);
+          }
+        } catch (error) {
+          console.error("Error deleting image:", error);
+          Swal.fire("Error!", "Failed to delete the image.", "error");
+        }
+      }
+    }
+
+    document
+      .getElementById("addform")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const productId = new URLSearchParams(window.location.search).get("id");
+
+        try {
+          const response = await fetch(`/admin/editproduct/${productId}`, {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Success!",
+              text: "Product updated successfully",
+              showConfirmButton: true,
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = "/admin/products";
+              }
+            });
+          } else {
+            throw new Error(data.message);
+          }
+        } catch (error) {
+          console.error("Error updating product:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: "Failed to update product: " + error.message,
+          });
+        }
+      });
+
     function deleteImage(imageNumber) {
       // Clear file input
-      const fileInput = document.getElementById(`image${imageNumber}`);
-      fileInput.value = "";
+      document.getElementById(`image${imageNumber}`).value = "";
 
-      // Clear preview
-      const previewImg = document.getElementById(`prev${imageNumber}`);
-      previewImg.src = "";
+      // Clear preview container
+      const previewContainer = document.getElementById(
+        `previewContainer${imageNumber}`
+      );
+      previewContainer.innerHTML = "";
+
+      // Mark image for deletion in backend
+      document.getElementById(`deleteImage${imageNumber}`).value = "true";
 
       // Clear hidden input
       document.getElementById(`photo${imageNumber}`).value = "";
 
-      // Remove delete button
-      const deleteButton = document.getElementById(
-        `deleteButton${imageNumber}`
-      );
-      if (deleteButton) {
-        deleteButton.remove();
-      }
-
-      // Clear stored cropped image
-      delete croppedImages[imageNumber];
-
-      // Show upload box
-      const previewContainer = document
-        .querySelector(`#image${imageNumber}`)
-        .closest(".form-group")
-        .querySelector(".preview-container");
-      previewContainer.style.display = "none";
-
-      // Reset cropper if it exists
+      // Reset cropper if exists
       if (croppers[imageNumber]) {
         croppers[imageNumber].destroy();
         croppers[imageNumber] = null;
@@ -488,6 +606,7 @@
     }
   </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 </body>
 

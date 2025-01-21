@@ -15,25 +15,61 @@ const pageNotFound = async (req, res) => {
   }
 };
 
-//load home with or whithout user
-const loadHomepage = async (req, res) => {
-  const products = await product.find({})
-console.log(products);
+// //load home with or whithout user
+// const loadHomepage = async (req, res) => {
+//   const products = await product.find({isBlocked:false})
+// console.log(products);
 
   
+//   try {
+//     const user = req.session.user;
+//     if (user) {
+//       const userData = await User.findOne({ _id: user._id ,isBlocked:false});
+//       res.render("home", { user: userData ,products});
+//     } else {
+//       return res.render("home", { user ,products});
+//     }
+//   } catch (error) {
+//     console.log("Home page not found");
+//     res.status(500).send("Server error");
+//   }
+// };
+const loadHomepage = async (req, res) => {
   try {
+    const products = await product.find({ isBlocked: false }); // Fetch unblocked products
     const user = req.session.user;
+
     if (user) {
       const userData = await User.findOne({ _id: user._id });
-      res.render("home", { user: userData ,products});
+
+      if (userData) {
+        // If user exists and is blocked
+        if (userData.isBlocked) {
+          req.session.destroy((err) => {
+            if (err) {
+              console.error("Error destroying session:", err);
+              return res.status(500).send("Internal Server Error");
+            }
+            return res.redirect("/login"); // Redirect blocked user to login
+          });
+        } else {
+          // Render homepage for unblocked user
+          return res.render("home", { user: userData, products });
+        }
+      } else {
+        // If user is not found
+        return res.redirect("/login");
+      }
     } else {
-      return res.render("home", { user ,products});
+      // Render homepage for guest users
+      return res.render("home", { user: null, products });
     }
   } catch (error) {
-    console.log("Home page not found");
-    res.status(500).send("Server error");
+    console.error("Error loading homepage:", error);
+    res.status(500).send("Server Error");
   }
 };
+
 
 // signup page
 const loadSignup = async (req, res) => {
@@ -103,6 +139,7 @@ const signup = async (req, res) => {
     // Save OTP and user data
     req.session.userOtp = otp;
     req.session.userData = { name, email, password };
+    
 
     // res.render("verify-otp",{message:''});
     res.redirect("/verify-otp");
@@ -148,7 +185,8 @@ const verifyOtp = async (req, res) => {
         password: passwordHash,
       });
       await saveUserData.save();
-      req.session.user = saveUserData._id;
+      // req.session.user = saveUserData._id;
+      req.session.user = saveUserData;
 
       res.redirect("/");
     } else {
@@ -234,16 +272,17 @@ const login = async (req, res) => {
   }
 };
 
+// logout  
 const logout = async (req, res) => {
   try {
-    req.session.destroy((err) => {
+    req.session.destroy((err) => { 
       if (err) {
         console.log("Session destruction error:", err.message);
         return res.redirect("/pageNotFound");
       }
       // After session is destroyed, clear the session cookie
       res.clearCookie("connect.sid"); // "connect.sid" is the default session cookie name
-      return res.redirect("");
+      return res.redirect("/login");
     });
   } catch (error) {
     console.log("Logout error", error);

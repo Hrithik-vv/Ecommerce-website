@@ -3,9 +3,10 @@ const router = express.Router();
 const userController = require("../controllers/user/userController");
 const passport = require("../config/passport");
 const profileController  =require("../controllers/user/profileController")
+const {userAuth}=require("../middlewares/auth")
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
-router.get("/", userController.loadHomepage);
+router.get("/",userController.loadHomepage);
 
 // User Signup
 router.get("/signup", userController.loadSignup);

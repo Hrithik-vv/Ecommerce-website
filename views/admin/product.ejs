@@ -209,7 +209,7 @@
         <% products.forEach(product => { %>
           <tr>
             <td><%= product.productName %></td>
-            <td><%= product.category %></td>
+            <td><%= product.category%></td>
             <td><%= product.salePrice %></td>
             <td><%= product.productOffer %></td>
             <td><%= product.quantity %></td>
@@ -226,8 +226,8 @@
             </td>
             <td>
               <button class="btn btn-info">
-                <a href="#" class="text-white">Edit</a>
-              </button>
+                <a href="/admin/editProduct?id=<%= product._id %>" class="text-white ">Edit</a>
+
             </td>
           </tr>
           <% }) %>
