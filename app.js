@@ -1,20 +1,19 @@
 const express = require("express");
 const app = express();
 const path = require("path");
-const env = require("dotenv").config();  // Loads environment variables
-const session = require("express-session");  // Express session middleware for session management
+const env = require("dotenv").config(); // Loads environment variables
+const session = require("express-session"); // Express session middleware for session management
 const passport = require("./config/passport"); // Passport configuration
 const connectDB = require("./config/db"); // Database connection setup
-const userRouter = require("./routes/userRouter");// User routes
+const userRouter = require("./routes/userRouter"); // User routes
 const GoogleStrategy = require("passport-google-oauth20").Strategy; // Google OAuth
-const adminRouter = require("./routes/adminRouter");// Admin routes
+const adminRouter = require("./routes/adminRouter"); // Admin routes
 
 connectDB();
 
 // Middleware to parse JSON and URL-encoded data in requests
-app.use(express.json());
-app.use(express.urlencoded({ extended: true, limit: '5mb' }));
-
+app.use(express.json({limit: "5mb" }));
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 // Session Configuration
 app.use(
@@ -69,13 +68,15 @@ app.get("/check-session", (req, res) => {
   }
 });
 // Ensure you are passing categories to the view
-app.get('/admin/addproduct', (req, res) => {
+app.get("/admin/addproduct", (req, res) => {
   Category.find({}, (err, categories) => {
     if (err) throw err;
-    res.render('admin/addproduct', { categories });
+    res.render("admin/addproduct", { categories });
   });
 });
-
-
+app.get("/admin/product", async (req, res) => {
+  const products = await this.product.find();
+  res.render("admin/product", { product });
+});
 
 module.exports = app;

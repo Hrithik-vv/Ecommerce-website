@@ -220,20 +220,11 @@
               type="text"
               id="product_name"
               name="productName"
-              value="<%= product.productName  %>"
               class="form-control"
               placeholder="Enter product name"
             />
             <div id="productName-error" class="error-message"></div>
           </div>
-          <!-- <div class="form-group">
-            <label class="form-label">Brand</label>
-            <select name="brand" class="form-control">
-
-              <option value="">Select Brand</option>
-            </select>
-            <div id="brand-error" class="error-message"></div>
-          </div> -->
         </div>
         <div class="form-group">
           <label class="form-label">Description</label>
@@ -243,35 +234,21 @@
             class="form-control"
             rows="4"
             placeholder="Enter product description"
-          >
- <%= product.description  %></textarea
-          >
+          ></textarea>
           <div id="description-error" class="error-message"></div>
         </div>
       </div>
-
+    
       <!-- Pricing and Inventory -->
       <div class="card">
         <h3 class="section-title">Pricing & Inventory</h3>
         <div class="form-row">
-          <!-- <div class="form-group">
-            <label class="form-label">Regular Price</label>
-            <input
-              type="text"
-              name="regularPrice"
-              class="form-control"
-              value=""
-              placeholder="$0.00"
-            />
-            <div id="regularPrice-error" class="error-message"></div>
-          </div> -->
           <div class="form-group">
             <label class="form-label">Sale Price</label>
             <input
               type="text"
               name="salePrice"
               class="form-control"
-              value="<%= product.salePrice  %>"
               placeholder="$0.00"
             />
             <div id="salePrice-error" class="error-message"></div>
@@ -282,14 +259,13 @@
               type="number"
               name="quantity"
               class="form-control"
-              value="<%= product.quantity  %>"
               placeholder="0"
             />
             <div id="quantity-error" class="error-message"></div>
           </div>
         </div>
       </div>
-
+    
       <!-- Categories and Attributes -->
       <div class="card">
         <h3 class="section-title">Categories & Attributes</h3>
@@ -310,21 +286,20 @@
               type="text"
               name="color"
               class="form-control"
-              value="<%= product.color  %>"
               placeholder="Enter color"
             />
             <div id="color-error" class="error-message"></div>
           </div>
         </div>
       </div>
-
+    
       <!-- Image Upload Section -->
       <div class="card">
         <h3 class="section-title">Product Images</h3>
         <p class="mb-3">
           Upload up to 4 images. First image will be the cover (main) image.
         </p>
-
+    
         <div class="image-upload-container">
           <% for(let i = 1; i <= 4; i++) { %>
           <div class="form-group">
@@ -343,7 +318,7 @@
                 onchange="handleImageSelect(`<%= i %>`)"
               />
             </div>
-
+    
             <div class="preview-container" id="previewContainer<%= i %>">
               <% if(product['image' + i]) { %>
               <img
@@ -361,7 +336,7 @@
               </button>
               <% } %>
             </div>
-
+    
             <div class="cropper-container" id="cropperContainer<%= i %>">
               <img id="croppedImg<%= i %>" src="" style="max-width: 100%" />
               <div class="actions-container mt-3">
@@ -381,7 +356,7 @@
                 </button>
               </div>
             </div>
-
+    
             <input
               type="hidden"
               id="photo<%= i %>"
@@ -398,7 +373,7 @@
           <% } %>
         </div>
       </div>
-
+    
       <!-- Submit Button -->
       <div class="card">
         <button type="submit" class="btn btn-primary">
@@ -406,14 +381,21 @@
         </button>
       </div>
     </form>
+    
   </div>
 
   <script>
     let croppers = {};
 
     function handleImageSelect(imageNumber) {
+    
+      
       const file = document.getElementById(`image${imageNumber}`).files[0];
-      if (!file) return;
+      console.log(file);
+      
+      if (!file) {
+        alert('no file')
+      }
 
       const reader = new FileReader();
       reader.onload = function (e) {
@@ -425,10 +407,12 @@
           `cropperContainer${imageNumber}`
         );
         cropperContainer.style.display = "block";
+        cropperContainer.className = "";
 
         const image = document.getElementById(`croppedImg${imageNumber}`);
+        
         image.src = e.target.result;
-
+        image.classList.remove(image.classList[0])
         if (croppers[imageNumber]) {
           croppers[imageNumber].destroy();
         }
@@ -444,13 +428,19 @@
     }
 
     function saveCroppedImage(imageNumber) {
+      
+      
       if (!croppers[imageNumber]) return;
 
       const canvas = croppers[imageNumber].getCroppedCanvas();
       const croppedImageData = canvas.toDataURL("image/jpeg");
+      
+      
 
       // Update hidden input and preview
       document.getElementById(`photo${imageNumber}`).value = croppedImageData;
+      
+      
       const previewImg = document.getElementById(`prev${imageNumber}`);
       if (!previewImg) {
         const previewContainer = document.getElementById(
@@ -549,12 +539,35 @@
         e.preventDefault();
 
         const formData = new FormData(this);
+       
+        const photoInputs = document.querySelectorAll("[id^='photo']"); 
         const productId = new URLSearchParams(window.location.search).get("id");
+        const formDataObject = {};
+formData.forEach((value, key) => {
+    formDataObject[key] = value;
+});
+console.log(formDataObject);
+
+const filteredProduct = Object.keys(formDataObject)
+  .filter(key => 
+    !key.startsWith('deleteImage') &&    // Exclude deleteImage fields
+          // Exclude image fields (image1, image2, etc.)
+    formDataObject[key] !== '' && formDataObject[key] !== '{}' // Exclude empty fields
+  )
+  .reduce((obj, key) => {
+    obj[key] = formDataObject[key];
+    return obj;
+  }, {});
+
+console.log(filteredProduct);
 
         try {
           const response = await fetch(`/admin/editproduct/${productId}`, {
             method: "POST",
-            body: formData,
+            body: JSON.stringify(filteredProduct),
+            headers: {
+        "Content-Type": "application/json"
+    }
           });
 
           const data = await response.json();
@@ -567,7 +580,7 @@
               showConfirmButton: true,
             }).then((result) => {
               if (result.isConfirmed) {
-                window.location.href = "/admin/products";
+                window.location.href = "/admin/product";
               }
             });
           } else {
@@ -611,4 +624,8 @@
   <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 </body>
 
-<%- include("../../views/partials/admin/adminFooter.ejs") %>
+</main>
+
+
+</body>
+</html>

@@ -7,6 +7,8 @@ const {userAuth}=require("../middlewares/auth")
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/",userController.loadHomepage);
+router.get("/shop", userAuth, userController.loadShoppingPage);
+
 
 // User Signup
 router.get("/signup", userController.loadSignup);

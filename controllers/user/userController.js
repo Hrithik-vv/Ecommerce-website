@@ -5,7 +5,9 @@ const env = require("dotenv").config(); //variable configuration
 const nodemailer = require("nodemailer"); // sending email
 const bcrypt = require("bcrypt"); //hashing
 const aswinfn = require("../../utils/nodemailer"); //utilite  function for email sending
-
+const Category = require("../../models/categorySchema");
+const Product = require("../../models/productSchema");
+const Brand = require("../../models/brandSchema");
 // error page
 const pageNotFound = async (req, res) => {
   try {
@@ -20,7 +22,6 @@ const pageNotFound = async (req, res) => {
 //   const products = await product.find({isBlocked:false})
 // console.log(products);
 
-  
 //   try {
 //     const user = req.session.user;
 //     if (user) {
@@ -69,7 +70,6 @@ const loadHomepage = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
 
 // signup page
 const loadSignup = async (req, res) => {
@@ -139,7 +139,6 @@ const signup = async (req, res) => {
     // Save OTP and user data
     req.session.userOtp = otp;
     req.session.userData = { name, email, password };
-    
 
     // res.render("verify-otp",{message:''});
     res.redirect("/verify-otp");
@@ -272,10 +271,10 @@ const login = async (req, res) => {
   }
 };
 
-// logout  
+// logout
 const logout = async (req, res) => {
   try {
-    req.session.destroy((err) => { 
+    req.session.destroy((err) => {
       if (err) {
         console.log("Session destruction error:", err.message);
         return res.redirect("/pageNotFound");
@@ -290,8 +289,55 @@ const logout = async (req, res) => {
   }
 };
 
+const loadShoppingPage = async (req, res) => {
+  try {
+    const user = req.session.user;
+    const userData = await User.findOne({ _id: user });
 
-module.exports = { 
+    const categories = await Category.find({ isListed: true });
+    const categoryIds = categories.map((category) => category._id.toString());
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 9;
+    const skip = (page - 1) * limit;
+
+    const product = await Product.find({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    })
+      .sort({ createdOn: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalProducts = await Product.countDocuments({
+      isBlocked: false,
+      category: { $in: categoryIds },
+      quantity: { $gt: 0 },
+    });
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const brand = await Brand.find({ isBlocked: false });
+
+    const categoriesWithIds = categories.map((category) => ({
+      _id: category._id,
+      name: category.name,
+    }));
+
+    res.render("shop", {
+      user: userData,
+      product: product,
+      category: categoriesWithIds,
+      currentPage: page,
+      totalPages: totalPages,
+    });
+  } catch (error) {
+    console.error("Error loading shopping page:", error.message);
+    res.redirect("/pageNotFound");
+  }
+};
+
+module.exports = {
   loadHomepage,
   pageNotFound,
   loadSignup,
@@ -302,4 +348,5 @@ module.exports = {
   login,
   resendOtp,
   logout,
+  loadShoppingPage,
 };
