@@ -8,7 +8,7 @@ const loadaddproduct = async (req, res) => {
   try {
     const categories = await Category.find({}); 
     const product = await Product.find({}) // Fetch all categories from the database
-    res.render("sample/addproduct", { categoryInfo: categories , product , cat:categories});  // Pass categories to the view
+    res.render("addproduct", { categoryInfo: categories , product , cat:categories});  // Pass categories to the view
   } catch (error) {
     console.error(error);
     res.redirect("/pageerror");  // Redirect to an error page if there's an issue

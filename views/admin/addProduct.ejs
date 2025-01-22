@@ -35,9 +35,11 @@
     }
 
     .container {
+      margin-bottom: 100px;
       max-width: 1200px;
       margin: 2rem auto;
       padding: 0 1rem;
+      margin-left: 310px;
     }
 
     .card {
@@ -48,13 +50,23 @@
       margin-bottom: 1.5rem;
     }
 
-    .section-title {
+    .section-title{
       font-size: 1.25rem;
       font-weight: 600;
       margin-bottom: 1.5rem;
       color: var(--text-color);
       border-bottom: 2px solid var(--border-color);
       padding-bottom: 0.5rem;
+    }
+    .section-title h2{
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 2.5rem;
+      color: var(--text-color);
+      border-bottom: 5px solid var(--border-color);
+      padding-bottom: 1.5rem;
+
+
     }
 
     .form-group {
@@ -194,7 +206,7 @@
     <form id="addform" action="/admin/addproduct" method="post">
       <!-- Basic Information -->
       <div class="card">
-        <h3 class="section-title">Basic Information</h3>
+        <h2 class="section-title">Add Product</h2>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="product_name">Product Name</label>
