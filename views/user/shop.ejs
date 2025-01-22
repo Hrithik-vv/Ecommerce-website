@@ -214,9 +214,12 @@
                 <p>
                   Price: ₹<%= product[i].salePrice.toLocaleString('en-IN') %>
                   <span class="text-muted">
-                    <strike>₹<%= product[i].regularPrice.toLocaleString('en-IN') %></strike>
+                    <% if (product[i].regularPrice) { %>
+                      <strike>₹<%= product[i].regularPrice.toLocaleString('en-IN') %></strike>
+                    <% } %>
                   </span>
                 </p>
+                
               </a>
               <button class="add-to-cart-btn" onclick="">Add to Cart</button>
             </div>
