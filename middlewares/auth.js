@@ -67,7 +67,17 @@ const adminAuth = (req, res, next) => {
     });
 };
 
+
+const already = (req, res,next)=>{
+  if(req.session.userAuthser){
+   return req.redirect("/")
+  }else{
+   next()
+  }
+}
+
 module.exports = {
   userAuth,
   adminAuth,
+  already
 };

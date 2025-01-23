@@ -5,11 +5,11 @@ async function sendotp(otp, email) {
         service: 'gmail',
         auth: {
             user: 'vvhrithik2@gmail.com',
-            pass: 'tftp ykoq zerq tqrf'
+            pass: 'suyw uwtn gmos kduj'
         }
     })
     const mail = {
-        from: 'your-email@gmail.com',
+        from: 'vvhrithik2@gmail.com',
         to: email,
         subject: 'Your OTP Code',
         html: `

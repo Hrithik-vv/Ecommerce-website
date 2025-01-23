@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");  // Add Category model import
 const fs =require('fs')

@@ -18,11 +18,11 @@ const categorySchema = new mongoose.Schema({
     },
      categoryOffer:{
         type : Number,
-        defult:0
+        default:0
      },
      createAt: {
         type: Date,
-        defult : Date.now
+        default : Date.now
      }
 })
 

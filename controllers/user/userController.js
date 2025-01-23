@@ -39,6 +39,7 @@ const loadHomepage = async (req, res) => {
   try {
     const products = await product.find({ isBlocked: false }); // Fetch unblocked products
     const user = req.session.user;
+    console.log(req.session);
 
     if (user) {
       const userData = await User.findOne({ _id: user._id });
@@ -70,7 +71,6 @@ const loadHomepage = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
 // signup page
 const loadSignup = async (req, res) => {
   try {
@@ -231,6 +231,7 @@ const resendOtp = async (req, res) => {
   }
 };
 
+
 // Render login page
 const loadLogin = async (req, res) => {
   try {
@@ -288,20 +289,22 @@ const logout = async (req, res) => {
     res.redirect("/pageNotFound");
   }
 };
-
 const loadShoppingPage = async (req, res) => {
   try {
     const user = req.session.user;
     const userData = await User.findOne({ _id: user });
 
     const categories = await Category.find({ isListed: true });
-    const categoryIds = categories.map((category) => category._id.toString());
+    console.log("Categories found:", categories);
+
+    const categoryIds = categories.map((category) => category._id);
+    console.log("Category IDs:", categoryIds);
 
     const page = parseInt(req.query.page) || 1;
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    const product = await Product.find({
+    const products = await Product.find({
       isBlocked: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
@@ -310,29 +313,87 @@ const loadShoppingPage = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
+    console.log("Fetched products:", products);
+
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
       category: { $in: categoryIds },
       quantity: { $gt: 0 },
     });
+
+    console.log("Total products found:", totalProducts);
+
     const totalPages = Math.ceil(totalProducts / limit);
-
-    const brand = await Brand.find({ isBlocked: false });
-
-    const categoriesWithIds = categories.map((category) => ({
-      _id: category._id,
-      name: category.name,
-    }));
 
     res.render("shop", {
       user: userData,
-      product: product,
-      category: categoriesWithIds,
+      products: products,
+      category: categories.map((category) => ({
+        _id: category._id,
+        name: category.name,
+      })),
       currentPage: page,
       totalPages: totalPages,
     });
   } catch (error) {
     console.error("Error loading shopping page:", error.message);
+    res.redirect("/pageNotFound");
+  }
+};
+
+// fillter
+const filterProduct = async (req, res) => {
+  try {
+    const user = req.session.user;
+    const category = req.query.category;
+    const findCategory = category
+      ? await Category.findOne({ _id: category })
+      : null;
+    const query = {
+      isBlocked: false,
+      quantity: { $gt: 0 },
+    };
+
+    if (findCategory) {
+      query.category = findCategory._id;
+    }
+
+    let findProducts = await Product.find(query).lean();
+    findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+
+    const categories = await Category.find({ isListed: true });
+
+    let itemsPerPage = 6;
+
+    let currentPage = parseInt(req.query.page) || 1;
+    let startIndex = (currentPage - 1) * itemsPerPage;
+    let endIndex = startIndex + itemsPerPage;
+    let totalPages = Math.ceil(findProducts.length / itemsPerPage);
+    const currentProduct = findProducts.slice(startIndex, endIndex);
+    let userData = null;
+    if (user) {
+      userData = await User.findOne({ _id: user });
+      if (userData) {
+        const searchEntry = {
+          category: findCategory ? findCategory._id : null,
+          searchedOn: new Data(),
+        };
+        userData.searchHistory.push(searchEntry);
+        await userData.save();
+      }
+    }
+
+    req.session.filterProduct = currentProduct;
+
+    res.render("shop", {
+      user: userData,
+      products: currentProduct,
+      category: categories,
+      totalPages,
+      currentPage,
+      selectedCategory: category || null,
+    });
+  } catch (error) {
     res.redirect("/pageNotFound");
   }
 };
@@ -349,4 +410,5 @@ module.exports = {
   resendOtp,
   logout,
   loadShoppingPage,
+  filterProduct,
 };

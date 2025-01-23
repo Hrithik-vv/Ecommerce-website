@@ -50,7 +50,7 @@
       margin-bottom: 1.5rem;
     }
 
-    .section-title{
+    .section-title {
       font-size: 1.25rem;
       font-weight: 600;
       margin-bottom: 1.5rem;
@@ -58,15 +58,13 @@
       border-bottom: 2px solid var(--border-color);
       padding-bottom: 0.5rem;
     }
-    .section-title h2{
+    .section-title h2 {
       font-size: 3rem;
       font-weight: 700;
       margin-bottom: 2.5rem;
       color: var(--text-color);
       border-bottom: 5px solid var(--border-color);
       padding-bottom: 1.5rem;
-
-
     }
 
     .form-group {
@@ -219,13 +217,13 @@
             />
             <div id="productName-error" class="error-message"></div>
           </div>
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label class="form-label">Brand</label>
             <select name="brand" class="form-control">
               <option value="">Select Brand</option>
             </select>
             <div id="brand-error" class="error-message"></div>
-          </div>
+          </div> -->
         </div>
         <div class="form-group">
           <label class="form-label">Description</label>
@@ -244,7 +242,7 @@
       <div class="card">
         <h3 class="section-title">Pricing & Inventory</h3>
         <div class="form-row">
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label class="form-label">Regular Price</label>
             <input
               type="text"
@@ -253,7 +251,7 @@
               placeholder="$0.00"
             />
             <div id="regularPrice-error" class="error-message"></div>
-          </div>
+          </div> -->
           <div class="form-group">
             <label class="form-label">Sale Price</label>
             <input
@@ -498,6 +496,143 @@
         croppers[imageNumber] = null;
       }
     }
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("addform");
+      const fields = [
+        {
+          input: document.querySelector('input[name="productName"]'),
+          errorElement: document.getElementById("productName-error"),
+          validations: [
+            {
+              validate: (value) => value.trim() !== "",
+              message: "Product name is required",
+            },
+            {
+              validate: (value) => !/\d/.test(value),
+              message: "Product name cannot contain numbers",
+            },
+            {
+              validate: (value) => /^[a-zA-Z\s]+$/.test(value),
+              message: "Product name can only contain letters and spaces",
+            },
+          ],
+        },
+        {
+          input: document.querySelector('textarea[name="description"]'),
+          errorElement: document.getElementById("description-error"),
+          validations: [
+            {
+              validate: (value) => value.trim() !== "",
+              message: "Description is required",
+            },
+          ],
+        },
+        {
+          input: document.querySelector('input[name="salePrice"]'),
+          errorElement: document.getElementById("salePrice-error"),
+          validations: [
+            {
+              validate: (value) => value.trim() !== "",
+              message: "Sale price is required",
+            },
+            {
+              validate: (value) => /^\$?(\d+(\.\d{1,2})?)$/.test(value),
+              message: "Invalid price format",
+            },
+          ],
+        },
+        {
+          input: document.querySelector('input[name="quantity"]'),
+          errorElement: document.getElementById("quantity-error"),
+          validations: [
+            {
+              validate: (value) => value.trim() !== "",
+              message: "Quantity is required",
+            },
+            {
+              validate: (value) => /^\d+$/.test(value),
+              message: "Quantity must be a positive number",
+            },
+          ],
+        },
+        {
+          input: document.querySelector('select[name="category"]'),
+          errorElement: document.getElementById("category-error"),
+          validations: [
+            {
+              validate: (value) => value.trim() !== "",
+              message: "Category is required",
+            },
+          ],
+        },
+        {
+          input: document.querySelector('input[name="color"]'),
+          errorElement: document.getElementById("color-error"),
+          validations: [
+            {
+              validate: (value) => value.trim() !== "",
+              message: "Color is required",
+            },
+            {
+              validate: (value) => /^[a-zA-Z\s]+$/.test(value),
+              message: "Color can only contain letters and spaces",
+            },
+          ],
+        },
+      ];
+
+      // Image validation
+      const imageInputs = document.querySelectorAll('input[name="images"]');
+      const imagesErrorElement = document.getElementById("images-error");
+      let hasValidImage = false;
+
+      imageInputs.forEach((input) => {
+        input.addEventListener("change", function () {
+          if (this.files.length > 0) {
+            hasValidImage = true;
+            imagesErrorElement.textContent = "";
+          }
+        });
+      });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        let isValid = true;
+
+        // Reset previous error messages
+        fields.forEach((field) => {
+          field.errorElement.textContent = "";
+        });
+        imagesErrorElement.textContent = "";
+
+        // Validate each field
+        fields.forEach((field) => {
+          const value = field.input.value;
+
+          for (let validation of field.validations) {
+            if (!validation.validate(value)) {
+              field.errorElement.textContent = validation.message;
+              isValid = false;
+              break;
+            }
+          }
+        });
+
+        // Validate images
+        if (!hasValidImage) {
+          imagesErrorElement.textContent = "At least one image is required";
+          isValid = false;
+        }
+
+        // If all validations pass, submit the form
+        if (isValid) {
+          form.submit();
+        }
+      });
+    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
