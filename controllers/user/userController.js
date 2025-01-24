@@ -231,6 +231,49 @@ const resendOtp = async (req, res) => {
   }
 };
 
+function resendOTP() {
+  // Clear existing timer and reset values
+  clearInterval(timerInterval);
+  timer = 60; // Reset timer to 60 seconds
+  document.getElementById("otp").disabled = false;
+  document.getElementById("timerValue").classList.remove("expired");
+  document.getElementById("timerValue").textContent = timer; // Reset displayed timer
+
+  startTimer(); // Restart the timer
+
+  // Send AJAX request to resend OTP
+  $.ajax({
+      type: "POST",
+      url: "resend-otp",
+      success: function (response) {
+          if (response.success) {
+              Swal.fire({
+                  icon: "success",
+                  title: "OTP Resent Successfully",
+                  showConfirmButton: false,
+                  timer: 1500, // Optional: Auto-close alert after 1.5 seconds
+              });
+          } else {
+              Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: "An error occurred while resending OTP. Please try again.",
+              });
+          }
+      },
+      error: function () {
+          Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Unable to resend OTP. Please check your connection and try again.",
+          });
+      },
+  });
+
+  return false;
+}
+
+
 
 // Render login page
 const loadLogin = async (req, res) => {
@@ -295,45 +338,25 @@ const loadShoppingPage = async (req, res) => {
     const userData = await User.findOne({ _id: user });
 
     const categories = await Category.find({ isListed: true });
-    console.log("Categories found:", categories);
 
-    const categoryIds = categories.map((category) => category._id);
-    console.log("Category IDs:", categoryIds);
-
-    const page = parseInt(req.query.page) || 1;
-    const limit = 9;
-    const skip = (page - 1) * limit;
+    
 
     const products = await Product.find({
-      isBlocked: false,
-      category: { $in: categoryIds },
-      quantity: { $gt: 0 },
+      isBlocked: false
     })
-      .sort({ createdOn: -1 })
-      .skip(skip)
-      .limit(limit);
+      
 
     console.log("Fetched products:", products);
 
-    const totalProducts = await Product.countDocuments({
-      isBlocked: false,
-      category: { $in: categoryIds },
-      quantity: { $gt: 0 },
-    });
+   
 
-    console.log("Total products found:", totalProducts);
-
-    const totalPages = Math.ceil(totalProducts / limit);
+   
 
     res.render("shop", {
       user: userData,
       products: products,
-      category: categories.map((category) => ({
-        _id: category._id,
-        name: category.name,
-      })),
-      currentPage: page,
-      totalPages: totalPages,
+      category:categories
+      
     });
   } catch (error) {
     console.error("Error loading shopping page:", error.message);

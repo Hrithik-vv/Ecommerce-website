@@ -121,6 +121,10 @@ const getListCategory = async (req, res) => { // Update category status to not l
   try {
     let id = req.query.id;
     await Category.updateOne({ _id: id }, { $set: { isListed: false } });
+    await product.updateMany(
+      { category: id },
+      { $set: { isBlocked: true } }
+  );
     res.redirect("/admin/category");
   } catch (error) {
     res.redirect("/pageerror");
@@ -132,6 +136,7 @@ const getUnlistCategory = async (req, res) => {
   try {
     let id = req.query.id;
     await Category.updateOne({ _id: id }, { $set: { isListed: true } });
+    
     res.redirect("/admin/category");
   } catch (error) {
     res.redirect("/pageerror");

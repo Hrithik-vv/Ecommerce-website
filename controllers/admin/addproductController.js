@@ -7,7 +7,7 @@ const { buffer } = require("stream/consumers");
 // Controller function to load the add product page with category data
 const loadaddproduct = async (req, res) => {
   try {
-    const categories = await Category.find({}); 
+    const categories = await Category.find({isListed:tru}); 
     const product = await Product.find({}) // Fetch all categories from the database
     res.render("addproduct", { categoryInfo: categories , product , cat:categories});  // Pass categories to the view
   } catch (error) {
