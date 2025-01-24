@@ -243,37 +243,35 @@ function resendOTP() {
 
   // Send AJAX request to resend OTP
   $.ajax({
-      type: "POST",
-      url: "resend-otp",
-      success: function (response) {
-          if (response.success) {
-              Swal.fire({
-                  icon: "success",
-                  title: "OTP Resent Successfully",
-                  showConfirmButton: false,
-                  timer: 1500, // Optional: Auto-close alert after 1.5 seconds
-              });
-          } else {
-              Swal.fire({
-                  icon: "error",
-                  title: "Error",
-                  text: "An error occurred while resending OTP. Please try again.",
-              });
-          }
-      },
-      error: function () {
-          Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Unable to resend OTP. Please check your connection and try again.",
-          });
-      },
+    type: "POST",
+    url: "resend-otp",
+    success: function (response) {
+      if (response.success) {
+        Swal.fire({
+          icon: "success",
+          title: "OTP Resent Successfully",
+          showConfirmButton: false,
+          timer: 1500, // Optional: Auto-close alert after 1.5 seconds
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "An error occurred while resending OTP. Please try again.",
+        });
+      }
+    },
+    error: function () {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Unable to resend OTP. Please check your connection and try again.",
+      });
+    },
   });
 
   return false;
 }
-
-
 
 // Render login page
 const loadLogin = async (req, res) => {
@@ -308,7 +306,7 @@ const login = async (req, res) => {
     req.session.user = findUser;
 
     req.session.userId = findUser._id;
-    
+
     res.redirect("/");
   } catch (error) {
     console.error("login error", error);
@@ -340,24 +338,16 @@ const loadShoppingPage = async (req, res) => {
 
     const categories = await Category.find({ isListed: true });
 
-    
-
     const products = await Product.find({
-      isBlocked: false
-    })
-      
+      isBlocked: false,
+    });
 
     console.log("Fetched products:", products);
-
-   
-
-   
 
     res.render("shop", {
       user: userData,
       products: products,
-      category:categories
-      
+      category: categories,
     });
   } catch (error) {
     console.error("Error loading shopping page:", error.message);
@@ -367,7 +357,6 @@ const loadShoppingPage = async (req, res) => {
 
 // fillter
 const filterProduct = async (req, res) => {
-  
   try {
     const user = req.session.user;
     const category = req.query.category;
