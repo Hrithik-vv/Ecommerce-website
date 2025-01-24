@@ -69,12 +69,15 @@ const adminAuth = (req, res, next) => {
 
 
 const already = (req, res,next)=>{
-  if(req.session.userAuthser){
-   return req.redirect("/")
+  console.log("buhnkj"+req.session.userAuthser);
+  
+  if(req.session.user){
+   return res.redirect("/")
   }else{
    next()
   }
 }
+
 
 module.exports = {
   userAuth,

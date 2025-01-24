@@ -502,205 +502,207 @@
     </script>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('addform');
-    const fields = [
-        { 
-            input: document.querySelector('input[name="productName"]'), 
+      document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('addform');
+        const fields = [
+          {
+            input: document.querySelector('input[name="productName"]'),
             errorElement: document.getElementById('productName-error'),
             validations: [
-                { 
-                    validate: (value) => value.trim() !== '',
-                    message: 'Product name is required'
-                },
-                {
-                    validate: (value) => !/\d/.test(value),
-                    message: 'Product name cannot contain numbers'
-                },
-                {
-                    validate: (value) => /^[a-zA-Z\s]+$/.test(value),
-                    message: 'Product name can only contain letters and spaces'
-                }
+              {
+                validate: (value) => value.trim() !== '',
+                message: 'Product name is required'
+              },
+              {
+                validate: (value) => !/\d/.test(value),
+                message: 'Product name cannot contain numbers'
+              },
+              {
+                validate: (value) => /^[a-zA-Z\s]+$/.test(value),
+                message: 'Product name can only contain letters and spaces'
+              }
             ]
-        },
-        { 
-            input: document.querySelector('textarea[name="description"]'), 
+          },
+          {
+            input: document.querySelector('textarea[name="description"]'),
             errorElement: document.getElementById('description-error'),
             validations: [
-                { 
-                    validate: (value) => value.trim() !== '',
-                    message: 'Description is required'
-                }
+              {
+                validate: (value) => value.trim() !== '',
+                message: 'Description is required'
+              }
             ]
-        },
-        { 
-            input: document.querySelector('input[name="salePrice"]'), 
+          },
+          {
+            input: document.querySelector('input[name="salePrice"]'),
             errorElement: document.getElementById('salePrice-error'),
             validations: [
-                { 
-                    validate: (value) => value.trim() !== '',
-                    message: 'Sale price is required'
-                },
-                {
-                    validate: (value) => /^\$?(\d+(\.\d{1,2})?)$/.test(value),
-                    message: 'Invalid price format'
-                }
+              {
+                validate: (value) => value.trim() !== '',
+                message: 'Sale price is required'
+              },
+              {
+                validate: (value) => /^\$?(\d+(\.\d{1,2})?)$/.test(value),
+                message: 'Invalid price format'
+              }
             ]
-        },
-        { 
-            input: document.querySelector('input[name="quantity"]'), 
+          },
+          {
+            input: document.querySelector('input[name="quantity"]'),
             errorElement: document.getElementById('quantity-error'),
             validations: [
-                { 
-                    validate: (value) => value.trim() !== '',
-                    message: 'Quantity is required'
-                },
-                {
-                    validate: (value) => /^\d+$/.test(value),
-                    message: 'Quantity must be a positive number'
-                }
+              {
+                validate: (value) => value.trim() !== '',
+                message: 'Quantity is required'
+              },
+              {
+                validate: (value) => /^\d+$/.test(value),
+                message: 'Quantity must be a positive number'
+              }
             ]
-        },
-        { 
-            input: document.querySelector('select[name="category"]'), 
+          },
+          {
+            input: document.querySelector('select[name="category"]'),
             errorElement: document.getElementById('category-error'),
             validations: [
-                { 
-                    validate: (value) => value.trim() !== '',
-                    message: 'Category is required'
-                }
+              {
+                validate: (value) => value.trim() !== '',
+                message: 'Category is required'
+              }
             ]
-        },
-        { 
-            input: document.querySelector('input[name="color"]'), 
+          },
+          {
+            input: document.querySelector('input[name="color"]'),
             errorElement: document.getElementById('color-error'),
             validations: [
-                { 
-                    validate: (value) => value.trim() !== '',
-                    message: 'Color is required'
-                },
-                {
-                    validate: (value) => /^[a-zA-Z\s]+$/.test(value),
-                    message: 'Color can only contain letters and spaces'
-                }
+              {
+                validate: (value) => value.trim() !== '',
+                message: 'Color is required'
+              },
+              {
+                validate: (value) => /^[a-zA-Z\s]+$/.test(value),
+                message: 'Color can only contain letters and spaces'
+              }
             ]
-        }
-    ];
+          }
+        ];
 
-    // Image validation function
-    function validateImages() {
-        const imageInputs = document.querySelectorAll('input[name="images"]');
-        const imagesErrorElement = document.getElementById('images-error');
-        let imageValidationPassed = true;
+        // Image validation function
+        function validateImages() {
+          const imageInputs = document.querySelectorAll('input[name="images"]');
+          const imagesErrorElement = document.getElementById('images-error');
+          let imageValidationPassed = true;
 
-        imageInputs.forEach(input => {
+          imageInputs.forEach(input => {
             if (input.files.length > 0) {
-                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-                if (!allowedTypes.includes(input.files[0].type)) {
-                    if (imagesErrorElement) {
-                        imagesErrorElement.textContent = 'Only JPEG, PNG, and JPG images are allowed';
-                    }
-                    imageValidationPassed = false;
+              const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+              if (!allowedTypes.includes(input.files[0].type)) {
+                if (imagesErrorElement) {
+                  imagesErrorElement.textContent = 'Only JPEG, PNG, and JPG images are allowed';
                 }
+                imageValidationPassed = false;
+              }
             }
-        });
+          });
 
-        return imageValidationPassed;
-    }
+          return imageValidationPassed;
+        }
 
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        let isValid = true;
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
 
-        // Reset previous error messages
-        fields.forEach(field => {
+
+          let isValid = true;
+
+          // Reset previous error messages
+          fields.forEach(field => {
             if (field.errorElement) {
-                field.errorElement.textContent = '';
+              field.errorElement.textContent = '';
             }
-        });
+          });
 
-        const imagesErrorElement = document.getElementById('images-error');
-        if (imagesErrorElement) {
+          const imagesErrorElement = document.getElementById('images-error');
+          if (imagesErrorElement) {
             imagesErrorElement.textContent = '';
-        }
+          }
 
-        // Validate each field
-        fields.forEach(field => {
+          // Validate each field
+          fields.forEach(field => {
             const value = field.input.value;
-            
+
             for (let validation of field.validations) {
-                if (!validation.validate(value)) {
-                    if (field.errorElement) {
-                        field.errorElement.textContent = validation.message;
-                    }
-                    isValid = false;
-                    break;
+              if (!validation.validate(value)) {
+                if (field.errorElement) {
+                  field.errorElement.textContent = validation.message;
                 }
+                isValid = false;
+                break;
+              }
             }
-        });
+          });
 
-        // Validate images
-        if (!validateImages()) {
+          // Validate images
+          if (!validateImages()) {
             isValid = false;
-        }
+          }
 
-        // If all validations pass, proceed with form submission
-        if (isValid) {
+          // If all validations pass, proceed with form submission
+          if (isValid) {
             const formData = new FormData(this);
             const productId = new URLSearchParams(window.location.search).get("id");
             const formDataObject = {};
-            
+
             formData.forEach((value, key) => {
-                formDataObject[key] = value;
+              formDataObject[key] = value;
             });
 
             const filteredProduct = Object.keys(formDataObject)
-                .filter(key =>
-                    !key.startsWith('deleteImage') &&
-                    formDataObject[key] !== '' && 
-                    formDataObject[key] !== '{}'
-                )
-                .reduce((obj, key) => {
-                    obj[key] = formDataObject[key];
-                    return obj;
-                }, {});
+              .filter(key =>
+                !key.startsWith('deleteImage') &&
+                formDataObject[key] !== '' &&
+                formDataObject[key] !== '{}'
+              )
+              .reduce((obj, key) => {
+                obj[key] = formDataObject[key];
+                return obj;
+              }, {});
 
             try {
-                const response = await fetch(`/admin/editproduct/${productId}`, {
-                    method: "POST",
-                    body: JSON.stringify(filteredProduct),
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Success!",
-                        text: "Product updated successfully",
-                        showConfirmButton: true,
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "/admin/product";
-                        }
-                    });
-                } else {
-                    throw new Error(data.message);
+              const response = await fetch(`/admin/editproduct/${productId}`, {
+                method: "POST",
+                body: JSON.stringify(filteredProduct),
+                headers: {
+                  "Content-Type": "application/json"
                 }
-            } catch (error) {
-                console.error("Error updating product:", error);
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
                 Swal.fire({
-                    icon: "error",
-                    title: "Error!",
-                    text: "Failed to update product: " + error.message,
+                  icon: "success",
+                  title: "Success!",
+                  text: "Product updated successfully",
+                  showConfirmButton: true,
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "/admin/product";
+                  }
                 });
+              } else {
+                throw new Error(data.message);
+              }
+            } catch (error) {
+              console.error("Error updating product:", error);
+              Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: "Failed to update product: " + error.message,
+              });
             }
-        }
-    });
-});
+          }
+        });
+      });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

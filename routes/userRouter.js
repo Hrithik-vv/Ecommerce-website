@@ -7,7 +7,7 @@ const {userAuth, already}=require("../middlewares/auth")
 const productController = require("../controllers/user/productController")
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
-router.get("/",already,userController.loadHomepage);
+router.get("/",userController.loadHomepage);
 router.get("/shop", userController.loadShoppingPage);
 router.get("/filter",userController.filterProduct);
 

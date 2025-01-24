@@ -308,6 +308,7 @@ const login = async (req, res) => {
     req.session.user = findUser;
 
     req.session.userId = findUser._id;
+    
     res.redirect("/");
   } catch (error) {
     console.error("login error", error);
@@ -366,6 +367,7 @@ const loadShoppingPage = async (req, res) => {
 
 // fillter
 const filterProduct = async (req, res) => {
+  
   try {
     const user = req.session.user;
     const category = req.query.category;
