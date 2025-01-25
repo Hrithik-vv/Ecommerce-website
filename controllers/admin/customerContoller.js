@@ -1,6 +1,6 @@
 const User = require("../../models/userSchema");
 
-// Fetch  paginated 
+// Fetch  paginated
 const customerInfo = async (req, res) => {
   try {
     let search = "";
@@ -34,7 +34,6 @@ const customerInfo = async (req, res) => {
     }).countDocuments();
 
     console.log(count);
-    
 
     res.render("customers", {
       data: userData,

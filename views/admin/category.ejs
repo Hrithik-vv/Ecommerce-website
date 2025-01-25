@@ -1,570 +1,532 @@
 <%- include("../../views/partials/admin/adminHeader.ejs") %>
-<head>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"
-  />
-  <style>
-   /* Main Layout */
-.content-main {
-  padding: 2rem;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-}
 
-/* Centered Header */
-   /* Main Layout */
-   .content-main {
-      padding: 2rem;
-      background-color: #f8f9fa;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-    }
+  <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
+    <style>
+      /* Main Layout */
+      .content-main {
+        padding: 2rem;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+      }
 
-    /* Centered Header */
-    .content-header {
-      margin: 20px auto;
-    }
+      /* Centered Header */
+      /* Main Layout */
+      .content-main {
+        padding: 2rem;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+      }
 
-    .content-header .content-title {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #343a40;
-      margin-right: 700px;
-    }
+      /* Centered Header */
+      .content-header {
+        margin: 20px auto;
+      }
 
-    /* Rest of your existing styles... */
-    /* Search Form Styling */
-    header.card-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+      .content-header .content-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #343a40;
+        margin-right: 700px;
+      }
 
-    .input-group {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      display: flex;
-    }
+      /* Rest of your existing styles... */
+      /* Search Form Styling */
+      header.card-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
 
-    .input-group .form-control {
-      border-radius: 25px 0 0 25px;
-      padding: 12px 15px;
-      border: 1px solid #ced4da;
-    }
+      .input-group {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+      }
 
-    .input-group .btn {
-      background-color: #007bff;
-      color: white;
-      border-radius: 0 25px 25px 0;
-      font-size: 14px;
-      padding: 10px 15px;
-      border: 1px solid #007bff;
-    }
+      .input-group .form-control {
+        border-radius: 25px 0 0 25px;
+        padding: 12px 15px;
+        border: 1px solid #ced4da;
+      }
 
-    .input-group .btn:hover {
-      background-color: #0056b3;
-    }
+      .input-group .btn {
+        background-color: #007bff;
+        color: white;
+        border-radius: 0 25px 25px 0;
+        font-size: 14px;
+        padding: 10px 15px;
+        border: 1px solid #007bff;
+      }
 
-/* Search Bar */
-.search-container {
-  max-width: 500px;
-  margin: 0 auto 2rem;
-  display: flex;
-  justify-content: center;
-}
+      .input-group .btn:hover {
+        background-color: #0056b3;
+      }
 
-.input-group {
-  /* background: white; */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
-}
+      /* Search Bar */
+      .search-container {
+        max-width: 500px;
+        margin: 0 auto 2rem;
+        display: flex;
+        justify-content: center;
+      }
 
-.input-group:focus-within {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+      .input-group {
+        /* background: white; */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+      }
 
-.input-group input {
-  border: none;
-  padding: 0.75rem 1rem;
-}
+      .input-group:focus-within {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
 
-.input-group .btn {
-  color: #6c757d;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  background: transparent;
-  transition: color 0.3s ease;
-}
+      .input-group input {
+        border: none;
+        padding: 0.75rem 1rem;
+      }
 
-.input-group .btn:hover {
-  color: #2c3e50;
-}
+      .input-group .btn {
+        color: #6c757d;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        background: transparent;
+        transition: color 0.3s ease;
+      }
 
-/* Card Styles */
-.card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  background: white;
-  width: 100%;
-  max-width: 1100px; /* Center the card */
-}
+      .input-group .btn:hover {
+        color: #2c3e50;
+      }
 
-.card-body {
-  padding: 2rem;
-  margin-left: 10%;
-}
+      /* Card Styles */
+      .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        background: white;
+        width: 100%;
+        max-width: 1100px;
+        /* Center the card */
+      }
 
-/* Form Styles */
-.col-md-3 {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin: 0 auto; /* Center the form */
-}
+      .card-body {
+        padding: 2rem;
+        margin-left: 10%;
+      }
 
-.form-label {
-  color: #2c3e50;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-.input-group {
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-  display: flex;
-}
+      /* Form Styles */
+      .col-md-3 {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin: 0 auto;
+        /* Center the form */
+      }
 
-.input-group .form-control {
-  border-radius: 25px 0 0 25px;
-  padding: 12px 15px;
-  border: 1px solid #ced4da;
-}
+      .form-label {
+        color: #2c3e50;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
 
-.input-group .btn {
-  background-color: #007bff;
-  color: white;
-  border-radius: 0 25px 25px 0;
-  font-size: 14px;
-  padding: 10px 15px;
-  border: 1px solid #007bff;
-}
+      .input-group {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+      }
 
-.input-group .btn:hover {
-  background-color: #0056b3;
-}
+      .input-group .form-control {
+        border-radius: 25px 0 0 25px;
+        padding: 12px 15px;
+        border: 1px solid #ced4da;
+      }
+
+      .input-group .btn {
+        background-color: #007bff;
+        color: white;
+        border-radius: 0 25px 25px 0;
+        font-size: 14px;
+        padding: 10px 15px;
+        border: 1px solid #007bff;
+      }
+
+      .input-group .btn:hover {
+        background-color: #0056b3;
+      }
 
 
-.form-control {
-  border: 1px solid #e2e8f0;
-  padding: 0.75rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
+      .form-control {
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
 
-.form-control:focus {
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
-}
+      .form-control:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+      }
 
-.error-message {
-  color: #e53e3e;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
+      .error-message {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
 
-/* Table Styles */
-.table {
-  margin-top: 1rem;
-  width: 100%;
-  max-width: 1100px; /* Center the table */
-}
+      /* Table Styles */
+      .table {
+        margin-top: 1rem;
+        width: 100%;
+        max-width: 1100px;
+        /* Center the table */
+      }
 
-.table thead th {
-  background-color: #f8fafc;
-  color: #4a5568;
-  font-weight: 600;
-  border-bottom: 2px solid #e2e8f0;
-  padding: 1rem;
-}
+      .table thead th {
+        background-color: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 1rem;
+      }
 
-.table tbody td {
-  padding: 1rem;
-  vertical-align: middle;
-  border-bottom: 1px solid #e2e8f0;
-}
+      .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e2e8f0;
+      }
 
-/* Button Styles */
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
+      /* Button Styles */
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
 
-.btn-primary {
-  background-color: #4299e1;
-  border-color: #4299e1;
-}
+      .btn-primary {
+        background-color: #4299e1;
+        border-color: #4299e1;
+      }
 
-.btn-primary:hover {
-  background-color: #3182ce;
-  border-color: #3182ce;
-}
+      .btn-primary:hover {
+        background-color: #3182ce;
+        border-color: #3182ce;
+      }
 
-.btn-info {
-  background-color: #4fd1c5;
-  border-color: #4fd1c5;
-}
+      .btn-info {
+        background-color: #4fd1c5;
+        border-color: #4fd1c5;
+      }
 
-.btn-info:hover {
-  background-color: #38b2ac;
-  border-color: #38b2ac;
-}
+      .btn-info:hover {
+        background-color: #38b2ac;
+        border-color: #38b2ac;
+      }
 
-.btn-danger {
-  background-color: #f56565;
-  border-color: #f56565;
-}
+      .btn-danger {
+        background-color: #f56565;
+        border-color: #f56565;
+      }
 
-.btn-success {
-  background-color: #48bb78;
-  border-color: #48bb78;
-}
+      .btn-success {
+        background-color: #48bb78;
+        border-color: #48bb78;
+      }
 
-/* Status Badges */
-.badge {
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-}
+      /* Status Badges */
+      .badge {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+      }
 
-.alert-success {
-  background-color: #c6f6d5;
-  color: #2f855a;
-}
+      .alert-success {
+        background-color: #c6f6d5;
+        color: #2f855a;
+      }
 
-.alert-danger {
-  background-color: #fed7d7;
-  color: #c53030;
-}
+      .alert-danger {
+        background-color: #fed7d7;
+        color: #c53030;
+      }
 
- /* Pagination Styles */
- .pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-  }
+      /* Pagination Styles */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+      }
 
-  .pagination .page-item {
-    margin: 0 5px;
-  }
+      .pagination .page-item {
+        margin: 0 5px;
+      }
 
-  .pagination .page-link {
-    padding: 8px 16px;
-    font-size: 14px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    color: #007bff;
-    text-decoration: none;
-  }
+      .pagination .page-link {
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        color: #007bff;
+        text-decoration: none;
+      }
 
-  .pagination .active .page-link {
-    background-color: #ffffff;
-    color: #567cee;
-  }
+      .pagination .active .page-link {
+        background-color: #ffffff;
+        color: #567cee;
+      }
 
-  .pagination .page-link:hover {
-    background-color: #0056b3;
-    color: #fff;
-  }
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .content-main {
-    padding: 1rem;
-  }
+      .pagination .page-link:hover {
+        background-color: #0056b3;
+        color: #fff;
+      }
 
-  .col-md-3,
-  .col-md-8 {
-    margin-bottom: 1.5rem;
-  }
+      /* Responsive Adjustments */
+      @media (max-width: 768px) {
+        .content-main {
+          padding: 1rem;
+        }
 
-  .table-responsive {
-    margin-top: 1rem;
-  }
-}
+        .col-md-3,
+        .col-md-8 {
+          margin-bottom: 1.5rem;
+        }
 
-  </style>
-</head>
-<body>
-  <section class="content-main">
-    <div class="content-header">
-      <div>
-        <h2 class="content-title card-title">Customers</h2>
-      </div>
-      </div>
-    <header class="card-header text-center mb-20">
-      <form action="/admin/category/" method="get" class="d-inline">
-        <div class="input-group">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Search products or brands"
-            name="search"
-          />
-          <button class="btn" type="submit">Search</button>
+        .table-responsive {
+          margin-top: 1rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <section class="content-main">
+      <div class="content-header">
+        <div>
+          <h2 class="content-title card-title">Customers</h2>
         </div>
-      </form>
-    </header>
-    
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-3">
-            <form
-              method="post"
-              action="/admin/addCategory"
-              onsubmit="return handleFormSubmit(event)"
-            >
-              <div class="mb-4">
-                <label for="product_name" class="form-label">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Type here"
-                  class="form-control"
-                  id="product_name"
-                />
-                <div id="name-error" class="error-message"></div>
-              </div>
-              <div class="mb-4">
-                <label class="form-label">Description</label>
-                <textarea
-                  placeholder="Type here"
-                  name="description"
-                  class="form-control"
-                  id="descriptionId"
-                ></textarea>
-                <div id="description-error" class="error-message"></div>
-              </div>
-              <div class="d-grid">
-                <button class="btn btn-primary" type="submit">
-                  Create category
-                </button>
-              </div>
-            </form>
+      </div>
+      <header class="card-header text-center mb-20">
+        <form action="/admin/category/" method="get" class="d-inline">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search products or brands" name="search" />
+            <button class="btn" type="submit">Search</button>
           </div>
-          <div class="col-md-8 ml-10">
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th class="text-center"></th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <!-- <th>Offer Price</th>
-                    <th>Offer</th> -->
-                    <th>Status</th>
-                    <th>List/Unlist</th>
-                    <th class="text-start">Edit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <%cat.reverse().forEach((category,index)=>{%>
-                  <tr>
-                    <td></td>
-                    <td class="text-start"><%=category.name%></td>
-                    <td class="text-start"><%=category.description%></td>
+        </form>
+      </header>
 
-                    <!-- <td class="text-start"> -->
-                    <!-- <button class="btn btn-info" style="width: 100px">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <form method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)">
+                <div class="mb-4">
+                  <label for="product_name" class="form-label">Name</label>
+                  <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name" />
+                  <div id="name-error" class="error-message"></div>
+                </div>
+                <div class="mb-4">
+                  <label class="form-label">Description</label>
+                  <textarea placeholder="Type here" name="description" class="form-control"
+                    id="descriptionId"></textarea>
+                  <div id="description-error" class="error-message"></div>
+                </div>
+                <div class="d-grid">
+                  <button class="btn btn-primary" type="submit">
+                    Create category
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div class="col-md-8 ml-10">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th class="text-center"></th>
+                      <th>Name</th>
+                      <th>Description</th>
+                      <!-- <th>Offer Price</th>
+                    <th>Offer</th> -->
+                      <th>Status</th>
+                      <th>List/Unlist</th>
+                      <th class="text-start">Edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <%cat.reverse().forEach((category,index)=>{%>
+                      <tr>
+                        <td></td>
+                        <td class="text-start">
+                          <%=category.name%>
+                        </td>
+                        <td class="text-start">
+                          <%=category.description%>
+                        </td>
+
+                        <!-- <td class="text-start"> -->
+                        <!-- <button class="btn btn-info" style="width: 100px">
                         <a href="#" class="text-white">Add Offer</a>
                       </button> -->
-                    <!-- <button class="btn btn-info" style="width: 100px">
+                        <!-- <button class="btn btn-info" style="width: 100px">
                         <a href="#" class="text-white">Remove</a>
                       </button> -->
-                    <!-- </td> -->
-                    <td class="text-start">
-                      <%if(category.isListed){%>
-                      <span
-                        class="badge rounded-pill alert-success"
-                        style="width: 60px"
-                        >Listed</span
-                      >
-                      <%}else{%>
-                      <span
-                        class="badge rounded-pill alert-danger"
-                        style="width: 60px"
-                        >Unlisted</span
-                      >
-                      <%}%>
-                    </td>
-                    <td class="text-start">
-                      <%if(category.isListed){%>
-                      <button class="btn btn-danger" style="width: 70px">
-                        <a
-                          href="/admin/listCategory?id=<%=category._id%>"
-                          class="text-white"
-                          >Unlist</a
-                        >
-                      </button>
-                      <%}else{%>
-                      <button class="btn btn-success" style="width: 70px">
-                        <a
-                          href="/admin/unlistCategory?id=<%=category._id%>"
-                          class="text-white"
-                          >List</a
-                        >
-                      </button>
-                      <%}%>
-                    </td>
-                    <td class="text-start">
-                      <a
-                        href="/admin/editCategory?id=<%=category._id%>"
-                        class="btn btn-info text-white"
-                        >Edit</a
-                      >
-                    </td>
-                  </tr>
-                  <%})%>
-                </tbody>
-              </table>
+                        <!-- </td> -->
+                        <td class="text-start">
+                          <%if(category.isListed){%>
+                            <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
+                            <%}else{%>
+                              <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
+                              <%}%>
+                        </td>
+                        <td class="text-start">
+                          <% if (category.isListed) { %>
+                            <button class="btn btn-danger" style="width: 70px">
+                              <a href="/admin/UnlistCategory?id=<%= category._id %>&action=unlist" class="text-white">Unlist</a>
+                            </button>
+                          <% } else { %>
+                            <button class="btn btn-success" style="width: 70px">
+                              <a href="/admin/UnlistCategory?id=<%= category._id %>&action=list" class="text-white">List</a>
+                            </button>
+                          <% } %>
+                          
+                        </td>
+                        <td class="text-start">
+                          <a href="/admin/editCategory?id=<%=category._id%>" class="btn btn-info text-white">Edit</a>
+                        </td>
+                      </tr>
+                      <%})%>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-  <!-- Pagination Section -->
-<div class="container mt-4">
-  <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mb-4">
-      <!-- Previous Button -->
-      <li class="page-item <%= (currentPage === 1) ? 'disabled' : '' %>">
-        <a
-          class="page-link"
-          href="?page=<%= currentPage - 1 %>"
-          tabindex="-1"
-          aria-disabled="true"
-          >&laquo; Previous</a
-        >
-      </li>
+      <!-- Pagination Section -->
+      <div class="container mt-4">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center mb-4">
+            <!-- Previous Button -->
+            <li class="page-item <%= (currentPage === 1) ? 'disabled' : '' %>">
+              <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1" aria-disabled="true">&laquo;
+                Previous</a>
+            </li>
 
-      <!-- Page Numbers -->
-      <% for (let i = 1; i <= totalPages; i++) { %>
-      <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-      </li>
-      <% } %>
+            <!-- Page Numbers -->
+            <% for (let i=1; i <=totalPages; i++) { %>
+              <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>">
+                  <%= i %>
+                </a>
+              </li>
+              <% } %>
 
-      <!-- Next Button -->
-      <li
-        class="page-item <%= (currentPage === totalPages) ? 'disabled' : '' %>"
-      >
-        <a class="page-link" href="?page=<%= currentPage + 1 %>"
-          >Next &raquo;</a
-        >
-      </li>
-    </ul>
-  </nav>
-</div>
+                <!-- Next Button -->
+                <li class="page-item <%= (currentPage === totalPages) ? 'disabled' : '' %>">
+                  <a class="page-link" href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+                </li>
+          </ul>
+        </nav>
+      </div>
 
-  </section>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-  <script>
-    function handleFormSubmit(event) {
-      event.preventDefault(); // Prevent default form submission
+    <script>
+      function handleFormSubmit(event) {
+        event.preventDefault(); // Prevent default form submission
 
-      if (!validateForm()) {
-        return false; // Stop form submission if validation fails
+        if (!validateForm()) {
+          return false; // Stop form submission if validation fails
+        }
+
+        const name = document.getElementsByName("name")[0].value.trim();
+        const description = document.getElementById("descriptionId").value.trim();
+
+        fetch("/admin/addCategory", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, description }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((err) => {
+                throw new Error(err.error);
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            location.reload(); // Reload the page on success
+          })
+          .catch((error) => {
+            if (error.message === "Category already exists") {
+              Swal.fire({
+                icon: "error",
+                title: "Oops",
+                text: "Category already exists",
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Oops",
+                text: "An error occurred while adding the category",
+              });
+            }
+          });
+
+        return false; // Ensure no further form submission occurs
       }
 
-      const name = document.getElementsByName("name")[0].value.trim();
-      const description = document.getElementById("descriptionId").value.trim();
+      function validateForm() {
+        clearErrorMessages();
+        const name = document.getElementsByName("name")[0].value.trim();
+        const description = document.getElementById("descriptionId").value.trim();
+        let isValid = true;
 
-      fetch("/admin/addCategory", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, description }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            return response.json().then((err) => {
-              throw new Error(err.error);
-            });
-          }
-          return response.json();
-        })
-        .then((data) => {
-          location.reload(); // Reload the page on success
-        })
-        .catch((error) => {
-          if (error.message === "Category already exists") {
-            Swal.fire({
-              icon: "error",
-              title: "Oops",
-              text: "Category already exists",
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Oops",
-              text: "An error occurred while adding the category",
-            });
-          }
+        if (name === "") {
+          displayErrorMessage("name-error", "Please enter a name");
+          isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+          displayErrorMessage(
+            "name-error",
+            "Category name should contain only alphabetic characters"
+          );
+          isValid = false;
+        }
+        if (description === "") {
+          displayErrorMessage("description-error", "Please enter a description");
+          isValid = false;
+        }
+        return isValid;
+      }
+
+      function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+      }
+
+      function clearErrorMessages() {
+        const errorElements = document.getElementsByClassName("error-message");
+        Array.from(errorElements).forEach((element) => {
+          element.innerText = "";
+          element.style.display = "none";
         });
-
-      return false; // Ensure no further form submission occurs
-    }
-
-    function validateForm() {
-      clearErrorMessages();
-      const name = document.getElementsByName("name")[0].value.trim();
-      const description = document.getElementById("descriptionId").value.trim();
-      let isValid = true;
-
-      if (name === "") {
-        displayErrorMessage("name-error", "Please enter a name");
-        isValid = false;
-      } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-        displayErrorMessage(
-          "name-error",
-          "Category name should contain only alphabetic characters"
-        );
-        isValid = false;
       }
-      if (description === "") {
-        displayErrorMessage("description-error", "Please enter a description");
-        isValid = false;
-      }
-      return isValid;
-    }
-
-    function displayErrorMessage(elementId, message) {
-      const errorElement = document.getElementById(elementId);
-      errorElement.innerText = message;
-      errorElement.style.display = "block";
-    }
-
-    function clearErrorMessages() {
-      const errorElements = document.getElementsByClassName("error-message");
-      Array.from(errorElements).forEach((element) => {
-        element.innerText = "";
-        element.style.display = "none";
-      });
-    }
-  </script>
-  <%- include("../../views/partials/admin/adminFooter.ejs") %>
-</body>
+    </script>
+    <%- include("../../views/partials/admin/adminFooter.ejs") %>
+  </body>

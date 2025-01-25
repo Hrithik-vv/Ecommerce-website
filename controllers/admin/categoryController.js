@@ -3,7 +3,7 @@ const product = require("../../models/productSchema");
 
 const a = require("mongoose");
 
-// Fetch  paginated 
+// Fetch  paginated
 const categoryInfo = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -28,7 +28,6 @@ const categoryInfo = async (req, res) => {
     res.redirect("/pageerror");
   }
 };
-
 
 // Add a new category
 const addCategory = async (req, res) => {
@@ -117,32 +116,55 @@ const addCategory = async (req, res) => {
 //   }
 //  }
 
-const getListCategory = async (req, res) => { // Update category status to not listed
+const getListCategory = async (req, res) => {
+  // Update category status to not listed
   try {
     let id = req.query.id;
     await Category.updateOne({ _id: id }, { $set: { isListed: false } });
-    await product.updateMany(
-      { category: id },
-      { $set: { isBlocked: true } }
-  );
+    await product.updateMany({ category: id }, { $set: { isBlocked: true } });
     res.redirect("/admin/category");
   } catch (error) {
     res.redirect("/pageerror");
   }
 };
 
-// Update category status to listed
+
+
 const getUnlistCategory = async (req, res) => {
   try {
-    let id = req.query.id;
-    await Category.updateOne({ _id: id }, { $set: { isListed: true } });
+    const { id, action } = req.query;
     
+    
+
+    let updateData = {};
+    
+    // Check the action and update accordingly
+    if (action === "list") {
+      updateData.isListed = true;  // Set category as listed
+    } else if (action === "unlist") {
+      updateData.isListed = false;  // Set category as unlisted
+    } else {
+      return res.redirect("/pageerror");  // Invalid action
+    }
+
+    // Update the category in the database
+    await Category.updateOne({ _id: id }, { $set: updateData });
+
+    // Update the products in that category
+    await product.updateMany(
+      { category: id },  // Find products that belong to this category
+      { $set: { isBlocked: !updateData.isListed } }  // Set the isListed field for products
+    );
+
+    // Redirect to the category page after the update
     res.redirect("/admin/category");
   } catch (error) {
+    console.log("Error updating category and products", error);
     res.redirect("/pageerror");
-    console.log("get Unlist Category error", error);
   }
 };
+
+
 
 // Fetch category data for editing
 const getEditCategory = async (req, res) => {

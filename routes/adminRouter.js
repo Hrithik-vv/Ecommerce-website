@@ -5,7 +5,7 @@ const customerController = require("../controllers/admin/customerContoller");
 const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController");
 const productController = require("../controllers/admin/productCotroller");
-const addproductConroller = require("../controllers/admin/addproductController")
+const addproductConroller = require("../controllers/admin/addproductController");
 const { userAuth, adminAuth } = require("../middlewares/auth");
 
 // Multer setup
@@ -40,14 +40,16 @@ router.get("/brands", adminAuth, brandController.getBrandPage);
 router.post("/addBrand", upload.single("image"), brandController.addBrand);
 
 // Product Management R
-router.get("/product", adminAuth,productController.loadproduct);
-router.get("/addproduct",adminAuth,addproductConroller.loadaddproduct)
-router.post("/addproduct",adminAuth,addproductConroller.addproduct)
-router.get("/blockProduct",adminAuth,productController.blockProduct)
-router.get("/unblockProduct",adminAuth,productController.unblockProduct)
-router.get("/editProduct",adminAuth,productController.getEditProduct)
-router.post("/editProduct/:id",adminAuth,addproductConroller.editProduct);
-router.post("/product/:productId/image/:imageNumber'",addproductConroller.deleteProductImage);
-
+router.get("/product", adminAuth, productController.loadproduct);
+router.get("/addproduct", adminAuth, addproductConroller.loadaddproduct);
+router.post("/addproduct", adminAuth, addproductConroller.addproduct);
+router.get("/blockProduct", adminAuth, productController.blockProduct);
+router.get("/unblockProduct", adminAuth, productController.unblockProduct);
+router.get("/editProduct", adminAuth, productController.getEditProduct);
+router.post("/editProduct/:id", adminAuth, addproductConroller.editProduct);
+router.post(
+  "/product/:productId/image/:imageNumber'",
+  addproductConroller.deleteProductImage
+);
 
 module.exports = router;

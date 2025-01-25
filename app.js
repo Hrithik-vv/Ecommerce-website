@@ -8,12 +8,12 @@ const connectDB = require("./config/db"); // Database connection setup
 const userRouter = require("./routes/userRouter"); // User routes
 const GoogleStrategy = require("passport-google-oauth20").Strategy; // Google OAuth
 const adminRouter = require("./routes/adminRouter"); // Admin routes
-const nocache = require("nocache")
+const nocache = require("nocache");
 
 connectDB();
 
 // Middleware to parse JSON and URL-encoded data in requests
-app.use(express.json({limit: "5mb" }));
+app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 // Session Configuration
@@ -30,21 +30,23 @@ app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 //   })
 // );
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: false, // Set to true if using https
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true if using https
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
 // Initialize Passport and restore authentication state
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(nocache())
+app.use(nocache());
 
 // Middleware to Set `res.locals.user`
 app.use((req, res, next) => {

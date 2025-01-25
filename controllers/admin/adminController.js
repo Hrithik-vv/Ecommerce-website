@@ -26,7 +26,7 @@ const login = async (req, res) => {
 
     if (admin) {
       const passwordMatch = await bcrypt.compare(password, admin.password);
-      console.log('Password match check');
+      console.log("Password match check");
 
       if (passwordMatch) {
         req.session.admin = true;
@@ -43,7 +43,6 @@ const login = async (req, res) => {
   }
 };
 
-
 //to load the admin dashboard
 const loadDashboard = async (req, res) => {
   if (req.session.admin) {
@@ -56,7 +55,6 @@ const loadDashboard = async (req, res) => {
     return res.redirect("/admin/login"); // Redirect to login if not authenticated
   }
 };
-
 
 //Admin Logout
 const logout = async (req, res) => {

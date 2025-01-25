@@ -1,5 +1,5 @@
 // const { options } = require("../../app");
-const User = require("../../models/userSchema"); //MONGO USER SCHEMA
+const User = require("../../models/userSchema"); 
 const product = require("../../models/productSchema");
 const env = require("dotenv").config(); //variable configuration
 const nodemailer = require("nodemailer"); // sending email
@@ -8,6 +8,7 @@ const aswinfn = require("../../utils/nodemailer"); //utilite  function for email
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Brand = require("../../models/brandSchema");
+
 // error page
 const pageNotFound = async (req, res) => {
   try {
@@ -17,24 +18,7 @@ const pageNotFound = async (req, res) => {
   }
 };
 
-// //load home with or whithout user
-// const loadHomepage = async (req, res) => {
-//   const products = await product.find({isBlocked:false})
-// console.log(products);
-
-//   try {
-//     const user = req.session.user;
-//     if (user) {
-//       const userData = await User.findOne({ _id: user._id ,isBlocked:false});
-//       res.render("home", { user: userData ,products});
-//     } else {
-//       return res.render("home", { user ,products});
-//     }
-//   } catch (error) {
-//     console.log("Home page not found");
-//     res.status(500).send("Server error");
-//   }
-// };
+//homepage loading
 const loadHomepage = async (req, res) => {
   try {
     const products = await product.find({ isBlocked: false }); // Fetch unblocked products
@@ -43,23 +27,21 @@ const loadHomepage = async (req, res) => {
 
     if (user) {
       const userData = await User.findOne({ _id: user._id });
-
+      //user checking
       if (userData) {
-        // If user exists and is blocked
-        if (userData.isBlocked) {
+        if (userData.isBlocked) { // If the user is blocked
           req.session.destroy((err) => {
             if (err) {
               console.error("Error destroying session:", err);
               return res.status(500).send("Internal Server Error");
             }
-            return res.redirect("/login"); // Redirect blocked user to login
+            return res.redirect("/login"); // Redirect to login
           });
         } else {
           // Render homepage for unblocked user
           return res.render("home", { user: userData, products });
         }
       } else {
-        // If user is not found
         return res.redirect("/login");
       }
     } else {
@@ -91,7 +73,7 @@ async function sendVerificationEmail(email, otp) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       port: 587,
-      secure: false, // true for 465, false for other ports
+      secure: false, 
       auth: {
         user: process.env.NODEMAILER_EMAIL,
         pass: process.env.NODEMAILER_PASSWORD,
@@ -180,7 +162,6 @@ const verifyOtp = async (req, res) => {
       const saveUserData = new User({
         name: user.name,
         email: user.email,
-        // phone: user.phone,
         password: passwordHash,
       });
       await saveUserData.save();
@@ -234,12 +215,12 @@ const resendOtp = async (req, res) => {
 function resendOTP() {
   // Clear existing timer and reset values
   clearInterval(timerInterval);
-  timer = 60; // Reset timer to 60 seconds
+  timer = 60; 
   document.getElementById("otp").disabled = false;
   document.getElementById("timerValue").classList.remove("expired");
   document.getElementById("timerValue").textContent = timer; // Reset displayed timer
 
-  startTimer(); // Restart the timer
+  startTimer(); 
 
   // Send AJAX request to resend OTP
   $.ajax({
@@ -251,7 +232,7 @@ function resendOTP() {
           icon: "success",
           title: "OTP Resent Successfully",
           showConfirmButton: false,
-          timer: 1500, // Optional: Auto-close alert after 1.5 seconds
+          timer: 1500, 
         });
       } else {
         Swal.fire({
@@ -323,7 +304,7 @@ const logout = async (req, res) => {
         return res.redirect("/pageNotFound");
       }
       // After session is destroyed, clear the session cookie
-      res.clearCookie("connect.sid"); // "connect.sid" is the default session cookie name
+      res.clearCookie("connect.sid"); 
       return res.redirect("/login");
     });
   } catch (error) {

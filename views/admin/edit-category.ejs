@@ -1,4 +1,84 @@
 <%- include("../../views/partials/admin/adminHeader.ejs") %>
+<style>
+
+  /* Global styles */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Arial', sans-serif;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    background-color: #ffffff;
+    border: 1.5px solid #ced4da !important;
+    border-radius: 6px;
+    padding: 10px 15px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.form-control.border {
+    border-width: 1.5px !important;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+}
+
+/* Utility classes */
+.mt-60 {
+    margin-top: 60px;
+}
+
+.mt-30 {
+    margin-top: 30px;
+}
+</style>
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-md-6 mt-60">
@@ -26,4 +106,107 @@
     </div>
   </div>
 </div>
+
+<!-- validation -->
+ <!-- <script>
+  function handleEditFormSubmit(event) {
+    event.preventDefault();
+    clearErrorMessages();
+
+    const nameInput = document.querySelector('input[name="categoryname"]');
+    const descriptionInput = document.querySelector('textarea[name="description"]');
+    
+    const name = nameInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const originalName = '<%=category.name%>'; // Server-side injected original category name
+
+    let isValid = true;
+
+    // Name validation
+    if (name === "") {
+        displayErrorMessage("name-error", "Please enter a category name");
+        isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        displayErrorMessage("name-error", "Category name should contain only alphabetic characters");
+        isValid = false;
+    } else if (name.toLowerCase() === originalName.toLowerCase()) {
+        displayErrorMessage("name-error", "New category name must be different from the original");
+        isValid = false;
+    }
+
+    // Description validation
+    if (description === "") {
+        displayErrorMessage("description-error", "Please enter a description");
+        isValid = false;
+    }
+
+    if (!isValid) {
+        return false;
+    }
+
+    // Proceed with form submission
+    fetch(`/admin/editCategory/<%=category._id%>`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+            categoryname: name, 
+            description: description 
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || "An error occurred");
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Category updated successfully",
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.href = "/admin/categories"; // Redirect to categories list
+        });
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: "error",
+            title: "Oops",
+            text: error.message || "An error occurred while updating the category"
+        });
+    });
+
+    return false;
+}
+
+function displayErrorMessage(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+}
+
+function clearErrorMessages() {
+    const errorElements = document.getElementsByClassName("error-message");
+    Array.from(errorElements).forEach(element => {
+        element.innerText = "";
+        element.style.display = "none";
+    });
+}
+
+// Attach event listener
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form[action^="/admin/editCategory"]');
+    if (form) {
+        form.addEventListener('submit', handleEditFormSubmit);
+    }
+});
+ </script> -->
 <%- include("../../views/partials/admin/adminFooter.ejs") %>

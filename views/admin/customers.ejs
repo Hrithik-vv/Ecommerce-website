@@ -68,7 +68,8 @@
     .input-group .btn:hover {
       background-color: #0056b3;
     }
-    .d-inline{
+
+    .d-inline {
       margin-left: 200px;
     }
 
@@ -177,22 +178,22 @@
       background-color: #0056b3;
       color: #fff;
     }
-    .justify-content-center{
+
+    .justify-content-center {
       margin-left: 200px;
     }
-    
   </style>
   <header class="card-header text-center mb-4">
     <form action="/admin/users/" method="get" class="d-inline">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search customers..." name="search" />
+        <input oninput="filterCustomers()" type="text" class="form-control" placeholder="Search customers..." id="search-input" name="search" />
         <button class="btn" type="submit">Search</button>
       </div>
     </form>
   </header>
 
   <div class="right mt-5">
-    <table class="table table-striped table-bordered">
+    <table id="customer-table" class="table table-striped table-bordered">
       <thead class="thead-light">
         <tr>
           <th scope="col"><b>Name</b></th>
@@ -203,7 +204,7 @@
       <tbody>
         <% for (let i=0; i < data.length; i++) { %>
           <tr>
-            <td>
+            <td class="customer-row">
               <%= data[i].name %>
             </td>
             <td>
@@ -255,4 +256,29 @@
     </nav>
   </div>
 
-  <%- include("../../views/partials/admin/adminFooter.ejs") %>
+  <script>
+    function filterCustomers() {
+      console.log('jknk')
+      
+      const query = document.getElementById("search-input").value.toLowerCase();
+      const rows = document.querySelectorAll("#customer-table tbody tr");
+
+  
+      rows.forEach(row => {
+        const customerName = row.cells[0].textContent.toLowerCase();  // Name column
+        const customerEmail = row.cells[1].textContent.toLowerCase();  // Email column
+  
+        if (customerName.includes(query) || customerEmail.includes(query)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+  </script>
+</main>
+
+
+</body>
+
+</html>

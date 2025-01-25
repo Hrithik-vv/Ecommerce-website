@@ -175,19 +175,19 @@
             right: 0;
         }
 
-/* zoo css */
+        /* zoo css */
         .custom-image {
-    position: relative;
-    cursor: zoom-in;
-}
+            position: relative;
+            cursor: zoom-in;
+        }
 
-.custom-image img {
-    transition: transform 0.2s;
-}
+        .custom-image img {
+            transition: transform 0.2s;
+        }
 
-.custom-image:hover img {
-    transform: scale(1.02);
-}
+        .custom-image:hover img {
+            transform: scale(1.02);
+        }
 
         .custom-loupe {
             margin-right: 100px !important;
@@ -850,78 +850,78 @@
             </form>
         </div>
     </div>
-   
-<!-- image zooming -->
+
+    <!-- image zooming -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-    const containers = document.querySelectorAll('.custom-image');
+            const containers = document.querySelectorAll('.custom-image');
 
-    containers.forEach(container => {
-        const image = container.querySelector('img');
-        const loupe = container.querySelector('.custom-loupe');
+            containers.forEach(container => {
+                const image = container.querySelector('img');
+                const loupe = container.querySelector('.custom-loupe');
 
-        // Enhanced zoom configuration
-        const config = {
-            loupeSize: 250,  // Increased zoom window size
-            zoomFactor: 3,   // Higher zoom level
-              // Stylish border color
-            backgroundColor: 'rgba(255,255,255,0.9)'  // Slight transparency
-        };
+                // Enhanced zoom configuration
+                const config = {
+                    loupeSize: 250,  // Increased zoom window size
+                    zoomFactor: 3,   // Higher zoom level
+                    // Stylish border color
+                    backgroundColor: 'rgba(255,255,255,0.9)'  // Slight transparency
+                };
 
-        // Advanced styling for loupe
-        Object.assign(loupe.style, {
-            position: 'fixed',
-            width: `${config.loupeSize}px`,
-            height: `${config.loupeSize}px`,
-            border: `3px solid ${config.borderColor}`,
-            background: config.backgroundColor,
-            borderRadius: '50%',  // Circular zoom window
-            boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
-            pointerEvents: 'none',
-            display: 'none',
-            zIndex: '1000'
-        });
+                // Advanced styling for loupe
+                Object.assign(loupe.style, {
+                    position: 'fixed',
+                    width: `${config.loupeSize}px`,
+                    height: `${config.loupeSize}px`,
+                    border: `3px solid ${config.borderColor}`,
+                    background: config.backgroundColor,
+                    borderRadius: '50%',  // Circular zoom window
+                    boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+                    pointerEvents: 'none',
+                    display: 'none',
+                    zIndex: '1000'
+                });
 
-        // Throttle function to improve performance
-        function throttle(func, limit) {
-            let inThrottle;
-            return function() {
-                const args = arguments;
-                const context = this;
-                if (!inThrottle) {
-                    func.apply(context, args);
-                    inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
+                // Throttle function to improve performance
+                function throttle(func, limit) {
+                    let inThrottle;
+                    return function () {
+                        const args = arguments;
+                        const context = this;
+                        if (!inThrottle) {
+                            func.apply(context, args);
+                            inThrottle = true;
+                            setTimeout(() => inThrottle = false, limit);
+                        }
+                    }
                 }
-            }
-        }
 
-        // Enhanced mouse move handler
-        const handleMouseMove = throttle(function(e) {
-            const rect = image.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+                // Enhanced mouse move handler
+                const handleMouseMove = throttle(function (e) {
+                    const rect = image.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
 
-            // More precise background positioning
-            const bgX = -(x * config.zoomFactor - config.loupeSize / 2);
-            const bgY = -(y * config.zoomFactor - config.loupeSize / 2);
+                    // More precise background positioning
+                    const bgX = -(x * config.zoomFactor - config.loupeSize / 2);
+                    const bgY = -(y * config.zoomFactor - config.loupeSize / 2);
 
-            // Update loupe styles
-            loupe.style.display = 'block';
-            loupe.style.left = `${e.pageX - config.loupeSize / 2}px`;
-            loupe.style.top = `${e.pageY - config.loupeSize / 2}px`;
-            loupe.style.backgroundImage = `url(${image.src})`;
-            loupe.style.backgroundSize = `${image.width * config.zoomFactor}px ${image.height * config.zoomFactor}px`;
-            loupe.style.backgroundPosition = `${bgX}px ${bgY}px`;
-        }, 10);  // 10ms throttle for performance
+                    // Update loupe styles
+                    loupe.style.display = 'block';
+                    loupe.style.left = `${e.pageX - config.loupeSize / 2}px`;
+                    loupe.style.top = `${e.pageY - config.loupeSize / 2}px`;
+                    loupe.style.backgroundImage = `url(${image.src})`;
+                    loupe.style.backgroundSize = `${image.width * config.zoomFactor}px ${image.height * config.zoomFactor}px`;
+                    loupe.style.backgroundPosition = `${bgX}px ${bgY}px`;
+                }, 10);  // 10ms throttle for performance
 
-        // Event listeners
-        container.addEventListener('mousemove', handleMouseMove);
-        container.addEventListener('mouseleave', () => {
-            loupe.style.display = 'none';
+                // Event listeners
+                container.addEventListener('mousemove', handleMouseMove);
+                container.addEventListener('mouseleave', () => {
+                    loupe.style.display = 'none';
+                });
+            });
         });
-    });
-});
     </script>
 
 

@@ -22,7 +22,7 @@ const User = require("../models/userSchema");
 // };
 
 const userAuth = (req, res, next) => {
-  console.log("sessionn",req.session.user)
+  console.log("sessionn", req.session.user);
   if (req.session.user) {
     User.findById(req.session.user)
       .then((user) => {
@@ -67,20 +67,16 @@ const adminAuth = (req, res, next) => {
     });
 };
 
-
-const already = (req, res,next)=>{
-  console.log("buhnkj"+req.session.userAuthser);
-  
-  if(req.session.user){
-   return res.redirect("/")
-  }else{
-   next()
+const already = (req, res, next) => {
+  if (req.session.user) {
+    return res.redirect("/");
+  } else {
+    next();
   }
-}
-
+};
 
 module.exports = {
   userAuth,
   adminAuth,
-  already
+  already,
 };
