@@ -642,9 +642,7 @@
           });
 
           // Validate images
-          if (!validateImages()) {
-            isValid = false;
-          }
+          
 
           // If all validations pass, proceed with form submission
           if (isValid) {
@@ -666,6 +664,7 @@
                 obj[key] = formDataObject[key];
                 return obj;
               }, {});
+console.log(filteredProduct);
 
             try {
               const response = await fetch(`/admin/editproduct/${productId}`, {

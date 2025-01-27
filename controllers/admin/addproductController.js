@@ -131,6 +131,8 @@ async function deleteImageFromFolder(imagePath) {
 }
 
 const editProduct = async (req, res) => {
+ 
+  
   const productId = req.params.id;
 
   // Step 2: Find the product document in the database
@@ -150,9 +152,11 @@ const editProduct = async (req, res) => {
       images[y] = null;
     }
   });
-
+  
   images.forEach((image, index) => {
     if (image) {
+      console.log(8);
+      
       const base64WithoutPrefix = image.replace(/^data:image\/\w+;base64,/, "");
       const binary = Buffer.from(base64WithoutPrefix, "base64");
       fs.writeFile(
@@ -171,9 +175,13 @@ const editProduct = async (req, res) => {
           }
         }
       );
-      imagesp[`image${index}`] = `images/${_id}/image${index}.png`;
+      imagesp[`image${index+1}`] = `images/${_id}/image${index}.png`;
+      console.log(index);
+      
     }
   });
+  console.log(imagesp);
+  
   delete req.body.images;
   delete req.body.image1;
   delete req.body.image2;
@@ -181,11 +189,14 @@ const editProduct = async (req, res) => {
   delete req.body.image4;
 
   const mongodata = { ...imagesp, ...req.body };
+  console.log(mongodata);
+  
   await Product.findByIdAndUpdate(
     productId,
     { $set: mongodata }, // Use $set to update specified fields
     { new: true, runValidators: true } // Return the updated document and apply validation
   );
+
   res.status(200).json({
     success: true,
     message: "Product updated successfully",

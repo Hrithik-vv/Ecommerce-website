@@ -49,9 +49,9 @@
         <div id="mobile-menu-wrap"></div>
         <div class="offcanvas__text"></div>
     </div>
-
-
+    
     <style>
+        /* Header Styles */
         .header .container {
             display: flex;
             justify-content: center;
@@ -65,15 +65,10 @@
             font-weight: bold;
             color: #010203;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            margin: 0;
-        }
-
-        .log-1 h1 {
             position: absolute;
-            margin-left: 1px;
-            margin: 0%;
             right: 84%;
             top: 10%;
+            margin: 0;
         }
 
         .header__menu {
@@ -100,14 +95,12 @@
             gap: 1rem;
         }
 
-        .mobile-menu {
-            width: auto;
-            margin: 0 auto;
-        }
-
+        /* Dropdown Styles */
         .dropdown {
             position: relative;
             display: inline-block;
+            align-items: center;
+            font-size: larger;
         }
 
         .dropdown-content {
@@ -117,10 +110,8 @@
             min-width: 6%;
             box-shadow: 0px 8px 16px rgba(10, 8, 8, 0.2);
             z-index: 9999;
-            /* Ensure it appears above other content */
             padding: 5px;
         }
-
 
         .dropdown-content li {
             list-style: none;
@@ -130,8 +121,7 @@
             color: black;
             text-decoration: none;
             display: block;
-            padding: 8px 8px;
-
+            padding: 8px;
         }
 
         .dropdown-content a:hover {
@@ -140,28 +130,53 @@
 
         .dropdown:hover .dropdown-content {
             display: block;
-            align-items: center;
-
         }
 
-        .dropdown {
-            align-items: center;
-            font-size: larger;
-
-
+        /* Product Details Styles */
+        .product__details__content {
+            width: 400px;
         }
 
+        .product__details__tab {
+            justify-content: center;
+            padding: 100px;
+        }
+
+        .product__details__breadcrumb {
+            text-align: left;
+            margin-left: 0;
+            padding: 0;
+            display: flex;
+            gap: 5px;
+        }
+
+        .product__details__option {
+            margin-left: 56px;
+        }
+
+        /* Status Styles */
+        .status-available {
+            color: green;
+        }
+
+        .status-out-of-stock {
+            color: red;
+        }
+
+        .status-discontinued {
+            color: blue;
+        }
+
+        /* Offer Badge Styles */
         .offer-badge {
-            background-color: #27e434;
+
             width: fit-content;
-            color: white;
+            color: rgb(0, 0, 0);
             font-size: 22px;
             font-weight: bold;
-            padding: 9px 18px;
+            padding: 9px 8px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-transform: uppercase;
-
         }
 
         .offer-badgecont {
@@ -169,13 +184,7 @@
             display: flex;
         }
 
-
-        .custom-loupe img {
-            position: absolute;
-            right: 0;
-        }
-
-        /* zoo css */
+        /* Image Zoom Styles */
         .custom-image {
             position: relative;
             cursor: zoom-in;
@@ -195,7 +204,7 @@
             width: 200px;
             height: 200px;
             border: 2px solid #fff;
-            border-radius: 50%;
+            border-radius: 10px;
             box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85),
                 0 0 7px 7px rgba(0, 0, 0, 0.25),
                 inset 0 0 40px 2px rgba(0, 0, 0, 0.25);
@@ -203,7 +212,110 @@
             pointer-events: none;
         }
 
+        .price h3 {
+            font-size: 27px;
+            font-weight: bold;
+            padding: 9px 18px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        .name h4 {
+            font-size: 27px;
+            font-weight: bold;
+            padding: 9px 18px;
+            border-radius: 8px;
+
+        }
+
+        .fa-star {
+            color: rgb(251, 238, 51);
+        }
+
+        .product__details__last__option ul {
+            padding-top: 1px;
+        }
+
+        .des h6 {
+            padding: 5px;
+        }
+
+        .product__item__pic {
+            position: relative;
+            overflow: hidden;
+            /* Ensure the zoom effect stays within the bounds */
+        }
+
+        .product__item__pic img {
+            width: 100%;
+            transition: transform 0.3s ease-in-out;
+            /* Smooth zoom effect */
+        }
+
+        .product__item__pic:hover img {
+            transform: scale(1.1);
+            /* Zoom in on hover */
+        }
+
+        .product__item__pic a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .product__item__pic:hover {
+            opacity: 1;
+            /* Show the hover icons when the image is hovered */
+        }
+
+        .product__item__text h6 p {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .product__item__text h6 p:hover {
+            color: #ff6f61;
+            /* Change text color on hover */
+        }
+
+
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 960px;
+                padding: 0 15px;
+            }
+
+            .product__details__content {
+                width: 100%;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .container {
+                max-width: 720px;
+            }
+
+            .header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .log-1 h1 {
+                position: static;
+                margin: 20px 0;
+            }
+        }
+
         @media (max-width: 768px) {
+            .container {
+                max-width: 540px;
+            }
+
             .header__menu {
                 display: none;
             }
@@ -213,27 +325,41 @@
                 justify-content: center;
                 margin-top: 1rem;
             }
+
+            .dropdown-content {
+                position: static;
+                width: 100%;
+                box-shadow: none;
+            }
+
+            .custom-loupe {
+                display: none !important;
+            }
+
+            .custom-image:hover img {
+                transform: none;
+            }
         }
 
-        .custom-loupe {
-            border-radius: 10px;
-            /* Rounded corners */
-            pointer-events: none;
-            /* Prevent mouse interaction */
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            .log-1 h1 {
+                font-size: 2rem;
+            }
+
+            .offer-badge {
+                font-size: 18px;
+                padding: 6px 12px;
+            }
         }
 
-
-        /* status code */
-        .status-available {
-            color: green;
-        }
-
-        .status-out-of-stock {
-            color: red;
-        }
-
-        .status-discontinued {
-            color: blue;
+        @media (prefers-reduced-motion: reduce) {
+            .custom-image img {
+                transition: none;
+            }
         }
     </style>
 
@@ -258,7 +384,7 @@
                     <nav class="header__menu mobile-menu">
                         <ul>
 
-                            <li class="active"><a href="#">Home</a></li>
+                            <li class="active"><a href="/">Home</a></li>
                             <li>
                                 <a href="#">Pages</a>
                                 <ul class="dropdown">
@@ -320,122 +446,116 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="product__details__breadcrumb">
-                            <a href="./index.html">Home</a>
-                            <a href="./shop.html">Shop</a>
+                            <a href="/">Home</a>
+                            <a href="/shop">Shop</a>
                             <span>Product Details</span>
                         </div>
                     </div>
                 </div>
                 <div class="row">
+                    <!-- Side Thumbnails -->
                     <div class="col-lg-3 col-md-3">
                         <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">
-                                    <div class="product__thumb__pic set-bg " data-setbg="<%=product.image1%>">
-                                    </div>
+                                    <div class="product__thumb__pic set-bg" data-setbg="<%= product.image1 %>"></div>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">
-                                    <div class="product__thumb__pic set-bg" data-setbg="<%=product.image2%>">
-                                    </div>
+                                    <div class="product__thumb__pic set-bg" data-setbg="<%= product.image2 %>"></div>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">
-                                    <div class="product__thumb__pic set-bg" data-setbg="<%=product.image3%>">
-                                    </div>
+                                    <div class="product__thumb__pic set-bg" data-setbg="<%= product.image3 %>"></div>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tabs-4" role="tab">
-                                    <div class="product__thumb__pic set-bg" data-setbg="<%=product.image4%>">
-
-                                    </div>
+                                    <div class="product__thumb__pic set-bg" data-setbg="<%= product.image4 %>"></div>
                                 </a>
                             </li>
                         </ul>
                     </div>
+
+                    <!-- Main Image Display -->
                     <div class="col-lg-6 col-md-9">
                         <div class="tab-content">
                             <div class="tab-pane active" id="tabs-1" role="tabpanel">
                                 <div class="product__details__pic__item">
-                                    <div class="container">
-                                        <div class="custom-image">
-                                            <img src="<%=product.image1%>" alt="">
-                                            <div class="custom-loupe"></div>
-                                        </div>
+                                    <div class="custom-image">
+                                        <img src="<%= product.image1 %>" alt="Product Image 1">
+                                        <div class="custom-loupe"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="tab-pane" id="tabs-2" role="tabpanel">
                                 <div class="product__details__pic__item">
-                                    <div class="container">
-                                        <div class="custom-image">
-                                            <img src="<%=product.image2%>" alt="">
-                                            <div class="custom-loupe"></div>
-                                        </div>
+                                    <div class="custom-image">
+                                        <img src="<%= product.image2 %>" alt="Product Image 2">
+                                        <div class="custom-loupe"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="tab-pane" id="tabs-3" role="tabpanel">
                                 <div class="product__details__pic__item">
-                                    <div class="container">
-                                        <div class="custom-image">
-                                            <img src="<%=product.image3%>" alt="">
-                                            <div class="custom-loupe"></div>
-                                        </div>
+                                    <div class="custom-image">
+                                        <img src="<%= product.image3 %>" alt="Product Image 3">
+                                        <div class="custom-loupe"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="tab-pane" id="tabs-4" role="tabpanel">
                                 <div class="product__details__pic__item">
-                                    <div class="container">
-                                        <div class="custom-image">
-                                            <img src="<%=product.image4%>" alt="">
-                                            <div class="custom-loupe"></div>
-                                        </div>
+                                    <div class="custom-image">
+                                        <img src="<%= product.image4 %>" alt="Product Image 4">
+                                        <div class="custom-loupe"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="product__details__content">
-            <div class="container">
-                <div class="row d-flex justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="product__details__text">
-                            <h4>
-                                <%=product.productName%>
-                            </h4>
-                            <h6>
-                                <%=product.description%>
-                            </h6>
+
+                    <!-- Product Details -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="product__details__content">
+                            <div class="name">
+                                <h4>
+                                    <%= product.productName %>
+                                </h4>
+                            </div>
+                            <div class="des">
+                                <h6>
+                                    <%= product.description %>
+                                </h6>
+                            </div>
+
                             <div class="rating">
                                 <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i>
-                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star"></i>
                                 <span> - 5 Reviews</span>
-
                             </div>
-                            <h3>₹ <%=product.salePrice%>
-                                    <p class="<%= 
+                            <div class="price">
+                                <h3>₹ <%= product.salePrice %>
+                                </h3>
+                            </div>
+
+                            <p class="<%= 
                                 product.status === 'Available' ? 'status-available' : 
                                 product.status === 'out of stock' ? 'status-out-of-stock' : 
                                 'status-discontinued' 
                             %>">
-                                        <%= product.status %>
-                                    </p>
-                                    <div class="offer-badgecont">
-                                        <div class="offer-badge">50% OFF</div>
-                                    </div>
-                            </h3>
+                                <%= product.status %>
+                            </p>
+                            <div class="offer-badgecont">
+                                <div class="offer-badge">50% OFF</div>
+                            </div>
 
+                            <!-- Product Options -->
                             <div class="product__details__option">
                                 <div class="product__details__option__size">
                                     <span>Size:</span>
@@ -452,37 +572,25 @@
                                         <input type="radio" id="sm">
                                     </label>
                                 </div>
-                                <div class="product__details__option__color">
-                                    <span>Color:</span>
-                                    <label class="c-1" for="sp-1">
-                                        <input type="radio" id="sp-1">
-                                    </label>
-                                    <label class="c-2" for="sp-2">
-                                        <input type="radio" id="sp-2">
-                                    </label>
-                                    <label class="c-3" for="sp-3">
-                                        <input type="radio" id="sp-3">
-                                    </label>
-                                    <label class="c-4" for="sp-4">
-                                        <input type="radio" id="sp-4">
-                                    </label>
-                                    <label class="c-9" for="sp-9">
-                                        <input type="radio" id="sp-9">
-                                    </label>
-                                </div>
                             </div>
+
+                            <!-- Cart Option -->
                             <div class="product__details__cart__option">
                                 <div class="quantity">
                                     <div class="pro-qty">
                                         <input type="text" value="1">
                                     </div>
                                 </div>
-                                <a href="#" class="primary-btn">add to cart</a>
+                                <a href="#" class="primary-btn">Add to Cart</a>
                             </div>
+
+                            <!-- Wishlist and Compare -->
                             <div class="product__details__btns__option">
-                                <a href="#"><i class="fa fa-heart"></i> add to wishlist</a>
-                                <a href="#"><i class="fa fa-exchange"></i> Add To Compare</a>
+                                <a href="#"><i class="fa fa-heart"></i> Add to Wishlist</a>
+                                <a href="#"><i class="fa fa-exchange"></i> Add to Compare</a>
                             </div>
+
+                            <!-- Additional Details -->
                             <div class="product__details__last__option">
                                 <ul>
                                     <li><span>SKU:</span> 3812912</li>
@@ -493,127 +601,130 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="product__details__tab">
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-toggle="tab" href="#tabs-5"
-                                        role="tab">Description</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#tabs-6" role="tab">Customer
-                                        Previews(5)</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#tabs-7" role="tab">Additional
-                                        information</a>
-                                </li>
-                            </ul>
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabs-5" role="tabpanel">
-                                    <div class="product__details__tab__content">
-                                        <p class="note">Nam tempus turpis at metus scelerisque placerat nulla deumantos
-                                            solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
-                                            ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
-                                            pharetras loremos.</p>
-                                        <div class="product__details__tab__content__item">
-                                            <h5>Products Infomation</h5>
-                                            <p>A Pocket PC is a handheld computer, which features many of the same
-                                                capabilities as a modern PC. These handy little devices allow
-                                                individuals to retrieve and store e-mail messages, create a contact
-                                                file, coordinate appointments, surf the internet, exchange text messages
-                                                and more. Every product that is labeled as a Pocket PC must be
-                                                accompanied with specific software to operate the unit and must feature
-                                                a touchscreen and touchpad.</p>
-                                            <p>As is the case with any new technology product, the cost of a Pocket PC
-                                                was substantial during it’s early release. For approximately $700.00,
-                                                consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                                These days, customers are finding that prices have become much more
-                                                reasonable now that the newness is wearing off. For approximately
-                                                $350.00, a new Pocket PC can now be purchased.</p>
-                                        </div>
-                                        <div class="product__details__tab__content__item">
-                                            <h5>Material used</h5>
-                                            <p>Polyester is deemed lower quality due to its none natural quality’s. Made
-                                                from synthetic materials, not natural like wool. Polyester suits become
-                                                creased easily and are known for not being breathable. Polyester suits
-                                                tend to have a shine to them compared to wool and cotton suits, this can
-                                                make the suit look cheap. The texture of velvet is luxurious and
-                                                breathable. Velvet is a great choice for dinner party jacket and can be
-                                                worn all year round.</p>
-                                        </div>
-                                    </div>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="product__details__tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tabs-5" role="tab">Description</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tabs-6" role="tab">Customer
+                                Previews(5)</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tabs-7" role="tab">Additional
+                                information</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tabs-5" role="tabpanel">
+                            <div class="product__details__tab__content">
+                                <p class="note">Nam tempus turpis at metus scelerisque placerat nulla deumantos
+                                    solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
+                                    ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
+                                    pharetras loremos.</p>
+                                <div class="product__details__tab__content__item">
+                                    <h5>Products Infomation</h5>
+                                    <p>A Pocket PC is a handheld computer, which features many of the same
+                                        capabilities as a modern PC. These handy little devices allow
+                                        individuals to retrieve and store e-mail messages, create a contact
+                                        file, coordinate appointments, surf the internet, exchange text messages
+                                        and more. Every product that is labeled as a Pocket PC must be
+                                        accompanied with specific software to operate the unit and must feature
+                                        a touchscreen and touchpad.</p>
+                                    <p>As is the case with any new technology product, the cost of a Pocket PC
+                                        was substantial during it’s early release. For approximately $700.00,
+                                        consumers could purchase one of top-of-the-line Pocket PCs in 2003.
+                                        These days, customers are finding that prices have become much more
+                                        reasonable now that the newness is wearing off. For approximately
+                                        $350.00, a new Pocket PC can now be purchased.</p>
                                 </div>
-                                <div class="tab-pane" id="tabs-6" role="tabpanel">
-                                    <div class="product__details__tab__content">
-                                        <div class="product__details__tab__content__item">
-                                            <h5>Products Infomation</h5>
-                                            <p>A Pocket PC is a handheld computer, which features many of the same
-                                                capabilities as a modern PC. These handy little devices allow
-                                                individuals to retrieve and store e-mail messages, create a contact
-                                                file, coordinate appointments, surf the internet, exchange text messages
-                                                and more. Every product that is labeled as a Pocket PC must be
-                                                accompanied with specific software to operate the unit and must feature
-                                                a touchscreen and touchpad.</p>
-                                            <p>As is the case with any new technology product, the cost of a Pocket PC
-                                                was substantial during it’s early release. For approximately $700.00,
-                                                consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                                These days, customers are finding that prices have become much more
-                                                reasonable now that the newness is wearing off. For approximately
-                                                $350.00, a new Pocket PC can now be purchased.</p>
-                                        </div>
-                                        <div class="product__details__tab__content__item">
-                                            <h5>Material used</h5>
-                                            <p>Polyester is deemed lower quality due to its none natural quality’s. Made
-                                                from synthetic materials, not natural like wool. Polyester suits become
-                                                creased easily and are known for not being breathable. Polyester suits
-                                                tend to have a shine to them compared to wool and cotton suits, this can
-                                                make the suit look cheap. The texture of velvet is luxurious and
-                                                breathable. Velvet is a great choice for dinner party jacket and can be
-                                                worn all year round.</p>
-                                        </div>
-                                    </div>
+                                <div class="product__details__tab__content__item">
+                                    <h5>Material used</h5>
+                                    <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        from synthetic materials, not natural like wool. Polyester suits become
+                                        creased easily and are known for not being breathable. Polyester suits
+                                        tend to have a shine to them compared to wool and cotton suits, this can
+                                        make the suit look cheap. The texture of velvet is luxurious and
+                                        breathable. Velvet is a great choice for dinner party jacket and can be
+                                        worn all year round.</p>
                                 </div>
-                                <div class="tab-pane" id="tabs-7" role="tabpanel">
-                                    <div class="product__details__tab__content">
-                                        <p class="note">Nam tempus turpis at metus scelerisque placerat nulla deumantos
-                                            solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
-                                            ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
-                                            pharetras loremos.</p>
-                                        <div class="product__details__tab__content__item">
-                                            <h5>Products Infomation</h5>
-                                            <p>A Pocket PC is a handheld computer, which features many of the same
-                                                capabilities as a modern PC. These handy little devices allow
-                                                individuals to retrieve and store e-mail messages, create a contact
-                                                file, coordinate appointments, surf the internet, exchange text messages
-                                                and more. Every product that is labeled as a Pocket PC must be
-                                                accompanied with specific software to operate the unit and must feature
-                                                a touchscreen and touchpad.</p>
-                                            <p>As is the case with any new technology product, the cost of a Pocket PC
-                                                was substantial during it’s early release. For approximately $700.00,
-                                                consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                                These days, customers are finding that prices have become much more
-                                                reasonable now that the newness is wearing off. For approximately
-                                                $350.00, a new Pocket PC can now be purchased.</p>
-                                        </div>
-                                        <div class="product__details__tab__content__item">
-                                            <h5>Material used</h5>
-                                            <p>Polyester is deemed lower quality due to its none natural quality’s. Made
-                                                from synthetic materials, not natural like wool. Polyester suits become
-                                                creased easily and are known for not being breathable. Polyester suits
-                                                tend to have a shine to them compared to wool and cotton suits, this can
-                                                make the suit look cheap. The texture of velvet is luxurious and
-                                                breathable. Velvet is a great choice for dinner party jacket and can be
-                                                worn all year round.</p>
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabs-6" role="tabpanel">
+                            <div class="product__details__tab__content">
+                                <div class="product__details__tab__content__item">
+                                    <h5>Products Infomation</h5>
+                                    <p>A Pocket PC is a handheld computer, which features many of the same
+                                        capabilities as a modern PC. These handy little devices allow
+                                        individuals to retrieve and store e-mail messages, create a contact
+                                        file, coordinate appointments, surf the internet, exchange text messages
+                                        and more. Every product that is labeled as a Pocket PC must be
+                                        accompanied with specific software to operate the unit and must feature
+                                        a touchscreen and touchpad.</p>
+                                    <p>As is the case with any new technology product, the cost of a Pocket PC
+                                        was substantial during it’s early release. For approximately $700.00,
+                                        consumers could purchase one of top-of-the-line Pocket PCs in 2003.
+                                        These days, customers are finding that prices have become much more
+                                        reasonable now that the newness is wearing off. For approximately
+                                        $350.00, a new Pocket PC can now be purchased.</p>
+                                </div>
+                                <div class="product__details__tab__content__item">
+                                    <h5>Material used</h5>
+                                    <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        from synthetic materials, not natural like wool. Polyester suits become
+                                        creased easily and are known for not being breathable. Polyester suits
+                                        tend to have a shine to them compared to wool and cotton suits, this can
+                                        make the suit look cheap. The texture of velvet is luxurious and
+                                        breathable. Velvet is a great choice for dinner party jacket and can be
+                                        worn all year round.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabs-7" role="tabpanel">
+                            <div class="product__details__tab__content">
+                                <p class="note">Nam tempus turpis at metus scelerisque placerat nulla deumantos
+                                    solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
+                                    ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
+                                    pharetras loremos.</p>
+                                <div class="product__details__tab__content__item">
+                                    <h5>Products Infomation</h5>
+                                    <p>A Pocket PC is a handheld computer, which features many of the same
+                                        capabilities as a modern PC. These handy little devices allow
+                                        individuals to retrieve and store e-mail messages, create a contact
+                                        file, coordinate appointments, surf the internet, exchange text messages
+                                        and more. Every product that is labeled as a Pocket PC must be
+                                        accompanied with specific software to operate the unit and must feature
+                                        a touchscreen and touchpad.</p>
+                                    <p>As is the case with any new technology product, the cost of a Pocket PC
+                                        was substantial during it’s early release. For approximately $700.00,
+                                        consumers could purchase one of top-of-the-line Pocket PCs in 2003.
+                                        These days, customers are finding that prices have become much more
+                                        reasonable now that the newness is wearing off. For approximately
+                                        $350.00, a new Pocket PC can now be purchased.</p>
+                                </div>
+                                <div class="product__details__tab__content__item">
+                                    <h5>Material used</h5>
+                                    <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        from synthetic materials, not natural like wool. Polyester suits become
+                                        creased easily and are known for not being breathable. Polyester suits
+                                        tend to have a shine to them compared to wool and cotton suits, this can
+                                        make the suit look cheap. The texture of velvet is luxurious and
+                                        breathable. Velvet is a great choice for dinner party jacket and can be
+                                        worn all year round.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        </div>
         </div>
     </section>
     <!-- Shop Details Section End -->
@@ -627,149 +738,54 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg"
-                            data-setbg="/img/product/2836d65d304705ef5878e7925ac1c009.webp">
-                            <span class="label">New</span>
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Piqué Biker Jacket</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$67.24</h5>
-                            <div class="product__color__select">
-                                <label for="pc-1">
-                                    <input type="radio" id="pc-1">
-                                </label>
-                                <label class="active black" for="pc-2">
-                                    <input type="radio" id="pc-2">
-                                </label>
-                                <label class="grey" for="pc-3">
-                                    <input type="radio" id="pc-3">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="/img/product/4MSW9016-03-M51.webp">
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Piqué Biker Jacket</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$67.24</h5>
-                            <div class="product__color__select">
-                                <label for="pc-4">
-                                    <input type="radio" id="pc-4">
-                                </label>
-                                <label class="active black" for="pc-5">
-                                    <input type="radio" id="pc-5">
-                                </label>
-                                <label class="grey" for="pc-6">
-                                    <input type="radio" id="pc-6">
-                                </label>
+                <% if (relatedProducts && relatedProducts.length> 0) { %>
+                    <% relatedProducts.forEach((relatedProduct)=> { %>
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
+                            <div class="product__item">
+                                <div class="product__item__pic set-bg"
+                                    data-setbg="<%= relatedProduct.image1 || 'default-image.jpg' %>">
+                                    <!-- Make the image clickable -->
+                                    <a href="/productDetails?id=<%= relatedProduct._id %>">
+                                        <img src="<%= relatedProduct.image1 || 'default-image.jpg' %>"
+                                            alt="<%= relatedProduct.productName %>">
+                                    </a>
+                                    <% if (relatedProduct.label) { %>
+                                        <span class="label">
+                                            <%= relatedProduct.label %>
+                                        </span>
+                                        <%}%>
+                                            <ul class="product__hover">
+                                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
+                                                <li><a href="#"><img src="img/icon/compare.png" alt="">
+                                                        <span>Compare</span></a></li>
+                                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
+                                            </ul>
+                                </div>
+                                <div class="product__item__text">
+                                    <h6>
+                                        <p onclick="window.location.href='/productDetails?id=<%=product._id %>'">
+                                            <%= product.productName %>
+                                        </p>
+                                    </h6>
+                                    <a href="#" class="add-cart">+ Add To Cart</a>
+                                    <div class="rating">
+                                        <% for (let i=0; i < 5; i++) { %>
+                                            <i
+                                                class="fa <%= i < relatedProduct.rating ? 'fa-star' : 'fa-star-o' %>"></i>
+                                            <% } %>
+                                    </div>
+                                    <h5>₹<%= relatedProduct.salePrice.toLocaleString('en-IN') %>
+                                    </h5>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                    <div class="product__item sale">
-                        <div class="product__item__pic set-bg"
-                            data-setbg="/img/product/5d4bc3079ca2d222caf7c8becd3b5822.webp">
-                            <span class="label">Sale</span>
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Multi-pocket Chest Bag</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$43.48</h5>
-                            <div class="product__color__select">
-                                <label for="pc-7">
-                                    <input type="radio" id="pc-7">
-                                </label>
-                                <label class="active black" for="pc-8">
-                                    <input type="radio" id="pc-8">
-                                </label>
-                                <label class="grey" for="pc-9">
-                                    <input type="radio" id="pc-9">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg"
-                            data-setbg="/img/product/c4d9eb37419b31c031a2b88b80722d9c.webp">
-                            <ul class="product__hover">
-                                <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                            </ul>
-                        </div>
-                        <div class="product__item__text">
-                            <h6>Diagonal Textured Cap</h6>
-                            <a href="#" class="add-cart">+ Add To Cart</a>
-                            <div class="rating">
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                            </div>
-                            <h5>$60.9</h5>
-                            <div class="product__color__select">
-                                <label for="pc-10">
-                                    <input type="radio" id="pc-10">
-                                </label>
-                                <label class="active black" for="pc-11">
-                                    <input type="radio" id="pc-11">
-                                </label>
-                                <label class="grey" for="pc-12">
-                                    <input type="radio" id="pc-12">
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        <% }); %>
+                            <% } else { %>
+                                <p>No related products found</p>
+                                <% } %>
             </div>
         </div>
+
     </section>
     <!-- Related Section End -->
     <!-- Footer Section Begin -->

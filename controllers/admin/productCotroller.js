@@ -50,56 +50,6 @@ const getEditProduct = async (req, res) => {
   }
 };
 
-const editProduct = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const product = await Product.findOne({ _id: id });
-    const data = req.body;
-    const existingProduct = await Product.findOne({
-      productName: data.productName,
-      _id: { $ne: id },
-    });
-
-    if (existingProduct) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Product with this name already exists.replace try with another name",
-        });
-    }
-
-    const image = [];
-
-    if (req.files && req.files.length > 0) {
-      for (let i = 0; i < req.files.lengthl; i++) {
-        images.push(req.files[i].filename);
-      }
-    }
-
-    const updateFields = {
-      productName: data.productName,
-      description: data.description,
-      // brand:data.brand,
-      category: product.category,
-      regularPrice: data.regularPrice,
-      salePrice: data.salePrice,
-      quantity: data.quantity,
-      size: data.size,
-      color: data.color,
-    };
-    if (image.length > 0) {
-      // Check if there are images to update
-      updateFields.$push = { productImage: { $each: image } };
-    }
-
-    await Product.findByIdAndUpdate(id, updateFields, { new: true });
-    res.redirect("/admin/product");
-  } catch (error) {
-    console.error(error);
-    res.redirect("/pageerror");
-  }
-};
 
 const deleteSingleImage = async (req, res) => {
   try {
@@ -130,6 +80,5 @@ module.exports = {
   blockProduct,
   unblockProduct,
   getEditProduct,
-  editProduct,
   deleteSingleImage,
 };
