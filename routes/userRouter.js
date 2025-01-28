@@ -25,12 +25,29 @@ router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
+// Google callback route
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/signup" }),
-
+  passport.authenticate("google", {
+    failureRedirect: "/signup", // Redirect to signup page on failure
+  }),
   (req, res) => {
-    res.redirect("/");
+    // Successful authentication, log the user in and redirect to home page
+    req.login(req.user, (err) => {
+      if (err) {
+        return res.redirect("/signup"); // If login fails, redirect to signup
+      }
+
+      // After login, set the user session manually if not already set
+      req.session.user = {
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+      };
+
+      // Redirect to home page or dashboard
+      res.redirect("/");
+    });
   }
 );
 
@@ -48,6 +65,23 @@ router.post("/forgot-email-valid", profileController.forgotEmailValid);
 router.post("/verify-passForgot-otp", profileController.verifyForgotPassOtp);
 router.get("/reset-password", profileController.getResetPassPage);
 router.post("/resend-forgot-otp", profileController.resendOtp);
-// User profile (Protected by userAuth)
-// router.get("/userProfile", userAuth, userController.userProfile); // Protected route
+router.post("/reset-password", profileController.postNewPassword);
+router.get("/userProfile",userAuth,profileController.userProfile);
+router.get("/change-email",userAuth,profileController.changeEmail)
+router.post("/change-email",userAuth,profileController.changeEmailValid);
+router.post("/verify-email-otp",userAuth,profileController.verifyEmailOtp)
+router.post("/update-email",userAuth,profileController.updateEmail);
+router.get("/change-password",userAuth,profileController.changePassword);
+router.post("/change-password",userAuth,profileController.changePasswordValid);
+router.post("/verify-changepassword-otp",userAuth,profileController.verifyChangePassOtp);
+
+//Address Management
+router.get("/addAddress",userAuth,profileController.addAddress);
+router.post("/addAddress",userAuth,profileController.postAddAddress);
+router.get("/editAddress",userAuth,profileController.editAddress);
+router.post("/editAddress",userAuth,profileController.postEditAddress);
+router.get("/deleteAddress",userAuth,profileController.deleteAddress)
+
+
+
 module.exports = router;

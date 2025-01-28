@@ -28,9 +28,10 @@ passport.use(
 
         // Create a new user if not found
         user = new User({
-          name,
-          email,
-          googleId,
+          name: profile.displayName,
+          email: profile.emails[0].value,
+          googleId: profile.id
+
         });
 
         await user.save();

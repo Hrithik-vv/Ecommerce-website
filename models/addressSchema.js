@@ -1,10 +1,11 @@
 const mongoose = require ("mongoose");
+const { addAddress } = require("../controllers/user/profileController");
 const {Schema} = mongoose;
 
 
 const addressSchema = new Schema ({
     userId : {
-        type:Schema.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref : "User",
         required: true
     },
@@ -46,4 +47,4 @@ const addressSchema = new Schema ({
 
 const address = mongoose.model("Address",addressSchema);
 
-module.exports = Address; 
+module.exports = address; 

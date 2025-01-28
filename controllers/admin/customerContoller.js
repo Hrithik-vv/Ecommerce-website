@@ -1,53 +1,47 @@
 const User = require("../../models/userSchema");
 
-// Fetch  paginated
 const customerInfo = async (req, res) => {
   try {
-    const search = req.query.search || ""; // Handle search query
+    const search = req.query.search || ""; // Search term
     const page = parseInt(req.query.page) || 1; // Current page
-    const limit = 10; // Items per page
+    const limit = 10; // Number of items per page
 
-    // Use `aggregate` to combine `find` and `countDocuments`
+    // Match stage for search
+    const matchStage = {
+      isAdmin: false,
+      $or: [
+        { name: { $regex: ".*" + search + ".*", $options: "i" } }, // Search by name
+        { email: { $regex: ".*" + search + ".*", $options: "i" } }, // Search by email
+      ],
+    };
+
+    // Get total count
+    const countPipeline = [{ $match: matchStage }, { $count: "total" }];
+    const countResult = await User.aggregate(countPipeline);
+    const totalDocuments = countResult.length > 0 ? countResult[0].total : 0;
+    const totalPages = Math.ceil(totalDocuments / limit); // Total pages
+
+    // Get paginated data
     const pipeline = [
-      {
-        $match: {
-          isAdmin: false,
-          $or: [
-            { name: { $regex: ".*" + search + ".*", $options: "i" } },
-            { email: { $regex: ".*" + search + ".*", $options: "i" } },
-          ],
-        },
-      },
-      { $skip: (page - 1) * limit }, // Pagination skip
-      { $limit: limit }, // Pagination limit
+      { $match: matchStage },
+      { $sort: { name: 1 } }, // Sort by name
+      { $skip: (page - 1) * limit }, // Skip based on page
+      { $limit: limit }, // Limit items
     ];
-
-    // Query to fetch paginated user data
     const userData = await User.aggregate(pipeline);
 
-    // Total count for pagination (optimized query)
-    const countPipeline = [
-      {
-        $match: {
-          isAdmin: false,
-          $or: [
-            { name: { $regex: ".*" + search + ".*", $options: "i" } },
-            { email: { $regex: ".*" + search + ".*", $options: "i" } },
-          ],
-        },
-      },
-      { $count: "total" },
-    ];
-    const countResult = await User.aggregate(countPipeline);
-    const count = countResult.length > 0 ? countResult[0].total : 0;
-
-    // Total pages calculation
-    const totalPages = Math.ceil(count / limit);
-
+    // Render customers template
     res.render("customers", {
       data: userData,
       totalPages,
       currentPage: page,
+      search,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page + 1,
+      prevPage: page - 1,
+      lastPage: totalPages,
+      totalItems: totalDocuments,
     });
   } catch (error) {
     console.error("Error fetching customer info:", error);

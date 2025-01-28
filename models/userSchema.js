@@ -11,6 +11,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    sparse:true
   },
   googleId:{
     type:String,
