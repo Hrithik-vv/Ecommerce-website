@@ -5,6 +5,10 @@ const passport = require("../config/passport");
 const profileController = require("../controllers/user/profileController");
 const { userAuth, already } = require("../middlewares/auth");
 const productController = require("../controllers/user/productController");
+
+const cartController = require('../controllers/user/cartController');
+
+
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/", userController.loadHomepage);
@@ -81,6 +85,20 @@ router.post("/addAddress",userAuth,profileController.postAddAddress);
 router.get("/editAddress",userAuth,profileController.editAddress);
 router.post("/editAddress",userAuth,profileController.postEditAddress);
 router.get("/deleteAddress",userAuth,profileController.deleteAddress)
+
+//Cart Management
+router.get("/shopping-cart", userAuth,cartController.viewCart);
+router.post("/add-to-cart", userAuth, cartController.addToCart);
+
+//filte
+router.get("/shop",productController.getProducts)
+
+
+//checkOut
+// Checkout Routes
+router.get("/checkout", userAuth, cartController.loadCheckoutPage);
+router.post("/checkout", userAuth, cartController.processCheckout);
+
 
 
 

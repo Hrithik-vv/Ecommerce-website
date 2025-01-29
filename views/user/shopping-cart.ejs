@@ -1,0 +1,411 @@
+<%- include("../../views/partials/user/header") %>
+    <style>
+        /* Header Styles */
+        .header .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .log-1 h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #010203;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            right: 84%;
+            top: 10%;
+            margin: 0;
+        }
+
+        .header__menu {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .header__menu ul {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .header_nav_option {
+            position: absolute;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            align-items: center;
+            font-size: larger;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 6%;
+            box-shadow: 0px 8px 16px rgba(10, 8, 8, 0.2);
+            z-index: 9999;
+            padding: 5px;
+        }
+
+        .dropdown-content li {
+            list-style: none;
+        }
+
+        .dropdown-content a {
+            color: black;
+            text-decoration: none;
+            display: block;
+            padding: 8px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Product Details Styles */
+        .product__details__content {
+            width: 400px;
+        }
+
+        .product__details__tab {
+            justify-content: center;
+            padding: 100px;
+        }
+
+        .product__details__breadcrumb {
+            text-align: left;
+            margin-left: 0;
+            padding: 0;
+            display: flex;
+            gap: 5px;
+        }
+
+        .product__details__option {
+            margin-left: 56px;
+        }
+
+        /* Status Styles */
+        .status-available {
+            color: green;
+        }
+
+        .status-out-of-stock {
+            color: red;
+        }
+
+        .status-discontinued {
+            color: blue;
+        }
+
+        /* Offer Badge Styles */
+        .offer-badge {
+
+            width: fit-content;
+            color: rgb(0, 0, 0);
+            font-size: 22px;
+            font-weight: bold;
+            padding: 9px 8px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        .offer-badgecont {
+            justify-content: center;
+            display: flex;
+        }
+
+        /* Image Zoom Styles */
+        .custom-image {
+            position: relative;
+            cursor: zoom-in;
+        }
+
+        .custom-image img {
+            transition: transform 0.2s;
+        }
+
+        .custom-image:hover img {
+            transform: scale(1.02);
+        }
+
+        .custom-loupe {
+            margin-right: 100px !important;
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85),
+                0 0 7px 7px rgba(0, 0, 0, 0.25),
+                inset 0 0 40px 2px rgba(0, 0, 0, 0.25);
+            display: none;
+            pointer-events: none;
+        }
+
+        .price h3 {
+            font-size: 27px;
+            font-weight: bold;
+            padding: 9px 18px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        .name h4 {
+            font-size: 27px;
+            font-weight: bold;
+            padding: 9px 18px;
+            border-radius: 8px;
+
+        }
+
+        .fa-star {
+            color: rgb(251, 238, 51);
+        }
+
+        .product__details__last__option ul {
+            padding-top: 1px;
+        }
+
+        .des h6 {
+            padding: 5px;
+        }
+
+        .product__item__pic {
+            position: relative;
+            overflow: hidden;
+            /* Ensure the zoom effect stays within the bounds */
+        }
+
+        .product__item__pic img {
+            width: 100%;
+            transition: transform 0.3s ease-in-out;
+            /* Smooth zoom effect */
+        }
+
+        .product__item__pic:hover img {
+            transform: scale(1.1);
+            /* Zoom in on hover */
+        }
+
+        .product__item__pic a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .product__item__pic:hover {
+            opacity: 1;
+            /* Show the hover icons when the image is hovered */
+        }
+
+        .product__item__text h6 p {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .product__item__text h6 p:hover {
+            color: #ff6f61;
+            /* Change text color on hover */
+        }
+
+
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 960px;
+                padding: 0 15px;
+            }
+
+            .product__details__content {
+                width: 100%;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .container {
+                max-width: 720px;
+            }
+
+            .header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .log-1 h1 {
+                position: static;
+                margin: 20px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 540px;
+            }
+
+            .header__menu {
+                display: none;
+            }
+
+            .header_nav_option {
+                position: static;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+
+            .dropdown-content {
+                position: static;
+                width: 100%;
+                box-shadow: none;
+            }
+
+            .custom-loupe {
+                display: none !important;
+            }
+
+            .custom-image:hover img {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            .log-1 h1 {
+                font-size: 2rem;
+            }
+
+            .offer-badge {
+                font-size: 18px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .custom-image img {
+                transition: none;
+            }
+        }
+    </style>
+
+    <body>
+      
+  
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Shopping Cart</h4>
+                        <div class="breadcrumb__links">
+                            <a href="/">Home</a>
+                            <a href="/shop">Shop</a>
+                            <span>Shopping Cart</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Shopping Cart Section Begin -->
+    <section class="shopping-cart spad">
+      <div class="container">
+          <div class="row">
+              <div class="col-lg-8">
+                  <div class="shopping__cart__table">
+                 
+  
+                      <table>
+                          <thead>
+                              <tr>
+                                  <th>Product</th>
+                                  <th>Price</th>
+                                  <th>Quantity</th>
+                                  <th>Total</th>
+                                  <th>Actions</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <% if (cartItems.length === 0) { %>
+                                  <tr>
+                                      <td colspan="5">Your cart is empty</td>
+                                  </tr>
+                              <% } else { %>
+                                  <% cartItems.forEach(item => { %>
+                                  <tr>
+                                      <td><%=productId.productName %></td>
+                                      <td>$<%=product.productPrice %></td>
+                                      <td><%= product.quantity %></td>
+                                      <td>$<%=product.totalPrice %></td>
+                                      <td>
+                                          <!-- Add remove or update actions here -->
+                                          <a href="/remove-from-cart/<%= product._id %>">Remove</a>
+                                      </td>
+                                  </tr>
+                                  <% }) %>
+                              <% } %>
+                          </tbody>
+                      </table>
+                      
+                      <!-- Total Price -->
+                      <% if (cartItems.length > 0) { %>
+                          <div>
+                              <h3>Total: $<%= cartItems.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2) %></h3>
+                          </div>
+                          <a href="/checkout" class="btn">Proceed to Checkout</a>
+                      <% } %>
+                      
+                  </div>
+              </div>
+              <div class="col-lg-4">
+                  <div class="cart__discount">
+                      <h6>Discount codes</h6>
+                      <form action="#">
+                          <input type="text" placeholder="Coupon code">
+                          <button type="submit">Apply</button>
+                      </form>
+                  </div>
+                  <div class="cart__total">
+                      <h6>Cart total</h6>
+                      <ul>
+                          <li>Subtotal <span>$ <%= cartItems.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2) %></span></li>
+                          <li>Total <span>$ <%= cartItems.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2) %></span></li>
+                      </ul>
+                      <a href="/checkOut" class="primary-btn">Proceed to checkout</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  
+    <!-- Shopping Cart Section End -->
+
+    <%-include("../../views/partials/user/footer")%>

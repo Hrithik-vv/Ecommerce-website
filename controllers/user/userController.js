@@ -393,6 +393,7 @@ const filterProduct = async (req, res) => {
   }
 };
 
+
 module.exports = {
   loadHomepage,
   pageNotFound,

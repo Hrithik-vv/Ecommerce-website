@@ -1,68 +1,77 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const productSchema = new Schema({
+const productSchema = new Schema(
+  {
     productName: {
-        type: String,
-        
+      type: String,
     },
     description: {
-        type: String,
-        
+      type: String,
     },
     brand: {
-        type: String,
-       
+      type: String,
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        
-        ref: "Category",
-        
+      type: mongoose.Schema.Types.ObjectId,
+
+      ref: "Category",
     },
     salePrice: {
-        type: Number,
-        
+      type: Number,
     },
-    productOffer: { // Fixed typo from "prooductOffer" to "productOffer"
-        type: Number,
-        default: 0
+    productOffer: {
+      // Fixed typo from "prooductOffer" to "productOffer"
+      type: Number,
+      default: 0,
     },
     quantity: {
-        type: Number,
-        default: 1 // Changed from `true` to a numeric default value (e.g., 1)
+      type: Number,
+      default: 1, // Changed from `true` to a numeric default value (e.g., 1)
     },
     color: {
-        type: String,
-        
+      type: String,
     },
     productImage: {
-        type: [String],
-        
+      type: [String],
     },
     isBlocked: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
     status: {
-        type: String,
-        enum: ["Available", "out of stock", "Discontinued"], // Fixed typo in enum values
-       
-        default: "Available"
+      type: String,
+      enum: ["Available", "out of stock", "Discontinued"], // Fixed typo in enum values
+
+      default: "Available",
     },
-    image1:{
-        type:String
+    image1: {
+      type: String,
     },
-    image2:{
-        type:String
+    image2: {
+      type: String,
     },
-    image3:{
-        type:String
+    image3: {
+      type: String,
     },
-    image4:{
-        type:String
-    }
-}, { timestamps: true });
+    image4: {
+      type: String,
+    },
+    popularity: {
+      type: Number,
+      default: 0,
+    },
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { timestamps: true }
+);
 
 // Correct usage of mongoose.model()
 const Product = mongoose.model("Product", productSchema);

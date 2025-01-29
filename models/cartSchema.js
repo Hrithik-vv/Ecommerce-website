@@ -17,7 +17,7 @@ const cartSchema = new Schema({
             type: Number,
             default:true
         },
-        price:{
+        productprice:{
             type:Number,
             required:true
         },

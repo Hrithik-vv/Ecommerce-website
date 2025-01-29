@@ -2,8 +2,9 @@
   <style>
     .main-container {
       max-width: 1200px;
-      margin: 0 auto;
+      margin: auto;
       padding: 20px;
+      border: 0px;
     }
 
     .shop-topbar {
@@ -234,6 +235,18 @@
             oninput="filterProducts()" />
           <button type="submit" class="search-button">Search</button>
         </div>
+        <div class="sort-options">
+          <select id="sort-select" onchange="sortProducts()">
+            <option value="popularity">Popularity</option>
+            <option value="priceLowHigh">Price: Low to High</option>
+            <option value="priceHighLow">Price: High to Low</option>
+            <option value="rating">Average Ratings</option>
+            <option value="featured">Featured</option>
+            <option value="newArrivals">New Arrivals</option>
+            <option value="aToZ">A - Z</option>
+            <option value="zToA">Z - A</option>
+          </select>
+        </div>
       </div>
 
       <div class="product-list-container">
@@ -325,6 +338,90 @@
       });
     }
   </script>
+
+<script>
+  document.getElementById('add-to-cart-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const productId = document.querySelector('[name="productId"]').value;
+      const quantity = document.getElementById('product-quantity').value;
+
+      fetch('/add-to-cart', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId, quantity }),
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert('Product added to cart');
+              // Optionally redirect to cart page or update cart count
+          } else {
+              alert('Error adding product to cart');
+          }
+      })
+      .catch(error => console.error('Error:', error));
+  });
+</script>
+<script>
+  function filterProducts() {
+    let searchQuery = document.getElementById('search-input').value.toLowerCase();
+    let productCards = document.querySelectorAll('.product-card');
+
+    productCards.forEach(card => {
+      let productName = card.dataset.name.toLowerCase();
+      if (productName.includes(searchQuery)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function sortProducts() {
+    let sortValue = document.getElementById('sort-select').value;
+    let productGrid = document.getElementById('product-grid');
+    let products = Array.from(document.querySelectorAll('.product-card'));
+
+    products.sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortValue) {
+        case "popularity":
+          aValue = parseInt(a.dataset.popularity);
+          bValue = parseInt(b.dataset.popularity);
+          return bValue - aValue;
+        case "priceLowHigh":
+          aValue = parseFloat(a.dataset.price);
+          bValue = parseFloat(b.dataset.price);
+          return aValue - bValue;
+        case "priceHighLow":
+          aValue = parseFloat(a.dataset.price);
+          bValue = parseFloat(b.dataset.price);
+          return bValue - aValue;
+        case "rating":
+          aValue = parseFloat(a.dataset.rating);
+          bValue = parseFloat(b.dataset.rating);
+          return bValue - aValue;
+        case "newArrivals":
+          aValue = new Date(a.dataset.date);
+          bValue = new Date(b.dataset.date);
+          return bValue - aValue;
+        case "aToZ":
+          return a.dataset.name.localeCompare(b.dataset.name);
+        case "zToA":
+          return b.dataset.name.localeCompare(a.dataset.name);
+        default:
+          return 0;
+      }
+    });
+
+    productGrid.innerHTML = "";
+    products.forEach(product => productGrid.appendChild(product));
+  }
+</script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
   <%- include("../../views/partials/user/footer") %>
