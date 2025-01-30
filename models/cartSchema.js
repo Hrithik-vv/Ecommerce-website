@@ -3,13 +3,13 @@ const {Schema} =mongoose;
 
 const cartSchema = new Schema({
     userId :{
-        type:Schema.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref : "User",
         required : true
     },
     items :[{
         productId:{
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref:'Product',
             required:true
         },
@@ -17,7 +17,7 @@ const cartSchema = new Schema({
             type: Number,
             default:true
         },
-        productprice:{
+        productPrice:{
             type:Number,
             required:true
         },

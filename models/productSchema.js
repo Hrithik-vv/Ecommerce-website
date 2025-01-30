@@ -19,6 +19,8 @@ const productSchema = new Schema(
     },
     salePrice: {
       type: Number,
+      required: true,
+    min: 0
     },
     productOffer: {
       // Fixed typo from "prooductOffer" to "productOffer"

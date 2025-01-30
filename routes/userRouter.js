@@ -88,17 +88,16 @@ router.get("/deleteAddress",userAuth,profileController.deleteAddress)
 
 //Cart Management
 router.get("/shopping-cart", userAuth,cartController.viewCart);
-router.post("/add-to-cart", userAuth, cartController.addToCart);
-
+router.post("/shopping-cart", userAuth, cartController.addToCart);
+router.get("/remove-from-cart/:productId", userAuth, cartController.removeFromCart);
+router.post('/cart/update', cartController.updateQuantity);
 //filte
 router.get("/shop",productController.getProducts)
 
 
-//checkOut
 // Checkout Routes
 router.get("/checkout", userAuth, cartController.loadCheckoutPage);
-router.post("/checkout", userAuth, cartController.processCheckout);
-
+router.post('/place-order',userAuth, cartController.processCheckout);
 
 
 

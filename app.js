@@ -9,6 +9,8 @@ const userRouter = require("./routes/userRouter"); // User routes
 const GoogleStrategy = require("passport-google-oauth20").Strategy; // Google OAuth
 const adminRouter = require("./routes/adminRouter"); // Admin routes
 const nocache = require("nocache");
+const flash = require('connect-flash');
+const Cart = require("./models/cartSchema")
 
 connectDB();
 
@@ -17,18 +19,18 @@ app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 // Session Configuration
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: {
-//       secure: false,
-//       httpOnly: true,
-//       maxAge: 72 * 60 * 60 * 1000,
-//     },
-//   })
-// );
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    },
+  })
+);
 
 app.use(
   session({
@@ -42,15 +44,23 @@ app.use(
   })
 );
 
+
+
 // Initialize Passport and restore authentication state
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 
 app.use(nocache());
 
 // Middleware to Set `res.locals.user`
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || "aaaahaaa"; // Assign user to locals for templates
+  res.locals.user = req.session.user || "a"; // Assign user to locals for templates
+  next();
+});
+app.use((req, res, next) => {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
   next();
 });
 
@@ -92,6 +102,24 @@ app.get("/admin/addproduct", (req, res) => {
 app.get("/admin/product", async (req, res) => {
   const products = await this.product.find();
   res.render("admin/product", { product });
+});
+
+app.use(flash());
+
+// Add this middleware to make cart count available to all views
+app.use(async (req, res, next) => {
+  if (req.user) {
+    try {
+      const cart = await Cart.findOne({ userId: req.user._id });
+      res.locals.cartCount = cart ? cart.items.reduce((acc, item) => acc + item.quantity, 0) : 0;
+    } catch (error) {
+      console.error('Cart count middleware error:', error);
+      res.locals.cartCount = 0;
+    }
+  } else {
+    res.locals.cartCount = 0;
+  }
+  next();
 });
 
 module.exports = app;
