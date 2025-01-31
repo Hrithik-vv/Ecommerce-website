@@ -140,11 +140,11 @@ const getUnlistCategory = async (req, res) => {
     
     // Check the action and update accordingly
     if (action === "list") {
-      updateData.isListed = true;  // Set category as listed
+      updateData.isListed = true;  
     } else if (action === "unlist") {
-      updateData.isListed = false;  // Set category as unlisted
+      updateData.isListed = false;  
     } else {
-      return res.redirect("/pageerror");  // Invalid action
+      return res.redirect("/pageerror"); 
     }
 
     // Update the category in the database
@@ -152,8 +152,8 @@ const getUnlistCategory = async (req, res) => {
 
     // Update the products in that category
     await product.updateMany(
-      { category: id },  // Find products that belong to this category
-      { $set: { isBlocked: !updateData.isListed } }  // Set the isListed field for products
+      { category: id },  
+      { $set: { isBlocked: !updateData.isListed } } 
     );
 
     // Redirect to the category page after the update

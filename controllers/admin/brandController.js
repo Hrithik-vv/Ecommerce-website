@@ -1,7 +1,7 @@
 const Brand = require("../../models/brandSchema");
 const Product = require("../../models/productSchema");
 
-// fetch and render pagination
+// Fetch and render brand page with pagination
 const getBrandPage = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -14,10 +14,12 @@ const getBrandPage = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    // Render the brands page with necessary data for pagination
+    // Calculate total pages for pagination
     const totalBrands = await Brand.countDocuments();
     const totalPages = Math.ceil(totalBrands / limit);
     const reverseBrand = brandData.reverse();
+
+    // Render brands page with pagination data
     res.render("brands", {
       data: reverseBrand,
       currentPage: page,
@@ -25,15 +27,15 @@ const getBrandPage = async (req, res) => {
       totalBrands: totalBrands,
     });
   } catch (error) {
+    console.log("Brand page fetch error:", error);
     res.redirect("pageerror");
-    console.log("brand page get error", error);
   }
 };
 
-//Adding Brand
+// Add a new brand
 const addBrand = async (req, res) => {
   try {
-    const brandName = req.body.name; // Brand name from the form
+    const brandName = req.body.name; // Get brand name from the request
     const findBrand = await Brand.findOne({ brandName }); // Check if the brand already exists
 
     if (!findBrand) {
@@ -43,12 +45,14 @@ const addBrand = async (req, res) => {
       }
 
       const image = req.file.filename; // Get the uploaded image filename
+
+      // Create a new brand entry
       const newBrand = new Brand({
         brandName: brandName,
         brandImage: image,
       });
 
-      await newBrand.save(); // Save the new brand to the database
+      await newBrand.save(); // Save the brand to the database
       res.redirect("admin/brand"); // Redirect to the brand management page
     } else {
       res.status(400).send("Brand already exists."); // Handle duplicate brand case

@@ -1,5 +1,5 @@
 // const { options } = require("../../app");
-const User = require("../../models/userSchema"); 
+const User = require("../../models/userSchema");
 const product = require("../../models/productSchema");
 const env = require("dotenv").config(); //variable configuration
 const nodemailer = require("nodemailer"); // sending email
@@ -29,7 +29,8 @@ const loadHomepage = async (req, res) => {
       const userData = await User.findOne({ _id: user._id });
       //user checking
       if (userData) {
-        if (userData.isBlocked) { // If the user is blocked
+        if (userData.isBlocked) {
+          // If the user is blocked
           req.session.destroy((err) => {
             if (err) {
               console.error("Error destroying session:", err);
@@ -73,7 +74,7 @@ async function sendVerificationEmail(email, otp) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       port: 587,
-      secure: false, 
+      secure: false,
       auth: {
         user: process.env.NODEMAILER_EMAIL,
         pass: process.env.NODEMAILER_PASSWORD,
@@ -215,12 +216,12 @@ const resendOtp = async (req, res) => {
 function resendOTP() {
   // Clear existing timer and reset values
   clearInterval(timerInterval);
-  timer = 60; 
+  timer = 60;
   document.getElementById("otp").disabled = false;
   document.getElementById("timerValue").classList.remove("expired");
   document.getElementById("timerValue").textContent = timer; // Reset displayed timer
 
-  startTimer(); 
+  startTimer();
 
   // Send AJAX request to resend OTP
   $.ajax({
@@ -232,7 +233,7 @@ function resendOTP() {
           icon: "success",
           title: "OTP Resent Successfully",
           showConfirmButton: false,
-          timer: 1500, 
+          timer: 1500,
         });
       } else {
         Swal.fire({
@@ -304,7 +305,7 @@ const logout = async (req, res) => {
         return res.redirect("/pageNotFound");
       }
       // After session is destroyed, clear the session cookie
-      res.clearCookie("connect.sid"); 
+      res.clearCookie("connect.sid");
       return res.redirect("/login");
     });
   } catch (error) {
@@ -392,7 +393,6 @@ const filterProduct = async (req, res) => {
     res.redirect("/pageNotFound");
   }
 };
-
 
 module.exports = {
   loadHomepage,

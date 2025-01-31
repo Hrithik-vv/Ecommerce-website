@@ -18,8 +18,12 @@ const userSchema = new Schema({
     require:true,
     required: false, // Make it optional
   sparse: true, 
-
   },
+  addresses: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Address'
+  },
+   
   // phone: {
   //   type: String,
   //   required: false,

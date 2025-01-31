@@ -100,5 +100,4 @@ router.get("/checkout", userAuth, cartController.loadCheckoutPage);
 router.post('/place-order',userAuth, cartController.processCheckout);
 
 
-
 module.exports = router;

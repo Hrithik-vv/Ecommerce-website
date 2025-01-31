@@ -1,13 +1,13 @@
 const User = require("../../models/userSchema");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt"); //password hashing and comparison
+const bcrypt = require("bcrypt");
 
-//error page
+// Render the error page
 const pageerror = async (req, res) => {
   res.render("admin-error");
 };
 
-//to render the admin login page
+// Render the admin login page
 const loadLogin = (req, res) => {
   if (req.session.admin) {
     return res.redirect("/admin/dashboard");
@@ -15,19 +15,18 @@ const loadLogin = (req, res) => {
   res.render("adminLogin", { message: null });
 };
 
-//dmin login functionality
+// Admin login functionality
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log(req.body);
 
-    // Find the user
+    // Find the admin user
     const admin = await User.findOne({ email, isAdmin: true });
 
     if (admin) {
       const passwordMatch = await bcrypt.compare(password, admin.password);
-      console.log("Password match check");
-
+      
       if (passwordMatch) {
         req.session.admin = true;
         return res.redirect("/admin/dashboard");
@@ -38,12 +37,12 @@ const login = async (req, res) => {
       return res.render("adminLogin", { message: "Admin not found." });
     }
   } catch (error) {
-    console.log("login error", error);
+    console.log("Login error", error);
     return res.redirect("/pageerror");
   }
 };
 
-//to load the admin dashboard
+// Load the admin dashboard
 const loadDashboard = async (req, res) => {
   if (req.session.admin) {
     try {
@@ -56,7 +55,7 @@ const loadDashboard = async (req, res) => {
   }
 };
 
-//Admin Logout
+// Admin logout
 const logout = async (req, res) => {
   try {
     req.session.destroy((err) => {
@@ -67,7 +66,7 @@ const logout = async (req, res) => {
       res.redirect("/admin/login");
     });
   } catch (error) {
-    console.log("unexpected error during lgout", error);
+    console.log("Unexpected error during logout", error);
     res.redirect("/pageerror");
   }
 };

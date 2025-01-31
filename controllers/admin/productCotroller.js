@@ -50,7 +50,6 @@ const getEditProduct = async (req, res) => {
   }
 };
 
-
 const deleteSingleImage = async (req, res) => {
   try {
     const { imageNameTOServer, productIdServer } = req.body;

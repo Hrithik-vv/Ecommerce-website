@@ -2,16 +2,16 @@ const User = require("../../models/userSchema");
 
 const customerInfo = async (req, res) => {
   try {
-    const search = req.query.search || ""; // Search term
-    const page = parseInt(req.query.page) || 1; // Current page
-    const limit = 10; // Number of items per page
+    const search = req.query.search || ""; 
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 10; 
 
     // Match stage for search
     const matchStage = {
       isAdmin: false,
       $or: [
-        { name: { $regex: ".*" + search + ".*", $options: "i" } }, // Search by name
-        { email: { $regex: ".*" + search + ".*", $options: "i" } }, // Search by email
+        { name: { $regex: ".*" + search + ".*", $options: "i" } }, 
+        { email: { $regex: ".*" + search + ".*", $options: "i" } },
       ],
     };
 
@@ -19,14 +19,14 @@ const customerInfo = async (req, res) => {
     const countPipeline = [{ $match: matchStage }, { $count: "total" }];
     const countResult = await User.aggregate(countPipeline);
     const totalDocuments = countResult.length > 0 ? countResult[0].total : 0;
-    const totalPages = Math.ceil(totalDocuments / limit); // Total pages
+    const totalPages = Math.ceil(totalDocuments / limit); 
 
     // Get paginated data
     const pipeline = [
       { $match: matchStage },
-      { $sort: { name: 1 } }, // Sort by name
-      { $skip: (page - 1) * limit }, // Skip based on page
-      { $limit: limit }, // Limit items
+      { $sort: { name: 1 } }, 
+      { $skip: (page - 1) * limit }, 
+      { $limit: limit }, 
     ];
     const userData = await User.aggregate(pipeline);
 
