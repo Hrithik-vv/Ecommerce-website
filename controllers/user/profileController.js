@@ -312,38 +312,46 @@ const postAddAddress = async (req, res) => {
       phone,
       altPhone,
     } = req.body;
+console.log('jknijnijknijknjk');
+console.log(addressType)
+if (!addressType || !name || !city || !state || !pincode || !phone) {
+  console.log("Missing required fields:", { addressType, name, city, state, pincode, phone });
+  return res.status(400).send("All fields are required");
+}
 
-    const userAddress = await Address.findOne({ userId: userData._id });
-    if (!userAddress) {
-      const newAddress = new Address({
-        userId: userData._id,
-        address: [
-          {
-            addressType,
-            name,
-            city,
-            landMark,
-            state,
-            pincode,
-            phone,
-            altPhone,
-          },
-        ],
-      });
-      await newAddress.save();
-    } else {
-      userAddress.address.push({
-        addressType,
-        name,
-        city,
-        landMark,
-        state,
-        pincode,
-        phone,
-        altPhone,
-      });
-      await userAddress.save();
-    }
+console.log('jknijnijknijknjk');
+
+   
+const existingAddress = await Address.findOne({ userId: userData._id });
+
+const newAddressData = {
+  addressType,
+  name,
+  city,
+  landMark,
+  state,
+  pincode,
+  phone,
+  altPhone,
+};
+
+if (existingAddress) {
+  // If address document exists, push the new address to the array
+  await Address.updateOne(
+    { userId: userData._id },
+    { $push: { address: newAddressData } }
+  );
+} else {
+  // If no existing document, create a new one
+  const newAddress = new Address({
+    userId: userData._id,
+    address: [newAddressData], // Store the new address in an array
+  });
+  await newAddress.save();
+}
+
+console.log("Address added successfully");
+
 
     res.redirect("/userProfile");
   } catch (error) {
@@ -353,6 +361,8 @@ const postAddAddress = async (req, res) => {
 };
 
 const editAddress = async (req, res) => {
+
+
   try {
     const addressId = req.query.id;
     const user = req.session.user;
@@ -381,6 +391,7 @@ const editAddress = async (req, res) => {
 const postEditAddress = async (req, res) => {
   try {
     const data = req.body;
+    console.log("Request Body:", req.body,"usydghsbzjkjfbijk");
     const addressId = req.query.id;
     const user = req.session.user;
     const findAddress = await Address.findOne({ "address._id": addressId });
@@ -393,7 +404,7 @@ const postEditAddress = async (req, res) => {
         $set: {
           "address.$": {
             _id: addressId,
-            addresstype: data.addressType,
+            addressType: data.addressType,
             name: data.name,
             city: data.city,
             landMark: data.landMark,

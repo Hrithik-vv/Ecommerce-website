@@ -1,191 +1,469 @@
-<%- include("../../views/partials/user/header") %>
+<!DOCTYPE html>
+<html lang="zxx">
 
-    <!-- ... (Breadcrumb Section remains unchanged) ... -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Male_Fashion Template">
+    <meta name="keywords" content="Male_Fashion, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Oxyboo | Checkout</title>
 
-    <!-- Checkout Section Begin -->
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+        <style>
+            .checkout__order__products {
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+                margin-bottom: 15px;
+            }
+            
+            .checkout_total_products {
+                list-style: none;
+                padding: 0;
+                margin-bottom: 20px;
+            }
+            
+            .checkout_total_products li {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .checkout_total_products li:last-child {
+                border-bottom: none;
+            }
+            
+            .checkout_total_products li .product-details {
+                display: flex;
+                align-items: center;
+            }
+            
+            .checkout_total_products li .product-details .product-number {
+                margin-right: 10px;
+                color: #888;
+            }
+            
+            .checkout_total_products li .product-price {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+            
+            .checkout_total_products li .product-price .quantity {
+                font-size: 0.8em;
+                color: #666;
+                margin-bottom: 5px;
+            }
+            </style>
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+    
     <style>
-        .address-card {
-            border: 2px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .address-card.selected {
-            border-color: #4CAF50;
-            background-color: #f8fff8;
-        }
-        
-        .address-card:hover {
-            border-color: #888;
-        }
-        
-        .select-address {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-        }
-        
-        .address-details {
+        .existing-addresses {
             margin-bottom: 30px;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 5px;
         }
-        </style>
+        
+        .address-option {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .address-option:hover {
+            border-color: #111;
+            background-color: #f9f9f9;
+        }
+        
+        .address-radio {
+            margin-top: 5px;
+            margin-right: 15px;
+        }
+        
+        .address-details strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #111;
+            font-size: 16px;
+        }
+        
+        .address-details p {
+            margin: 0;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .new-address-toggle {
+            margin-top: 20px;
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+      
+    .selected-address {
+        border-color: #007bff !important;
+        background-color: #f8f9fa;
+    }
+
+    </style>
+</head>
+
+<body>
+    <!-- Preloder, Header, Breadcrumb sections remain unchanged -->
+
+    <!-- Checkout Section -->
     <section class="checkout spad">
         <div class="container">
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+            <% if (success) { %>
+                <div class="alert alert-success"><%= success %></div>
+            <% } %>
+
             <div class="checkout__form">
-                <form action="/place-order" method="POST">
+                <form method="post" action="/checkout">
                     <div class="row">
                         <div class="col-lg-8 col-md-6">
-                            <h6 class="coupon__code"><span class="icon_tag_alt"></span> Have a coupon? <a href="#">Click
-                                    here</a> to enter your code</h6>
-                            <div class="checkout__address-selection mb-4">
-                                <h6 class="checkout__title">Select Saved Address</h6>
-                                <% if(addresses && addresses.length> 0) { %>
-                                    <div class="row">
-                                        <% addresses.forEach(address=> { %>
-                                            <div class="col-md-6 mb-3">
-                                                <div
-                                                    class="address-card <%= selectedAddress && selectedAddress._id.equals(address._id) ? 'selected' : '' %>">
-                                                    <div class="address-details">
-                                                        <p><strong>
-                                                                <%= address.name %>
-                                                            </strong></p>
-                                                        <p>
-                                                            <%= address.city %>, <%= address.landMark %>
-                                                        </p>
-                                                        <p>
-                                                            <%= address.state %>, <%= address.pincode %>
-                                                        </p>
-                                                        <p>Phone: <%= address.phone %>
-                                                        </p>
-                                                    </div>
-                                                    <button class="btn btn-sm btn-primary select-address"
-                                                        data-address='<%= JSON.stringify(address) %>'>
-                                                        Select
-                                                    </button>
+                            <h6 class="coupon__code"><span class="icon_tag_alt"></span> Have a coupon? <a href="#">Click here</a></h6>
+                            <h6 class="checkout__title">Billing Details</h6>
+
+                            <% if (addresses && addresses.address.length > 0) { %>
+                                <div class="existing-addresses">
+                                    <h6>Select Existing Address</h6>
+                                    <% if (addresses && addresses.address.length > 0) { %>
+                                        <% addresses.address.forEach((addr, index) => { %>
+                                            <div class="address-option" data-id="<%= addr._id %>" data-index="<%= index %>">
+                                                <div class="address-details">
+                                                    <strong><%= addr.name %></strong>
+                                                    <p>
+                                                        <%= addr.landMark %>, 
+                                                        <%= addr.city %>, 
+                                                        <%= addr.state %> - <%= addr.pincode %><br>
+                                                        Phone: <%= addr.phone %>
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <% }) %>
-                                    </div>
-                                    <% } else { %>
-                                        <p>No saved addresses found. Please add a new address below.</p>
-                                        <% } %>
-                            </div>
-                            <h6 class="checkout__title">Billing Details</h6>
-                            <div class="checkout__input">
-                                <p>Address<span>*</span></p>
-                                <input type="text" name="address" required placeholder="Street Address"
-                                    class="checkout__input__add">
-                            </div>
-                            <!-- Keep other fields if needed or remove them -->
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="checkout__input">
-                                        <p>First Name<span>*</span></p>
-                                        <input type="text" name="firstName" required>
-                                    </div>
+                                        <% }) %>
+                                    <% } %>
+                                    <button type="button" class="site-btn" data-toggle="modal" data-target="#addAddressModal">
+                                        Add New Address
+                                    </button>
+                                    <input type="hidden" id="selectedAddressId" name="selectedAddressId">
                                 </div>
-                                <div class="col-lg-6">
-                                    <div class="checkout__input">
-                                        <p>Last Name<span>*</span></p>
-                                        <input type="text" name="lastName" required>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="checkout__input">
-                                <p>Address<span>*</span></p>
-                                <input type="text" name="address" required 
-                                       placeholder="Street Address" class="checkout__input__add">
-                            </div>
-                            
-                            <div class="checkout__input">
-                                <p>Town/City<span>*</span></p>
-                                <input type="text" name="city" required>
-                            </div>
-                            
-                            <div class="checkout__input">
-                                <p>State<span>*</span></p>
-                                <input type="text" name="state" required>
-                            </div>
-                            
-                            <div class="checkout__input">
-                                <p>Postcode<span>*</span></p>
-                                <input type="text" name="pincode" required>
-                            </div>
-                            
-                            <div class="checkout__input">
-                                <p>Phone<span>*</span></p>
-                                <input type="text" name="phone" required>
-                            </div>
-                            
-                            <div class="checkout__input">
-                                <p>Email<span>*</span></p>
-                                <input type="email" name="email" required>
-                            </div>
+                            <% } %>
+                        </div>
+
                         <div class="col-lg-4 col-md-6">
                             <div class="checkout__order">
                                 <h4 class="order__title">Your Order</h4>
                                 <div class="checkout__order__products">Product <span>Total</span></div>
-                                <ul class="checkout__total__products">
-                                    <% cartItems.forEach(item=> { %>
-                                        <li>
-                                            <%= item.productId.productName %> <span>$<%= item.totalPrice.toFixed(2) %>
-                                                        </span>
+                                <ul class="checkout_total_products">
+                                    <% cartItems.forEach((item, index) => { %>
+                                        <li data-product-id="<%= item.productId._id %>" data-quantity="<%= item.quantity %>">
+                                            <div class="product-details">
+                                                <span class="product-number"><%= index + 1 %>.</span>
+                                                <%= item.productId.productName %>
+                                            </div>
+                                            <div class="product-price">
+                                                <span class="quantity">Qty: <%= item.quantity %></span>
+                                                $<%= item.totalPrice.toFixed(2) %>
+                                            </div>
                                         </li>
-                                        <% }) %>
+                                    <% }) %>
                                 </ul>
+                                
                                 <ul class="checkout__total__all">
+                                    <li>Subtotal <span>$<%= total.toFixed(2) %></span></li>
                                     <li>Total <span>$<%= total.toFixed(2) %></span></li>
                                 </ul>
-
-                                <div class="checkout__input__checkbox">
-                                    <label for="payment">
-                                        <input type="radio" name="paymentMethod" value="cod" id="payment" required>
-                                        Cash on Delivery
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                                <div class="checkout__input__checkbox">
-                                    <label for="paypal">
-                                        <input type="radio" name="paymentMethod" value="paypal" id="paypal">
-                                        Paypal
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-
+                                <label>
+                                    <input type="radio" name="payment" value="cod" required>
+                                    Cash on Delivery
+                                </label>
+                            
+                                <label>
+                                    <input type="radio" name="payment" value="upi" required>
+                                    UPI
+                                </label>
+                            
+                                
+                                
+                                     
                                 <button type="submit" class="site-btn">PLACE ORDER</button>
                             </div>
                         </div>
                     </div>
+                    <input type="hidden" name="products" id="productsData">
+
                 </form>
             </div>
         </div>
     </section>
-    <!-- Checkout Section End -->
-
-    <!-- Add this script at the end of the checkout page -->
-<script>
-    document.querySelectorAll('.select-address').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const address = JSON.parse(e.target.dataset.address);
+    <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="/addAddress" method="POST">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <!-- Address Type -->
+                                <div class="checkout__input">
+                                    <label>Address Type<span>*</span></label>
+                                    <select name="addressType" class="form-control" required>
+                                        <option value="Home">Home</option>
+                                        <option value="Work">Work</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                
+                                <!-- Existing Fields -->
+                                <div class="checkout__input">
+                                    <label>Full Name<span>*</span></label>
+                                    <input type="text" name="name" required>
+                                </div>
+                                <div class="checkout__input">
+                                    <label>Street Address</label>
+                                    <input type="text" name="landMark" class="checkout_input_add">
+                                </div>
+                                <div class="checkout__input">
+                                    <label>City<span>*</span></label>
+                                    <input type="text" name="city" required>
+                                </div>
+                                <div class="checkout__input">
+                                    <label>State<span>*</span></label>
+                                    <input type="text" name="state" required>
+                                </div>
+                                <div class="checkout__input">
+                                    <label>Postcode<span>*</span></label>
+                                    <input type="number" name="pincode" min="100000" max="999999" required>
+                                </div>
+                                <div class="checkout__input">
+                                    <label>Phone<span>*</span></label>
+                                    <input type="text" name="phone" pattern="[0-9]{10}" title="10 digit phone number" required>
+                                </div>
+                                <!-- New Alt Phone Field -->
+                                <div class="checkout__input">
+                                    <label>Alternative Phone<span>*</span></label>
+                                    <input type="text" name="altPhone" pattern="[0-9]{10}" title="10 digit phone number" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+   <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="footer__about">
+                            <div class="footer__logo">
+                                <a href="#"><img src="img/footer-logo.png" alt=""></a>
+                            </div>
+                            <p>The customer is at the heart of our unique business model, which includes design.</p>
+                            <a href="#"><img src="img/payment.png" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 offset-lg-1 col-md-3 col-sm-6">
+                        <div class="footer__widget">
+                            <h6>Shopping</h6>
+                            <ul>
+                                <li><a href="#">Clothing Store</a></li>
+                                <li><a href="#">Trending Shoes</a></li>
+                                <li><a href="#">Accessories</a></li>
+                                <li><a href="#">Sale</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-6">
+                        <div class="footer__widget">
+                            <h6>Shopping</h6>
+                            <ul>
+                                <li><a href="#">Contact Us</a></li>
+                                <li><a href="#">Payment Methods</a></li>
+                                <li><a href="#">Delivary</a></li>
+                                <li><a href="#">Return & Exchanges</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 offset-lg-1 col-md-6 col-sm-6">
+                        <div class="footer__widget">
+                            <h6>NewLetter</h6>
+                            <div class="footer__newslatter">
+                                <p>Be the first to know about new arrivals, look books, sales & promos!</p>
+                                <form action="#">
+                                    <input type="text" placeholder="Your email">
+                                    <button type="submit"><span class="icon_mail_alt"></span></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="footer__copyright__text">
+                            <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                            <p>Copyright ©
+                                <script>
+                                    document.write(new Date().getFullYear());
+                                </script>2020
+                                All rights reserved | This template is made with <i class="fa fa-heart-o"
+                                aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                            </p>
+                            <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+  <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/jquery.nice-select.min.js"></script>
+        <script src="js/jquery.nicescroll.min.js"></script>
+        <script src="js/jquery.magnific-popup.min.js"></script>
+        <script src="js/jquery.countdown.min.js"></script>
+        <script src="js/jquery.slicknav.js"></script>
+        <script src="js/mixitup.min.js"></script>
+        <script src="js/owl.carousel.min.js"></script>
+        <script src="js/main.js"></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addressOptions = document.querySelectorAll('.address-option');
             
-            // Fill form fields
-            document.querySelector('input[name="firstName"]').value = address.name.split(' ')[0] || '';
-            document.querySelector('input[name="lastName"]').value = address.name.split(' ')[1] || '';
-            document.querySelector('input[name="address"]').value = address.landMark;
-            document.querySelector('input[name="city"]').value = address.city;
-            document.querySelector('input[name="state"]').value = address.state;
-            document.querySelector('input[name="pincode"]').value = address.pincode;
-            document.querySelector('input[name="phone"]').value = address.phone;
-            
-            // Add visual feedback
-            document.querySelectorAll('.address-card').forEach(card => {
-                card.classList.remove('selected');
+            addressOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    addressOptions.forEach(opt => opt.classList.remove('selected-address'));
+                    this.classList.add('selected-address');
+                    document.getElementById('selectedAddressId').value = this.dataset.id;
+                });
             });
-            e.target.closest('.address-card').classList.add('selected');
+        
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const selectedAddress = document.querySelector('.selected-address');
+                if (!selectedAddress) {
+                    e.preventDefault();
+                    alert('Please select an address or add a new one');
+                    return;
+                }
+        
+                // Collect address information
+                const addressId = selectedAddress.dataset.id;
+                const addressIndex = selectedAddress.dataset.index;
+        
+                // Collect product information
+                const products = Array.from(document.querySelectorAll('.checkout_total_products li')).map(li => ({
+                    productId: li.dataset.productId,
+                    quantity: parseInt(li.dataset.quantity)
+                }));
+        
+                // Log the data to console
+                console.log({
+                    selectedAddress: {
+                        id: addressId,
+                        index: addressIndex
+                    },
+                    products: products
+                });
+        
+                // Optional: Add the products data to form submission
+                document.getElementById('productsData').value = JSON.stringify(products);
+            });
         });
-    });
+        </script>
+    <script>
+        function fillAddress(selectedAddress) {
+            const data = selectedAddress.dataset;
+            document.getElementById('streetAddress').value = data.landmark;
+            document.getElementById('city').value = data.city;
+            document.getElementById('state').value = data.state;
+            document.getElementById('postcode').value = data.pincode;
+            document.getElementById('phone').value = data.phone;
+        }
+
+        function showNewAddress() {
+            document.querySelectorAll('.address-radio').forEach(radio => {
+                radio.checked = false;
+            });
+            document.getElementById('streetAddress').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('state').value = '';
+            document.getElementById('postcode').value = '';
+            document.getElementById('phone').value = '<%= user.phone %>';
+        }
+
+        // Initialize with first address
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstAddress = document.querySelector('.address-radio');
+            if (firstAddress) {
+                fillAddress(firstAddress);
+            }
+        });
     </script>
-    <%- include("../../views/partials/user/footer") %>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addressOptions = document.querySelectorAll('.address-option');
+            
+            addressOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selection from all options
+                    addressOptions.forEach(opt => opt.classList.remove('selected-address'));
+                    // Add selection to clicked option
+                    this.classList.add('selected-address');
+                    
+                    // Get address data
+                    const addressId = this.dataset.id;
+                    const addressIndex = this.dataset.index;
+                    
+                    // Update hidden input
+                    document.getElementById('selectedAddressId').value = addressId;
+                    
+                    // Log to console
+                    console.log('Selected Address ID:', addressId);
+                    console.log('Array Index:', addressIndex);
+                });
+            });
+    
+            // Handle form submission
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const selectedAddress = document.querySelector('.selected-address');
+                if (!selectedAddress) {
+                    e.preventDefault();
+                    alert('Please select an address or add a new one');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Product Details</h1>
+
+        <!-- Product Card -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 mb-6">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div class="mb-2 md:mb-0">
+                        <h2 class="text-xl font-semibold text-gray-800">
+                            <i class="fas fa-box-open text-blue-500 mr-2"></i>
+                            <%= product.productName %>
+                        </h2>
+                        <p class="text-gray-600 text-sm mt-1">
+                            Product Status: <%= product.status %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- Product Details -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Product Info</h3>
+                    <div class="flex items-center">
+                        <% if(product.image1) { %>
+                            <img src="<%= product.image1 %>" 
+                                 class="w-16 h-16 object-cover rounded-lg"
+                                 alt="<%= product.productName %>">
+                        <% } else { %>
+                            <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                        <% } %>
+                        <div class="ml-4">
+                            <h4 class="font-medium text-gray-800">
+                                <%= product.productName %>
+                            </h4>
+                            <p class="text-gray-600 text-sm">
+                                Quantity: <%= product.quantity %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Information -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-blue-800 mb-2">Price Information</h3>
+                    <p class="text-gray-700 font-medium">
+                        Price: $<%= (product.salePrice) %>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Info -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 mb-6">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    Order Status: <%= order.status %>
+                </h2>
+                <p class="text-gray-600 text-sm mt-1">
+                    Order ID: <%= order.orderId %>
+                </p>
+
+                <!-- Shipping Information -->
+                <div class="mt-4">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Shipping Information</h3>
+                    <% if (order.shippingAddress) { %>
+                        <p class="text-gray-700">Name: <%= order.shippingAddress.name %></p>
+                        <p class="text-gray-700">Address: <%= order.shippingAddress.landMark %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
+                        <p class="text-gray-700">Phone: <%= order.shippingAddress.phone %></p>
+                        <p class="text-gray-700">Alternate Phone: <%= order.shippingAddress.altPhone %></p>
+                    <% } else { %>
+                        <p class="text-gray-700">No shipping address available.</p>
+                    <% } %>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="mt-4">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Payment Information</h3>
+                    <p class="text-gray-700">Payment Method: <%= order.paymentMethod %></p>
+                    <p class="text-gray-700 font-medium">
+                        Total: $<%= (order.totalAmount / 100).toFixed(2) %>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

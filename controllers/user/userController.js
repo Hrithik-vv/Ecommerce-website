@@ -21,7 +21,7 @@ const pageNotFound = async (req, res) => {
 //homepage loading
 const loadHomepage = async (req, res) => {
   try {
-    const products = await product.find({ isBlocked: false }); // Fetch unblocked products
+    const products = await product.find({ isBlocked: false }); 
     const user = req.session.user;
     console.log(req.session);
 

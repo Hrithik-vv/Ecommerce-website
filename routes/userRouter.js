@@ -95,9 +95,16 @@ router.post('/cart/update', cartController.updateQuantity);
 router.get("/shop",productController.getProducts)
 
 
+
+
 // Checkout Routes
 router.get("/checkout", userAuth, cartController.loadCheckoutPage);
 router.post('/place-order',userAuth, cartController.processCheckout);
+router.post('/checkout',cartController.placeOrder)
+router.get("/product-details", cartController.orderView)
+router.get('/order-placed',cartController.orderPlaced)
 
+
+router.get ("/orderhis",cartController.orderHistory)
 
 module.exports = router;

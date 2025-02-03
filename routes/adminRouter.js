@@ -6,7 +6,9 @@ const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController");
 const productController = require("../controllers/admin/productCotroller");
 const addproductConroller = require("../controllers/admin/addproductController");
+const orderConroller = require("../controllers/admin/orderController");
 const { userAuth, adminAuth } = require("../middlewares/auth");
+const  {updateOrderStatus }  = require('../controllers/admin/orderController');
 
 // Multer setup
 const multer = require("multer");
@@ -51,5 +53,8 @@ router.post(
   "/product/:productId/image/:imageNumber'",
   addproductConroller.deleteProductImage
 );
+
+router.get("/ordermanage",orderConroller.adminOrderView)
+router.post('/update-order-status', updateOrderStatus);
 
 module.exports = router;
