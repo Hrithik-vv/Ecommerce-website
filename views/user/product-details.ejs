@@ -103,6 +103,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-left: 35px;
         }
 
         .product__details__option__size span {
@@ -169,6 +170,8 @@
             font-weight: 500;
             transition: opacity 0.3s ease;
             white-space: nowrap;
+            margin-top: 30px;
+            margin-left: 65px;
             /* Prevents text wrapping */
         }
 
@@ -231,10 +234,11 @@
         }
 
         /* Responsive Adjustments */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .product__details__content {
                 padding: 20px;
-                margin-left: 80px;
+                margin-left: 60px;
+                width: 500px;
             }
 
             .name h4 {
@@ -265,6 +269,100 @@
             padding: 100px;
             padding-top: 10px;
         }
+
+        .product__details__pic .nav-tabs .nav-item .nav-link .product__thumb__pic {
+            height: 155px;
+            width: 154px;
+        }
+
+        .custom-image img {
+            width: 1900px;
+        }
+
+
+        .product__details__pic .nav-tabs .nav-item .nav-link .product__thumb__pic {
+            height: 166px;
+            width: 172px;
+            margin-right: 800px;
+        }
+
+        .quantity-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: 57px;
+  
+}
+
+.quantity-input {
+  width: 50px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+/* Show number arrows */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: auto;
+  margin: 0;
+}
+
+.add-to-cart-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+  background: #333;
+  transform: translateY(-1px);
+}
+
+.add-to-cart-btn:active {
+  transform: translateY(0);
+}
+
+/* Remove focus outline */
+.quantity-input:focus,
+.add-to-cart-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+.product__details__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #666;
+    margin-left: 0; /* Align to the left */
+}
+
+.product__details__breadcrumb a {
+    color: #000;
+    text-decoration: none;
+}
+
+.product__details__breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.product__details__breadcrumb span {
+    font-weight: bold;
+}
+
     </style>
 
     <head>
@@ -417,11 +515,18 @@
                                         <button type="submit" class="primary-btn">Buy Now</button>
                                     </form>
                                 </div>
-                                <form action="shopping-cart" method="POST">
+                                <form action="shopping-cart" method="POST" class="quantity-controls">
                                     <input type="hidden" name="productId" value="<%= product._id %>">
-                                    <input type="number" name="quantity" value="1" min="1">
-                                    <button type="submit">Add to Cart</button>
-                                </form>
+                                    <input type="number" 
+                                           name="quantity" 
+                                           value="1" 
+                                           min="1" 
+                                           class="quantity-input"
+                                           aria-label="Quantity">
+                                    <button type="submit" class="add-to-cart-btn">
+                                      Add to Cart
+                                    </button>
+                                  </form>
                             </div>
 
                             <!-- Wishlist and Compare -->

@@ -8,6 +8,7 @@ const aswinfn = require("../../utils/nodemailer"); //utilite  function for email
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Brand = require("../../models/brandSchema");
+const OTP = require("../../models/otpschema");
 
 // error page
 const pageNotFound = async (req, res) => {
@@ -21,7 +22,7 @@ const pageNotFound = async (req, res) => {
 //homepage loading
 const loadHomepage = async (req, res) => {
   try {
-    const products = await product.find({ isBlocked: false }); 
+    const products = await product.find({ isBlocked: false });
     const user = req.session.user;
     console.log(req.session);
 
@@ -120,7 +121,13 @@ const signup = async (req, res) => {
       return res.json("email-error");
     }
     // Save OTP and user data
-    req.session.userOtp = otp;
+
+    const otpEntry = new OTP({
+      sessionId: req.session.id,
+      otp,
+    });
+
+    await otpEntry.save();
     req.session.userData = { name, email, password };
 
     // res.render("verify-otp",{message:''});
@@ -154,8 +161,8 @@ const verifyOtp = async (req, res) => {
     const { otp } = req.body;
 
     console.log(otp === req.session.userOtp);
-
-    if (otp === req.session.userOtp) {
+    const otpRecord = await OTP.findOne({ sessionId: req.session.id, otp });
+    if (otpRecord) {
       const user = req.session.userData;
       console.log(user);
       const passwordHash = await securePassword(user.password);

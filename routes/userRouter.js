@@ -5,9 +5,8 @@ const passport = require("../config/passport");
 const profileController = require("../controllers/user/profileController");
 const { userAuth, already } = require("../middlewares/auth");
 const productController = require("../controllers/user/productController");
-
 const cartController = require('../controllers/user/cartController');
-
+const wishlistController = require('../controllers/user/whishlistController');
 
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
@@ -95,16 +94,33 @@ router.post('/cart/update', cartController.updateQuantity);
 router.get("/shop",productController.getProducts)
 
 
-
-
 // Checkout Routes
 router.get("/checkout", userAuth, cartController.loadCheckoutPage);
 router.post('/place-order',userAuth, cartController.processCheckout);
 router.post('/checkout',cartController.placeOrder)
 router.get("/product-details", cartController.orderView)
 router.get('/order-placed',cartController.orderPlaced)
-
-
 router.get ("/orderhis",cartController.orderHistory)
+
+
+//WishList Management
+router.get("/wishlist", userAuth, wishlistController.loadWishlist);
+router.post("/addToWishlist", userAuth, wishlistController.addToWishlist)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;

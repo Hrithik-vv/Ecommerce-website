@@ -100,7 +100,7 @@
 
     .header__nav__option {
       position: absolute;
-      right: 20px;
+      right: -100px;
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -169,6 +169,36 @@
         margin-top: 1rem;
       }
     }
+    .header__nav__option a {
+  position: relative;
+  display: inline-block;
+  margin-left: 15px;
+}
+
+.header__nav__option a img {
+  width: 20px;
+  height: 20px;
+  transition: all 0.3s ease;
+}
+
+
+
+.header__nav__option a:hover img {
+  transform: scale(1.1);
+}
+
+.wishlist-icon img {
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+
+.wishlist-icon:hover img {
+  filter: grayscale(0%);
+}
+
+.wishlist-icon.active img {
+  filter: grayscale(0%);
+}
   </style>
 
   <body>
@@ -236,7 +266,12 @@
                  <!-- Cart Icon -->
                 <a href="/shopping-cart" class="cart-icon">
                   <img src="img/icon/cart.png" alt="Cart" />
-                  <span class="cart-count">0</span> <!-- Optional: Add a dynamic cart count -->
+                  <span class="cart-count"></span> <!-- Optional: Add a dynamic cart count -->
+                </a>
+
+                <a href="wishlist" class="wishlist-icon">
+                  <img src="img/icon/heart.png" alt="Wishlist" />
+                  <span class="wishlist-count"></span> <!-- Add dynamic count if needed -->
                 </a>
         </div>
       </div>

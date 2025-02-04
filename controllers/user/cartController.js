@@ -2,7 +2,7 @@ const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
-const adress=require('../../models/addressSchema')
+const adress = require("../../models/addressSchema");
 
 const addToCart = async (req, res) => {
   try {
@@ -158,19 +158,11 @@ const updateQuantity = async (req, res) => {
     const userId = req.user._id;
 
     let { productId, quantity } = req.body;
-    console.log("sajkdnkajsdnak");
-
-    console.log(userId);
-    console.log("saoidnakjdn");
 
     let a = productId._id;
     productId = a;
 
     const qty = parseInt(quantity, 10);
-    console.log("kjdsfkjsbd");
-
-    console.log(qty);
-    console.log("kjdsfkjsbd");
 
     // Update cart
     const cart = await Cart.findOneAndUpdate(
@@ -204,8 +196,8 @@ const updateQuantity = async (req, res) => {
 const processCheckout = async (req, res) => {
   try {
     const userId = req.session.user_id;
-    const { 
-      useExistingAddress, 
+    const {
+      useExistingAddress,
       addressId,
       saveAddress,
       fullName,
@@ -215,7 +207,7 @@ const processCheckout = async (req, res) => {
       postalCode,
       country,
       phone,
-      paymentMethod 
+      paymentMethod,
     } = req.body;
 
     // Validate payment method
@@ -257,16 +249,15 @@ const processCheckout = async (req, res) => {
         state,
         postalCode,
         country,
-        phone
+        phone,
       });
 
       // Save address to user profile if requested
       if (saveAddress) {
         await newAddress.save();
-        await User.findByIdAndUpdate(
-          userId,
-          { $push: { addresses: newAddress._id } }
-        );
+        await User.findByIdAndUpdate(userId, {
+          $push: { addresses: newAddress._id },
+        });
       }
 
       selectedAddress = newAddress;
@@ -279,16 +270,13 @@ const processCheckout = async (req, res) => {
       shippingAddress: selectedAddress,
       paymentMethod,
       totalAmount: cart.items.reduce((acc, item) => acc + item.totalPrice, 0),
-      status: "Processing"
+      status: "Processing",
     });
 
     await order.save();
 
     // Clear cart
-    await Cart.findOneAndUpdate(
-      { userId },
-      { $set: { items: [] } }
-    );
+    await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
     req.flash("success", "Order placed successfully!");
     res.redirect(`/order-confirmation/${order._id}`);
@@ -299,10 +287,7 @@ const processCheckout = async (req, res) => {
   }
 };
 
-
 const loadCheckoutPage = async (req, res) => {
-  console.log('diosfnisjfnsdjk');
-  
   try {
     console.log("Loading checkout page..."); // Debug log
 
@@ -316,7 +301,7 @@ const loadCheckoutPage = async (req, res) => {
     }
 
     // Fetch user data
-    const user = await User.findById(userId).populate("addresses",{userId});
+    const user = await User.findById(userId).populate("addresses", { userId });
     const a = await adress.findOne({ userId: user._id });
 
     if (!user) {
@@ -332,11 +317,6 @@ const loadCheckoutPage = async (req, res) => {
       req.flash("error", "Your cart is empty");
       return res.redirect("/shopping-cart");
     }
-    console.log('sdnkodsnkdsnkldsnk');
-    
-console.log(a);
-console.log('sdnkodsnkdsnkldsnk');
-
 
     console.log("Rendering checkout page..."); // Debug log
     res.render("checkout", {
@@ -370,125 +350,112 @@ const getCheckoutPage = async (req, res) => {
   }
 };
 
-
-
-
 const placeOrder = async (req, res) => {
+  try {
+    let { selectedAddressId, products } = req.body;
 
- 
-  
-    try {
-        let { selectedAddressId, products } = req.body;
-        console.log('usukagjdbkuasjgmaidkgasukdjgakusdjgasbkdjasgdbkjsadgasbnqwkjdgqwbukjdgqwbukjdgbqwkjmdgxbkjqwd');
-            
-           
-            console.log(selectedAddressId);
-            
-            console.log('usukagjdbkuasjgmaidkgasukdjgakusdjgasbkdjasgdbkjsadgasbnwqukdgjxbqwkjmdbwqjkdbxjkwqmxbjwkqdb');
-        const userId = req.user._id;
-        products = JSON.parse(products)
-        // Get user with addresses
-        const user = await User.findById(userId);
-        if (!user) {
-            req.session.message = { type: 'error', text: 'User not found' };
-            return res.redirect('/checkout');
-        }
-        
-        // Find selected address
-        const address = adress.findById(selectedAddressId);
-        if (!address) {
-            req.session.message = { type: 'error', text: 'Address not found' };
-            return res.redirect('/checkout');
-        }
-        console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj  ');
-        // Format shipping address
-        const shippingAddress = `
+    const userId = req.user._id;
+    products = JSON.parse(products);
+    // Get user with addresses
+    const user = await User.findById(userId);
+    if (!user) {
+      req.session.message = { type: "error", text: "User not found" };
+      return res.redirect("/checkout");
+    }
+
+    // Find selected address
+    const address = adress.findById(selectedAddressId);
+    if (!address) {
+      req.session.message = { type: "error", text: "Address not found" };
+      return res.redirect("/checkout");
+    }
+
+    const shippingAddress = `
             ${address.name}, 
             ${address.landMark}, 
             ${address.city}, 
             ${address.state}-${address.pincode}, 
             Phone: ${address.phone}
-        `.replace(/\s+/g, ' ').trim();
+        `
+      .replace(/\s+/g, " ")
+      .trim();
 
-        // Process products
+    // Process products
 
-        
-        const productIds = products.map(p => p.productId);
-        const dbProducts = await Product.find({ _id: { $in: productIds } });
-console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj  ');
-        if (dbProducts.length !== products.length) {
-            req.session.message = { type: 'error', text: 'Some products not found' };
-            return res.redirect('/checkout');
-        }
+    const productIds = products.map((p) => p.productId);
+    const dbProducts = await Product.find({ _id: { $in: productIds } });
 
-        // Build order products array
-        let totalAmount = 0;
-        const orderProducts = products.map(requestProduct => {
-            const dbProduct = dbProducts.find(p => 
-                p._id.toString() === requestProduct.productId
-            );
-
-            const price = dbProduct.salePrice;
-            
-            const totalPrice = price * requestProduct.quantity;
-            totalAmount += totalPrice;
-
-            return {
-                productId: dbProduct._id,
-                quantity: requestProduct.quantity,
-                price: price,
-                totalPrice: totalPrice
-            };
-        });
-
-        // Create and save order
-        const newOrder = new Order({
-            userId: userId,
-            products: orderProducts,
-            totalAmount: totalAmount,
-            shippingAddress: selectedAddressId,
-            paymentMethod: 'COD' // Update based on actual payment method
-        });
-
-        await newOrder.save();
-
-        // Clear cart or handle post-order logic here
-        
-        req.session.message = { 
-            type: 'success', 
-            text: `Order placed successfully! Order ID: ${newOrder.orderId}`
-        };
-        res.render('order-placed',{productIds})
-
-    } catch (error) {
-        console.error('Order placement error:', error);
-        req.session.message = { 
-            type: 'error', 
-            text: 'Failed to place order. Please try again.'
-        };
-        res.redirect('/checkout');
+    if (dbProducts.length !== products.length) {
+      req.session.message = { type: "error", text: "Some products not found" };
+      return res.redirect("/checkout");
     }
-};
 
+    // Build order products array
+    let totalAmount = 0;
+    const orderProducts = products.map((requestProduct) => {
+      const dbProduct = dbProducts.find(
+        (p) => p._id.toString() === requestProduct.productId
+      );
+
+      const price = dbProduct.salePrice;
+
+      const totalPrice = price * requestProduct.quantity;
+      totalAmount += totalPrice;
+
+      return {
+        productId: dbProduct._id,
+        quantity: requestProduct.quantity,
+        price: price,
+        totalPrice: totalPrice,
+      };
+    });
+
+    // Create and save order
+    const newOrder = new Order({
+      userId: userId,
+      products: orderProducts,
+      totalAmount: totalAmount,
+      shippingAddress: selectedAddressId,
+      paymentMethod: "COD", // Update based on actual payment method
+    });
+
+    await newOrder.save();
+
+    // Clear cart or handle post-order logic here
+
+    req.session.message = {
+      type: "success",
+      text: `Order placed successfully! Order ID: ${newOrder.orderId}`,
+    };
+    res.render("order-placed", { productIds });
+  } catch (error) {
+    console.error("Order placement error:", error);
+    req.session.message = {
+      type: "error",
+      text: "Failed to place order. Please try again.",
+    };
+    res.redirect("/checkout");
+  }
+};
 
 const orderView = async (req, res) => {
   try {
     const { productId } = req.query;
     console.log("Product ID:", productId);
-  
+
     // Find the order containing the productId in its products array
     const order = await Order.findOne({
-      'products.productId': new mongoose.Types.ObjectId(productId)
+      "products.productId": new mongoose.Types.ObjectId(productId),
     })
-    .populate({
-      path: 'products.productId',
-      select: 'productName image1 status salePrice' // Only select necessary fields for the product
-    })
-    .populate({
-      path: 'shippingAddress', // Populate the shippingAddress field
-      select: 'name city state pincode phone altPhone' // Select necessary fields from the address
-    })
-    .sort({ createdAt: -1 });
+      .populate({
+        path: "products.productId",
+        select: "productName image1 status salePrice", // Only select necessary fields for the product
+      })
+      .populate({
+        path: "shippingAddress", // Populate the shippingAddress field
+        select: "name city state pincode phone altPhone", // Select necessary fields from the address
+      })
+      .sort({ createdAt: -1 });
     // If no order is found, send a 404 response
     if (!order) {
       return res.status(404).send("Order not found.");
@@ -505,71 +472,81 @@ const orderView = async (req, res) => {
     console.log("Product details:", product);
 
     // Render the product details in the template
-    res.render("orderview", { product ,order });
 
+    const a = await await adress.findOne(
+      {
+        userId: order.userId,
+        "address._id": new mongoose.Types.ObjectId(order.shippingAddress),
+      },
+      { "address.$": 1 }
+    );
+
+    res.render("orderview", { product, order, address: a.address[0] });
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error("Error fetching orders:", error);
     res.status(500).send("Internal Server Error");
   }
 };
 
 const orderPlaced = (req, res) => {
-  
   const userId = req.user ? req.user._id : null;
-  res.render('orderPlaced', { userid: userId });
+  res.render("orderPlaced", { userid: userId });
 };
-
-
 
 const orderHistory = async (req, res) => {
-    try {
-        let { productId } = req.query; // Extract productId from query params
+  try {
+    let { productId } = req.query; // Extract productId from query params
 
-        if (!productId) {
-            req.session.message = { type: "error", text: "Product ID is required" };
-            return res.redirect("/orderhistory");
-        }
-
-        // Ensure productId is always an array (handles both single and multiple values)
-        if (typeof productId === "string") {
-            productId = productId.split(","); // Convert comma-separated values to an array
-        }
-
-        // Convert productId values to ObjectId
-        const objectIds = productId.map((id) => {
-            try {
-                return new mongoose.Types.ObjectId(id.trim()); // Convert each ID to ObjectId
-            } catch (err) {
-                console.error("Invalid ObjectId:", id);
-                return null; // Return null for invalid ObjectId
-            }
-        }).filter(id => id !== null); // Remove invalid IDs
-
-        if (objectIds.length === 0) {
-            req.session.message = { type: "error", text: "Invalid Product ID(s)" };
-            return res.redirect("/orderhistory");
-        }
-
-        // Find orders that contain any of the given productIds
-        const orders = await Order.find({ "products.productId": { $in: objectIds } })
-            .populate("products.productId");
-
-        if (!orders.length) {
-            req.session.message = { type: "error", text: "No orders found for the given products" };
-            return res.redirect("/orderhistory");
-        }
-
-        res.render("orderhistory", { orders });
-
-    } catch (error) {
-        console.error("Error fetching order history:", error);
-        req.session.message = { type: "error", text: "Failed to retrieve order history" };
-        res.redirect("/orderhistory");
+    if (!productId) {
+      req.session.message = { type: "error", text: "Product ID is required" };
+      return res.redirect("/orderhistory");
     }
+
+    // Ensure productId is always an array (handles both single and multiple values)
+    if (typeof productId === "string") {
+      productId = productId.split(","); // Convert comma-separated values to an array
+    }
+
+    // Convert productId values to ObjectId
+    const objectIds = productId
+      .map((id) => {
+        try {
+          return new mongoose.Types.ObjectId(id.trim()); // Convert each ID to ObjectId
+        } catch (err) {
+          console.error("Invalid ObjectId:", id);
+          return null; // Return null for invalid ObjectId
+        }
+      })
+      .filter((id) => id !== null); // Remove invalid IDs
+
+    if (objectIds.length === 0) {
+      req.session.message = { type: "error", text: "Invalid Product ID(s)" };
+      return res.redirect("/orderhistory");
+    }
+
+    // Find orders that contain any of the given productIds
+    const orders = await Order.find({
+      "products.productId": { $in: objectIds },
+    }).populate("products.productId");
+
+    if (!orders.length) {
+      req.session.message = {
+        type: "error",
+        text: "No orders found for the given products",
+      };
+      return res.redirect("/orderhistory");
+    }
+
+    res.render("orderhistory", { orders });
+  } catch (error) {
+    console.error("Error fetching order history:", error);
+    req.session.message = {
+      type: "error",
+      text: "Failed to retrieve order history",
+    };
+    res.redirect("/orderhistory");
+  }
 };
-
-
-
 
 module.exports = {
   placeOrder,
@@ -582,5 +559,5 @@ module.exports = {
   getCheckoutPage,
   orderView,
   orderPlaced,
-  orderHistory
+  orderHistory,
 };

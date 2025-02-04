@@ -186,15 +186,15 @@
                                             </div>
                                             <div class="product-price">
                                                 <span class="quantity">Qty: <%= item.quantity %></span>
-                                                $<%= item.totalPrice.toFixed(2) %>
+                                                ₹<%= item.totalPrice.toFixed(2) %>
                                             </div>
                                         </li>
                                     <% }) %>
                                 </ul>
                                 
                                 <ul class="checkout__total__all">
-                                    <li>Subtotal <span>$<%= total.toFixed(2) %></span></li>
-                                    <li>Total <span>$<%= total.toFixed(2) %></span></li>
+                                    <li>Subtotal <span>₹<%= total.toFixed(2) %></span></li>
+                                    <li>Total <span>₹<%= total.toFixed(2) %></span></li>
                                 </ul>
                                 <label>
                                     <input type="radio" name="payment" value="cod" required>

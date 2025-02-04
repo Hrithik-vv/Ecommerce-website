@@ -173,77 +173,78 @@
 
     <section class="shopping-cart">
         <div class="container">
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <div class="cart-container">
-                                        <div class="shopping__cart__table">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Product</th>
-                                                        <th>Price</th>
-                                                        <th>Quantity</th>
-                                                        <th>Total</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <% if (cartItems.length===0) { %>
-                                                        <tr>
-                                                            <td colspan="5">
-                                                                <div class="empty-cart">
-                                                                    <h3>Your cart is empty</h3>
-                                                                    <p>Add items to your cart to continue shopping</p>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                        <% } else { %>
-                                                            <% cartItems.forEach((item)=> { %>
-                                                                <tr>
-                                                                    <td>
-                                                                        <%= item.productId.productName %>
-                                                                    </td>
-                                                                    <td>$<%= item.productPrice %>
-                                                                    </td>
-                                                                    <td>
-                                                                        <form class="quantity-form" action="/cart/update" method="POST">
-                                                                            <input type="hidden" name="productId" value="<%= item.productId %>">
-                                                                            <div class="quantity-controls">
-                                                                              <button type="button" class="qty-minus" onclick="updateQuantity(this, -1)">-</button>
-                                                                              <input type="number" class="qty-input" 
-                                                                                     name="quantity" 
-                                                                                     value="<%= item.quantity %>" 
-                                                                                     min="1">
-                                                                              <button type="button" class="qty-plus" onclick="updateQuantity(this, 1)">+</button>
-                                                                            </div>
-                                                                            <button type="submit" class="btn-update">Update</button>
-                                                                          </form>
-                                                                    </td>
-                                                                    <td>$<%= item.totalPrice %>
-                                                                    </td>
-                                                                    <td>
-                                                                        <a href="/remove-from-cart/<%= item.productId._id %>"
-                                                                            class="remove-link">Remove</a>
-                                                                    </td>
-                                                                </tr>
-                                                                <% }) %>
-                                                                    <% } %>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="cart-container">
+                        <div class="shopping__cart__table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (cartItems.length===0) { %>
+                                        <tr>
+                                            <td colspan="5">
+                                                <div class="empty-cart">
+                                                    <h3>Your cart is empty</h3>
+                                                    <p>Add items to your cart to continue shopping</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } else { %>
+                                            <% cartItems.forEach((item)=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= item.productId.productName %>
+                                                    </td>
+                                                    <td>₹<%= item.productPrice %>
+                                                    </td>
+                                                    <td>
+                                                        <form class="quantity-form" action="/cart/update" method="POST">
+                                                            <input type="hidden" name="productId"
+                                                                value="<%= item.productId %>">
+                                                            <div class="quantity-controls">
+                                                                <button type="button" class="qty-minus"
+                                                                    onclick="updateQuantity(this, -1)">-</button>
+                                                                <input type="number" class="qty-input" name="quantity"
+                                                                    value="<%= item.quantity %>" min="1">
+                                                                <button type="button" class="qty-plus"
+                                                                    onclick="updateQuantity(this, 1)">+</button>
+                                                            </div>
+                                                            <button type="submit" class="btn-update">Update</button>
+                                                        </form>
+                                                    </td>
+                                                    <td>₹<%= item.totalPrice %>
+                                                    </td>
+                                                    <td>
+                                                        <a href="/remove-from-cart/<%= item.productId._id %>"
+                                                            class="remove-link">Remove</a>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-                                <% if (cartItems.length> 0) { %>
-                                    <div class="col-lg-4">
-                                        <div class="cart-summary">
-                                            <h3 class="cart-total">Total: $<%= cartItems.reduce((acc, item)=> acc +
-                                                    item.totalPrice, 0).toFixed(2) %></h3>
-                                            <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
-                                        </div>
-                                    </div>
-                                    <% } %>
-                            </div>
+                <% if (cartItems.length> 0) { %>
+                    <div class="col-lg-4">
+                        <div class="cart-summary">
+                            <h3 class="cart-total">Total: ₹<%= cartItems.reduce((acc, item)=> acc +
+                                    item.totalPrice, 0).toFixed(2) %></h3>
+                            <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
+                        </div>
+                    </div>
+                    <% } %>
+            </div>
         </div>
     </section>
 

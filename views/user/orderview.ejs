@@ -54,7 +54,7 @@
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <h3 class="text-lg font-medium text-blue-800 mb-2">Price Information</h3>
                     <p class="text-gray-700 font-medium">
-                        Price: $<%= (product.salePrice) %>
+                        Price: ₹<%= (product.salePrice) %>
                     </p>
                 </div>
             </div>
@@ -73,22 +73,25 @@
                 <!-- Shipping Information -->
                 <div class="mt-4">
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Shipping Information</h3>
-                    <% if (order.shippingAddress) { %>
-                        <p class="text-gray-700">Name: <%= order.shippingAddress.name %></p>
-                        <p class="text-gray-700">Address: <%= order.shippingAddress.landMark %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
-                        <p class="text-gray-700">Phone: <%= order.shippingAddress.phone %></p>
-                        <p class="text-gray-700">Alternate Phone: <%= order.shippingAddress.altPhone %></p>
+                    <% if (address) { %>
+                        <p class="text-gray-700">Name: <%= address.name %></p>
+                        <p class="text-gray-700">
+                            Address: <%= address.landMark %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %>
+                        </p>
+                        <p class="text-gray-700">Phone: <%= address.phone %></p>
+                        <p class="text-gray-700">Alternate Phone: <%= address.altPhone %></p>
                     <% } else { %>
                         <p class="text-gray-700">No shipping address available.</p>
                     <% } %>
                 </div>
+                
 
                 <!-- Payment Information -->
                 <div class="mt-4">
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Payment Information</h3>
                     <p class="text-gray-700">Payment Method: <%= order.paymentMethod %></p>
                     <p class="text-gray-700 font-medium">
-                        Total: $<%= (order.totalAmount / 100).toFixed(2) %>
+                        Total: ₹<%= (order.totalAmount) %>
                     </p>
                 </div>
             </div>
