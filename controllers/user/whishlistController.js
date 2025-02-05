@@ -8,11 +8,13 @@ const loadWishlist = async (req, res) => {
         const userId = req.session.user;
 
         // Find the user's wishlist and populate product details
-        const wishlist = await Wishlist.findOne({ userId }).populate("Products.productId");
+        const a = await Wishlist.findOne({ userId })
+        .populate("Products.productId") 
+        const productsinwish = a.Products .map(item => item.productId);
 
         res.render("wishlist", {
-            user: req.session.user,  // Send user session info
-            wishlist: wishlist ? wishlist.Products.map(item => item.productId) : []  // Extract products
+            user: req.session.user, 
+            wishlist:productsinwish  
         });
 
     } catch (error) {
@@ -64,6 +66,48 @@ const addToWishlist = async (req, res) => {
 };
 
 
+const removeProduct = async (req,res)=>{
+    try {
+        const productId = req.query.productId;
+        const user = req.session.user;
+        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
+        
+        console.log(user._id);
+        
+    
+        
+        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
+       
+
+
+const mongoose = require('mongoose');
+
+const result = await Wishlist.findOneAndUpdate(
+    { userId: new mongoose.Types.ObjectId(user._id) }, // Convert userId to ObjectId
+    { 
+      $pull: { 
+        Products: { productId: new mongoose.Types.ObjectId(productId) } // Convert productId to ObjectId
+      } 
+    },
+    { new: true }
+  );
+        if (result) {
+          console.log(result);
+          
+            return res.redirect("/wishlist");
+        } else {
+            console.log("User not found or wishlist update failed.");
+            return res.status(404).send("User not found or update failed.");
+        }
+        
+        
+
+    } catch (error) {
+        
+        console.error(error);
+        return res.status(500).json({status:false,message:'Server error'})
+    }
+}
 
 
 
@@ -71,5 +115,6 @@ const addToWishlist = async (req, res) => {
 
 module.exports ={
     loadWishlist,
-    addToWishlist
+    addToWishlist,
+    removeProduct
 }

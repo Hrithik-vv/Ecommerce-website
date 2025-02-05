@@ -9,6 +9,9 @@ const addproductConroller = require("../controllers/admin/addproductController")
 const orderConroller = require("../controllers/admin/orderController");
 const { userAuth, adminAuth } = require("../middlewares/auth");
 const  {updateOrderStatus }  = require('../controllers/admin/orderController');
+const couponController = require("../controllers/admin/couponController")
+
+
 
 // Multer setup
 const multer = require("multer");
@@ -56,5 +59,12 @@ router.post(
 
 router.get("/ordermanage",orderConroller.adminOrderView)
 router.post('/update-order-status', updateOrderStatus);
+
+
+//Coupon Management
+router.get("/coupon",adminAuth,couponController.loadCoupon);
+router.post("/createCoupon",adminAuth,couponController.createCoupon)
+router.get("/editCoupon",adminAuth,couponController.editCoupon)
+router.post("/updateCoupon",adminAuth,couponController.updateCoupon)
 
 module.exports = router;

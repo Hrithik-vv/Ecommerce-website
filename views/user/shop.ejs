@@ -50,14 +50,61 @@
       transform: scale(1.05);
     }
 
+    /* Sidebar Styles */
     .sidebar {
-      padding: 20px;
-      border: 1px solid #ddd;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      margin-bottom: 20px;
       width: 250px;
-      text-align: center;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Title Styles */
+    .filter-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      padding: 8px 0;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    /* Category & Price Buttons */
+    .category-options,
+    .price-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .category-button,
+    .price-button {
+      background: linear-gradient(135deg, #f8f5f6, #ffffff);
+      color: #0b0808;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(101, 96, 236, 0.3);
+    }
+
+
+    .category-button:hover,
+    .price-button:hover {
+      background: linear-gradient(135deg, #f0eeee, #f6f1f2);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        padding: 15px;
+      }
     }
 
     .filter-section {
@@ -77,7 +124,7 @@
 
     .filter-item a {
       text-decoration: none;
-      color: #333;
+      color: #f4f4f4;
     }
 
     .filter-item a:hover {
@@ -223,34 +270,34 @@
     }
 
     .wishlist-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  border: none;
-  background: none;  /* Remove background */
-  cursor: pointer;
-  z-index: 2;
-}
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      border: none;
+      background: none;
+      /* Remove background */
+      cursor: pointer;
+      z-index: 2;
+    }
 
-.wishlist-btn i {
-  color: #2e2626;
-  font-size: 20px;
-  transition: color 0.3s ease, transform 0.2s ease;
-}
+    .wishlist-btn i {
+      color: #2e2626;
+      font-size: 20px;
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
 
-.wishlist-btn:hover i {
-  color: #ff4444;
-  transform: scale(1.1);
-}
+    .wishlist-btn:hover i {
+      color: #ff4444;
+      transform: scale(1.1);
+    }
 
-.wishlist-btn.active i {
-  color: #ff4444;
-}
+    .wishlist-btn.active i {
+      color: #ff4444;
+    }
 
-.wishlist-btn.active:hover i {
-  color: #cc0000;
-}
-
+    .wishlist-btn.active:hover i {
+      color: #cc0000;
+    }
   </style>
   <div class="main-container">
     <section class="shop-page container">
@@ -280,8 +327,21 @@
         </div>
       </div>
       <div class="product-list-container">
+
         <aside class="sidebar">
-          <!-- ... (keep categories unchanged) ... -->
+          <!-- Category Filter -->
+          <div class="category-filter">
+            <div class="filter-title">Filter by Category</div>
+            <div class="category-options">
+              <% category.forEach(category=> { %>
+                <button type="button" class="category-button" onclick="filterByCategory('<%= category._id %>')">
+                  <%= category.name %>
+                </button>
+                <% }); %>
+            </div>
+          </div>
+
+          <!-- Price Filter -->
           <div class="price-filter">
             <div class="filter-title">Filter by Price</div>
             <div class="price-options">
@@ -293,16 +353,21 @@
           </div>
         </aside>
 
+
         <main class="product-grid" id="product-grid">
           <% if (products && products.length> 0) { %>
             <% products.forEach(product=> { %>
-              <div class="product-card" data-price="<%= product.salePrice %>" data-rating="<%= product.rating %>"
-                data-name="<%= product.productName.toLowerCase() %>" data-date="<%= product.createdAt %>">
-                <div class="wishlist-btn <%= user && user.wishlist && user.wishlist.includes(product._id.toString()) ? 'active' : '' %>" 
+              <div class="product-card" data-category="<%= product.category %>" data-price="<%= product.salePrice %>"
+                data-rating="<%= product.rating %>" data-name="<%= product.productName.toLowerCase() %>"
+                data-date="<%= product.createdAt %>">
+
+                <div
+                  class="wishlist-btn <%= user && user.wishlist && user.wishlist.includes(product._id.toString()) ? 'active' : '' %>"
                   onclick="toggleWishlist(this, '<%= product._id %>')">
-                  <i class="fa <%= user && user.wishlist && user.wishlist.includes(product._id.toString()) ? 'fa-heart' : 'fa-heart-o' %>"></i>
+                  <i
+                    class="fa <%= user && user.wishlist && user.wishlist.includes(product._id.toString()) ? 'fa-heart' : 'fa-heart-o' %>"></i>
                 </div>
-                
+
                 <div class="product__item" onclick="window.location.href='/productDetails?id=<%= product._id %>'">
                   <div class="product__item__pic set-bg" data-setbg="<%= product.image1 || 'default-image.jpg' %>">
                     <% if (product.label) { %>
@@ -401,34 +466,43 @@
     }
   </script>
 
-<script>
-  function toggleWishlist(button, productId) {
+  <script>
+    function toggleWishlist(button, productId) {
       fetch('/addToWishlist', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ productId }),
-          credentials: 'include'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId }),
+        credentials: 'include'
       })
-      .then(response => response.json())
-      .then(data => {
+        .then(response => response.json())
+        .then(data => {
           if (data.status) {
-              const icon = button.querySelector('i');
-              if (data.action === 'add') {
-                  icon.classList.remove('fa-heart-o');
-                  icon.classList.add('fa-heart');
-                  button.classList.add('active');
-              } else {
-                  icon.classList.remove('fa-heart');
-                  icon.classList.add('fa-heart-o');
-                  button.classList.remove('active');
-              }
+            const icon = button.querySelector('i');
+            if (data.action === 'add') {
+              icon.classList.remove('fa-heart-o');
+              icon.classList.add('fa-heart');
+              button.classList.add('active');
+            } else {
+              icon.classList.remove('fa-heart');
+              icon.classList.add('fa-heart-o');
+              button.classList.remove('active');
+            }
           }
-      })
-      .catch(error => console.error('Error:', error));
-  }
+        })
+        .catch(error => console.error('Error:', error));
+    }
   </script>
+  <script>
+    function filterByCategory(categoryId) {
+      const products = document.querySelectorAll('.product-card');
 
+      products.forEach(product => {
+        const productCategory = product.dataset.category;
+        product.style.display = productCategory === categoryId || categoryId === 'all' ? 'block' : 'none';
+      });
+    }
+  </script>
 
   <%- include("../../views/partials/user/footer") %>

@@ -96,8 +96,10 @@ const viewCart = async (req, res) => {
     const userId = req.user._id;
     const cart = await Cart.findOne({ userId }).populate(
       "items.productId",
-      "productName price"
+      "productName price" // Populate only the necessary fields initially
     );
+
+    console.log('Cart fetched:', cart);
 
     if (!cart) {
       const newCart = new Cart({ userId, items: [] });
@@ -111,8 +113,22 @@ const viewCart = async (req, res) => {
       });
     }
 
+    // Loop through cart items and query the product quantity directly
+    const updatedCartItems = await Promise.all(cart.items.map(async (item) => {
+      // Query the Product model to grab the quantity of the product
+      const product = await Product.findById(item.productId._id, 'quantity');  // Only grab the quantity
+
+      if (product) {
+        // Assign the quantity from the product model to a new field in the cart item
+        item.productStock = product.quantity; // Product's available stock
+      }
+
+      return item; // Return the updated cart item
+    }));
+
+    // Send updated cart items with product stock
     res.render("shopping-cart", {
-      cartItems: cart.items,
+      cartItems: updatedCartItems,
     });
   } catch (error) {
     console.error(error);
@@ -120,6 +136,7 @@ const viewCart = async (req, res) => {
     res.redirect("/");
   }
 };
+
 // Add this removeFromCart function
 const removeFromCart = async (req, res) => {
   try {
@@ -155,24 +172,30 @@ const address = require("../../models/addressSchema");
 // Add these new functions
 const updateQuantity = async (req, res) => {
   try {
-    const userId = req.user._id;
-
+    const userId = req.user._id;  // Get the user ID from the session
     let { productId, quantity } = req.body;
+    const product= await Product.findById(productId)
+    
+     
 
-    let a = productId._id;
-    productId = a;
-
+    // Ensure the quantity is an integer
     const qty = parseInt(quantity, 10);
 
-    // Update cart
+    if (isNaN(qty) || qty <= 0) {
+      req.flash("error", "Invalid quantity");
+      return res.redirect("/shopping-cart");
+    }
+
+    // Update cart - use correct ObjectId format
     const cart = await Cart.findOneAndUpdate(
       {
         userId: new mongoose.Types.ObjectId(userId),
         "items.productId": new mongoose.Types.ObjectId(productId),
-      }, // Ensure correct ObjectId format
+      },
       {
         $set: {
           "items.$.quantity": qty,
+          "items.$.totalPrice": qty * product.salePrice,  // Recalculate the total price
         },
       },
       { new: true }
@@ -183,14 +206,14 @@ const updateQuantity = async (req, res) => {
       return res.redirect("/shopping-cart");
     }
 
-    res.redirect("/shopping-cart");
+    res.redirect("/shopping-cart");  // Redirect back to cart
   } catch (error) {
-    console.log(error);
-
+    console.error(error);
     req.flash("error", "Error updating quantity");
     res.redirect("/shopping-cart");
   }
 };
+
 
 //checkOut
 const processCheckout = async (req, res) => {

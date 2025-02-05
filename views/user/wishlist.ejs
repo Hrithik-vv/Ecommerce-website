@@ -1,76 +1,204 @@
 <%- include("../../views/partials/user/header.ejs") %>
-<main class="main">
 
+<style>
+  .wishlist-section {
+    padding: 4rem 0;
+    background-color: #f8f9fa;
+  }
 
-   <div class="page-header breadcrumb-wrap">
-       <div class="container">
-           <div class="breadcrumb">
-               <a href="/" rel="nofollow">Home</a>
-               <span></span> Shop
-               <span></span> My Wishlist
-           </div>
-       </div>
-   </div>
+  .wishlist-header {
+    background: linear-gradient(135deg, #5052a7 0%, #000000 100%);
+    padding: 2rem 0;
+    margin-bottom: 3rem;
+  }
 
+  .wishlist-title {
+    color: white;
+    font-size: 2rem;
+    text-align: center;
+    margin: 0;
+  }
 
-   <section class="mt-50 mb-50">
-       <div class="container">
-           <div class="row">
-               <div class="col-12">
-                   <div class="table-responsive">
-                       <table class="table shopping-summery text-center clean">
-                           <thead>
-                               <tr class="main-heading">
-                                   <th scope="col">Image</th>
-                                   <th scope="col">Name</th>
-                                   <th scope="col">Price</th>
-                                   <th scope="col">Add to Cart</th>
-                                   <th scope="col">Remove</th>
-                               </tr>
-                           </thead>
-                           <tbody>
-                             
-                            <%if(wishlist.length>0){%>
+  .wishlist-breadcrumb {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 0.5rem;
+  }
 
-                                <%for(let product of wishlist){%>
-                                       <tr>
-                                           <td class="image product-thumbnail">
-                                               <img src="/uploads/re-image/<%=product.productImage[0]%>" />
-                                           </td>
-                                           <td class="product-des product-name">
-                                               <h5 class="product-name"
-                                                <span>
-                                                    <%=product.productName%>
-                                                     </span>    
-                                               </h5>  
-                                           </td>
-                                           <td class="price" data-title="Price">₹<span>
-                                          <%=product.salePrice%>
-                                           </span></td>
-                                           <td class="text-center" data-title="Add to Cart">
-                                               <a href="#" onclick="" class="btn btn-sm">Add to Cart</a>
-                                           </td>
-                                           <td class="action" data-title="Remove">
-                                               <a class="btn btn-sm" href="#" onclick="">
-                                                   <i class="fi-rs-trash"></i>
-                                               </a>
-                                           </td>
-                                       </tr>
-                                       <%}%>
-                                       <%}else {%>
-                                   <tr>
-                                       <td colspan="5" class="text-center">
-                                           <p class="lead mb-4">No items found in Wishlist</p>
-                                       </td>
-                                   </tr>
-                                   <%}%>
-                           </tbody>
-                       </table>
-                   </div>
-               </div>
-           </div>
-       </div>
-   </section>
+  .wishlist-breadcrumb a {
+    color: white;
+    text-decoration: none;
+  }
+
+  .wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 2rem;
+  }
+
+  .wishlist-card {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+
+  .wishlist-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .wishlist-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .wishlist-content {
+    padding: 1.5rem;
+  }
+
+  .product-name {
+    font-size: 1.25rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .product-price {
+    font-size: 1.5rem;
+    color: #000000;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .cart-button {
+    background: #000000;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    flex: 2;
+    transition: background-color 0.2s;
+  }
+
+  .cart-button:hover {
+    background: #27c104;
+  }
+
+  .remove-button {
+    background: #f32a2a;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+    transition: background-color 0.2s;
+  }
+
+  .remove-button:hover {
+    background: #f30808;
+  }
+
+  .empty-wishlist {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+  }
+
+  @media (max-width: 768px) {
+    .wishlist-grid {
+      grid-template-columns: 1fr;
+      padding: 0 1rem;
+    }
+  }
+</style>
+
+<main>
+  <div class="wishlist-header">
+    <div class="container">
+      <h1 class="wishlist-title">My Wishlist</h1>
+      <div class="wishlist-breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
+        <a href="/shop">Shop</a>
+        <span>›</span>
+        <span>Wishlist</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="wishlist-section">
+    <div class="container">
+      <div class="wishlist-grid">
+        <% if(wishlist.length > 0) { %>
+          <% for(let product of wishlist) { %>
+            <div class="wishlist-card">
+              <img 
+                src="/<%= product.image1 %>" 
+                alt="<%= product.productName %>"
+                class="wishlist-image"
+              >
+              <div class="wishlist-content">
+                <h5 class="product-name"><%= product.productName %></h5>
+                <div class="product-price">₹<%= product.salePrice %></div>
+                <div class="button-group">
+                  <button class="cart-button" onclick="">
+                    Add to Cart
+                  </button>
+                  <button class="remove-button" onclick="confirnRemove('<%=product._id%>')">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="empty-wishlist">
+            <img 
+              src="/images/empty-wishlist.svg" 
+              alt="Empty Wishlist"
+              style="width: 200px; margin-bottom: 2rem;"
+            >
+            <h2>Your wishlist is empty</h2>
+            <p>Browse our products and add your favorites to the wishlist!</p>
+            <a href="/shop" class="cart-button" style="display: inline-block; margin-top: 1rem;">
+              Continue Shopping
+            </a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
 </main>
+
 <%- include("../../views/partials/user/footer.ejs") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirnRemove(productId){
+    Swal.fire({
+        title: 'Are you sure ?',
+        text:"You want't be able to revert this",
+        icon: 'warning',
+        showCancelButton:'true',
+        confirmButtonColor:'#3085d6',
+        cancelButtonColor:'d33',
+        confirmButtonText:'Yes, remove it!'
+    }).then ((result)=>{
+
+        if(result.isConfirmed){
+            window.location.href = `/removeFromWishlist?productId=${productId}`
+        }
+    })
+    }
+</script>

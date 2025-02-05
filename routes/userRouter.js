@@ -106,7 +106,7 @@ router.get ("/orderhis",cartController.orderHistory)
 //WishList Management
 router.get("/wishlist", userAuth, wishlistController.loadWishlist);
 router.post("/addToWishlist", userAuth, wishlistController.addToWishlist)
-
+router.get("/removeFromWishlist",userAuth,wishlistController.removeProduct)
 
 
 
