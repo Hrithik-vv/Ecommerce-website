@@ -66,5 +66,9 @@ router.get("/coupon",adminAuth,couponController.loadCoupon);
 router.post("/createCoupon",adminAuth,couponController.createCoupon)
 router.get("/editCoupon",adminAuth,couponController.editCoupon)
 router.post("/updateCoupon",adminAuth,couponController.updateCoupon)
+router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon)
+
+
+
 
 module.exports = router;

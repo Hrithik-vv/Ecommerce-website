@@ -298,6 +298,82 @@
     .wishlist-btn.active:hover i {
       color: #cc0000;
     }
+
+    .simple-cart-form {
+      display: inline-block;
+    }
+
+    .add-to-cart-btn {
+      display: inline-flex;
+      margin-left: 30px;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #030603 0%, #030b04 100%);
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .add-to-cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+    }
+
+    .add-to-cart-btn:active {
+      transform: translateY(0);
+      scale: 0.98;
+    }
+
+    .add-to-cart-btn i {
+      font-size: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .add-to-cart-btn:hover i {
+      transform: rotate(90deg);
+    }
+
+    /* Pulse animation on click */
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+      }
+    }
+
+    .add-to-cart-btn:focus {
+      outline: none;
+      animation: pulse 1s;
+      box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 480px) {
+      .add-to-cart-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+      }
+
+      .add-to-cart-btn i {
+        font-size: 14px;
+      }
+    }
   </style>
   <div class="main-container">
     <section class="shop-page container">
@@ -386,9 +462,12 @@
                     <a href="shopping-cart" class="add-cart">
                       <form action="shopping-cart" method="POST" class="simple-cart-form">
                         <input type="hidden" name="productId" value="<%= product._id %>">
-                        <input type="hidden" name="quantity" value="1">
-                        <i class="fa fa-plus"></i>
-                        <span>Add to Cart</span>
+                        <input type="hidden" name="quantity" value="1"> <!-- Default quantity set to 1 -->
+
+                        <button type="submit" class="add-to-cart-btn">
+                          <i class="fa fa-plus"></i>
+                          <span>Add to Cart</span>
+                        </button>
                       </form>
                     </a>
                     <div class="rating">

@@ -236,7 +236,7 @@
                          <td class="text-start"><%=coupons[i].isList%></td>
                          <td class="text-start">
                              <a href="/admin/editCoupon?id=<%=coupons[i]._id%>" class="btn btn-primary btn-sm" >Edit</a>
-                             <a href="#" onclick="" class="btn btn-danger btn-sm" style="height: 35px;width: 105px;"">Delete</a>
+                             <a href="#" onclick="confirmDelete('<%=coupons[i]._id%>')" class="btn btn-danger btn-sm" style="height: 35px;width: 105px;"">Delete</a>
                          </td>
                      </tr>
                      <%}%>
@@ -364,11 +364,7 @@ let month = (today.getMonth()+1).toString().padStart(2,"0");
 let day = today.getDate().toString().padStart(2,"0");
 document.getElementById("startingDate").value = `${year}-${month}-${day}`
 }
-
-
-
-
 </script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <%- include("../../views/partials/admin/adminFooter.ejs") %>
 

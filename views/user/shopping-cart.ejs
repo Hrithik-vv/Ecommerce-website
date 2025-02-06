@@ -238,7 +238,7 @@
                                                     <form class="quantity-form" action="/cart/update" method="POST" style="display: contents;">
                                                         <input type="hidden" name="productId" value="<%= item.productId %>">
                                                         <input type="hidden" class="qty-input-hidden" name="quantity" value="<%= item.quantity %>">
-                                                        <button type="submit" class="btn-update" onclick="e('<%= item.productId._id %>', this.closest('tr').querySelector('.qty-input').value)">Update</button>
+
 
                                                     </form>
                                                     <a href="/remove-from-cart/<%= item.productId._id %>" class="remove-link">Remove</a>

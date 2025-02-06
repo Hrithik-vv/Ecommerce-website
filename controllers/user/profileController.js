@@ -312,14 +312,12 @@ const postAddAddress = async (req, res) => {
       phone,
       altPhone,
     } = req.body;
-console.log('jknijnijknijknjk');
 console.log(addressType)
 if (!addressType || !name || !city || !state || !pincode || !phone) {
   console.log("Missing required fields:", { addressType, name, city, state, pincode, phone });
   return res.status(400).send("All fields are required");
 }
 
-console.log('jknijnijknijknjk');
 
    
 const existingAddress = await Address.findOne({ userId: userData._id });
@@ -353,7 +351,7 @@ if (existingAddress) {
 console.log("Address added successfully");
 
 
-    res.redirect("/userProfile");
+    res.redirect("/checkout");
   } catch (error) {
     console.log("Error adding address", error);
     res.redirect("/pageNotFound");
