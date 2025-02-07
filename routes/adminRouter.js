@@ -67,6 +67,8 @@ router.post("/createCoupon",adminAuth,couponController.createCoupon)
 router.get("/editCoupon",adminAuth,couponController.editCoupon)
 router.post("/updateCoupon",adminAuth,couponController.updateCoupon)
 router.get("/deleteCoupon",adminAuth,couponController.deleteCoupon)
+router.post('/apply-coupon',adminAuth,couponController.applycoupon)
+
 
 
 

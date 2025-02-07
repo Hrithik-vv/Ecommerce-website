@@ -7,7 +7,7 @@ const { userAuth, already } = require("../middlewares/auth");
 const productController = require("../controllers/user/productController");
 const cartController = require('../controllers/user/cartController');
 const wishlistController = require('../controllers/user/whishlistController');
-
+const { createOrder, processPayment } = require('../controllers/user/orderController');
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/", userController.loadHomepage);
@@ -108,9 +108,16 @@ router.get("/wishlist", userAuth, wishlistController.loadWishlist);
 router.post("/addToWishlist", userAuth, wishlistController.addToWishlist)
 router.get("/removeFromWishlist",userAuth,wishlistController.removeProduct)
 
+//Razorpay Management
+router.post('/create-razorpay-order',userAuth, createOrder);
+router.post('/verify-payment',userAuth, processPayment);
 
-
-
+router.get('/order-placed',userAuth, (req, res) => {
+  res.render('orderPlaced', {
+    orderId: req.query.orderId,
+    paymentId: req.query.paymentId
+  });
+});
 
 
 

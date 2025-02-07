@@ -102,10 +102,58 @@ const deleteCoupon = async (req, res) => {
   }
 };
 
+//Apply coupon
+ const applycoupon = async (req, res) => {
+  try {
+    const { couponCode, total } = req.body;
+    const userId = req.session.user_id;
+
+    const coupon = await Coupon.findOne({ 
+      name: couponCode,
+      isList: true,
+      createdOn: { $lte: new Date() },
+      expireOn: { $gte: new Date() }
+    });
+
+    if (!coupon) {
+      return res.json({ success: false, message: 'Invalid coupon code' });
+    }
+
+    if (total < coupon.minimumPrice) {
+      return res.json({ 
+        success: false, 
+        message: `Minimum purchase of ₹${coupon.minimumPrice} required`
+      });
+    }
+
+    if (coupon.usedBy.includes(userId)) {
+      return res.json({ 
+        success: false, 
+        message: 'This coupon has already been used' 
+      });
+    }
+
+    const discount = Math.min(coupon.offerPrice, total);
+    const newTotal = total - discount;
+
+    return res.json({
+      success: true,
+      message: 'Coupon applied successfully',
+      discount,
+      newTotal
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = {
   loadCoupon,
   createCoupon,
   editCoupon,
   updateCoupon,
   deleteCoupon,
+  applycoupon
 };

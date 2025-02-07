@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Successful</title>
+    <!-- Include your styles -->
+</head>
+<body>
+    <% include includes/header %>
+    
+    <div class="container text-center py-5">
+        <h1 class="text-success">Order Placed Successfully!</h1>
+        <p>Your order ID: <%= orderId %></p>
+        <p>Payment ID: <%= paymentId %></p>
+        <a href="/orders" class="btn btn-primary">View Orders</a>
+    </div>
+
+    <% include includes/footer %>
+</body>
+</html>
