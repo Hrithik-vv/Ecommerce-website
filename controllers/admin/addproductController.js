@@ -31,12 +31,17 @@ const addproduct = async (req, res) => {
     description,
     brand,
     productName,
+    productOffer,
     image1,
     image2,
     image3,
     image4,
+    variants
   } = req.body;
-
+  console.log('duifhdfkjdsdasdsaddsdsdssdsd');
+  console.log(req.body);
+  
+  console.log('duifhdfkjdsdasdsaddsdsdssdsd');
   const newproduct = new Product({
     category,
     color,
@@ -46,6 +51,8 @@ const addproduct = async (req, res) => {
     description,
     brand,
     productName,
+    productOffer,
+    variants
   });
 
   console.log(newproduct);

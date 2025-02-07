@@ -478,20 +478,30 @@
                                     <span> - 5 Reviews</span>
                                 </div>
                                 <div class="price">
-                                    <h3>₹ <%= product.salePrice %>
-                                    </h3>
+                                    <% if (product.productOffer && product.productOffer > 0) { %>
+                                        <h3 style="margin-bottom: 5px;">
+                                            ₹<%= Math.round(product.salePrice * (1 - product.productOffer/100)).toLocaleString('en-IN') %> 
+                                            <span style="text-decoration: line-through; color: #666; font-size: 20px; margin-left: 10px;">
+                                                ₹<%= product.salePrice.toLocaleString('en-IN') %>
+                                            </span>
+                                        </h3>
+                                    <% } else { %>
+                                        <h3>₹<%= product.salePrice.toLocaleString('en-IN') %></h3>
+                                    <% } %>
                                 </div>
 
                                 <p class="<%= 
-                                product.status === 'Available' ? 'status-available' : 
-                                product.status === 'out of stock' ? 'status-out-of-stock' : 
-                                'status-discontinued' 
-                            %>">
+                                    product.status === 'Available' ? 'status-available' : 
+                                    product.status === 'out of stock' ? 'status-out-of-stock' : 
+                                    'status-discontinued' 
+                                %>">
                                     <%= product.status %>
                                 </p>
-                                <div class="offer-badgecont">
-                                    <div class="offer-badge">50% OFF</div>
-                                </div>
+                                <% if (product.productOffer && product.productOffer > 0) { %>
+                                    <div class="offer-badgecont">
+                                        <div class="offer-badge"><%= product.productOffer %>% OFF</div>
+                                    </div>
+                                <% } %>
 
                                 <!-- Product Options -->
                                 <div class="product__details__option">
@@ -580,7 +590,7 @@
                                             accompanied with specific software to operate the unit and must feature
                                             a touchscreen and touchpad.</p>
                                         <p>As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
+                                            was substantial during it's early release. For approximately $700.00,
                                             consumers could purchase one of top-of-the-line Pocket PCs in 2003.
                                             These days, customers are finding that prices have become much more
                                             reasonable now that the newness is wearing off. For approximately
@@ -588,7 +598,7 @@
                                     </div>
                                     <div class="product__details__tab__content__item">
                                         <h5>Material used</h5>
-                                        <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        <p>Polyester is deemed lower quality due to its none natural quality's. Made
                                             from synthetic materials, not natural like wool. Polyester suits become
                                             creased easily and are known for not being breathable. Polyester suits
                                             tend to have a shine to them compared to wool and cotton suits, this can
@@ -610,7 +620,7 @@
                                             accompanied with specific software to operate the unit and must feature
                                             a touchscreen and touchpad.</p>
                                         <p>As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
+                                            was substantial during it's early release. For approximately $700.00,
                                             consumers could purchase one of top-of-the-line Pocket PCs in 2003.
                                             These days, customers are finding that prices have become much more
                                             reasonable now that the newness is wearing off. For approximately
@@ -618,7 +628,7 @@
                                     </div>
                                     <div class="product__details__tab__content__item">
                                         <h5>Material used</h5>
-                                        <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        <p>Polyester is deemed lower quality due to its none natural quality's. Made
                                             from synthetic materials, not natural like wool. Polyester suits become
                                             creased easily and are known for not being breathable. Polyester suits
                                             tend to have a shine to them compared to wool and cotton suits, this can
@@ -644,7 +654,7 @@
                                             accompanied with specific software to operate the unit and must feature
                                             a touchscreen and touchpad.</p>
                                         <p>As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
+                                            was substantial during it's early release. For approximately $700.00,
                                             consumers could purchase one of top-of-the-line Pocket PCs in 2003.
                                             These days, customers are finding that prices have become much more
                                             reasonable now that the newness is wearing off. For approximately
@@ -652,7 +662,7 @@
                                     </div>
                                     <div class="product__details__tab__content__item">
                                         <h5>Material used</h5>
-                                        <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        <p>Polyester is deemed lower quality due to its none natural quality's. Made
                                             from synthetic materials, not natural like wool. Polyester suits become
                                             creased easily and are known for not being breathable. Polyester suits
                                             tend to have a shine to them compared to wool and cotton suits, this can

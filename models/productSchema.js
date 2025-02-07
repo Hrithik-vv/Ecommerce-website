@@ -1,6 +1,20 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+const variantSchema = new Schema({
+  size: {
+    type: String,
+    required: true,
+    enum: ['s', 'm', 'l', 'xl', 'xxl']
+  },
+  stock: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0
+  }
+});
+
 const productSchema = new Schema(
   {
     productName: {
@@ -14,23 +28,18 @@ const productSchema = new Schema(
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-
       ref: "Category",
     },
     salePrice: {
       type: Number,
       required: true,
-    min: 0
+      min: 0
     },
     productOffer: {
-      // Fixed typo from "prooductOffer" to "productOffer"
       type: Number,
       default: 0,
     },
-    quantity: {
-      type: Number,
-      default: 1, // Changed from `true` to a numeric default value (e.g., 1)
-    },
+    variants: [variantSchema],
     color: {
       type: String,
     },
@@ -43,22 +52,13 @@ const productSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["Available", "out of stock", "Discontinued"], // Fixed typo in enum values
-
+      enum: ["Available", "out of stock", "Discontinued"],
       default: "Available",
     },
-    image1: {
-      type: String,
-    },
-    image2: {
-      type: String,
-    },
-    image3: {
-      type: String,
-    },
-    image4: {
-      type: String,
-    },
+    image1: String,
+    image2: String,
+    image3: String,
+    image4: String,
     popularity: {
       type: Number,
       default: 0,

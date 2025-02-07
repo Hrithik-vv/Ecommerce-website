@@ -9,6 +9,11 @@ const productDetails = async (req, res) => {
     const productId = req.query.id;
     const product = await Product.findById(productId).populate("category");
 
+    // Calculate original price based on sale price and offer
+    const originalPrice = product.productOffer > 0 
+      ? Math.round(product.salePrice / (1 - product.productOffer/100))
+      : product.salePrice;
+
     const relatedProducts = await Product.find({
       category: product.category,
       _id: { $ne: id },
@@ -16,7 +21,11 @@ const productDetails = async (req, res) => {
     }).limit(4); // Limit the number of related products
 
     res.render("product-details", {
-      product,
+      product: {
+        ...product.toObject(),
+        offer: product.productOffer, // Map productOffer to offer
+        originalPrice // Add original price
+      },
       relatedProducts,
     });
   } catch (er) {
