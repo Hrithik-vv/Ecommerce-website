@@ -3,6 +3,7 @@ const Product = require("../../models/productSchema");
 const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
 const adress = require("../../models/addressSchema");
+const Coupon = require("../../models/couponSchema");
 
 const addToCart = async (req, res) => {
   try {
@@ -341,12 +342,25 @@ const loadCheckoutPage = async (req, res) => {
       return res.redirect("/shopping-cart");
     }
 
+    // Fetch available coupons
+    const coupons = await Coupon.find({
+      isList: true,
+      createdOn: { $lte: new Date() },
+      expireOn: { $gte: new Date() },
+      usedBy: { $ne: userId } // Exclude coupons already used by this user
+    });
+
     console.log("Rendering checkout page..."); // Debug log
     res.render("checkout", {
       cartItems: cart.items,
       total: cart.items.reduce((acc, item) => acc + item.totalPrice, 0),
       addresses: a,
       user: user,
+      coupons: coupons, // Pass available coupons to the view
+      messages: {
+        success: req.flash('success'),
+        error: req.flash('error')
+      }
     });
   } catch (error) {
     console.error("Error loading checkout page:", error); // Debug log
@@ -361,11 +375,23 @@ const getCheckoutPage = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findById(userId);
     const addresses = await Address.findOne({ userId: userId });
+    const coupons = await Coupon.find({
+      isList: true,
+      createdOn: { $lte: new Date() },
+      expireOn: { $gte: new Date() },
+      usedBy: { $ne: userId } // Exclude coupons already used by this user
+    });
+
 
     res.render("checkout", {
       user: userData,
       addresses: addresses ? addresses.address : [],
       selectedAddress: req.session.selectedAddress,
+      coupons: coupons, // Pass available coupons to the view
+      messages: {
+        success: req.flash('success'),
+        error: req.flash('error')
+      }
     });
   } catch (error) {
     console.error("Checkout error:", error);

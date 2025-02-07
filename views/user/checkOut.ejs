@@ -139,6 +139,67 @@
             background-color: #333;
             /* Slightly lighter black for hover effect */
         }
+
+        .available-coupons {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .available-coupons h6 {
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .coupon-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .coupon-item {
+            padding: 12px;
+            border: 1px dashed #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-item:hover {
+            border-color: #007bff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .coupon-code {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .coupon-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .coupon-details span {
+            padding-right: 10px;
+            border-right: 1px solid #ddd;
+        }
+
+        .coupon-details span:last-child {
+            border-right: none;
+        }
+
+        .no-coupons {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -166,6 +227,25 @@
                                                 <button type="button" id="applyCoupon" class="btn btn-dark ml-2">Apply
                                                     Coupon</button>
                                                 <div id="couponMessage" class="mt-2"></div>
+                                            </div>
+                                            <div class="available-coupons mt-3">
+                                                <h6>Available Coupons</h6>
+                                                <div class="coupon-list">
+                                                    <% if (typeof coupons !== 'undefined' && coupons.length > 0) { %>
+                                                        <% coupons.forEach(coupon => { %>
+                                                            <div class="coupon-item" onclick="applyCouponCode('<%= coupon.name %>')">
+                                                                <div class="coupon-code"><%= coupon.name %></div>
+                                                                <div class="coupon-details">
+                                                                    <span class="discount">Save ₹<%= coupon.offerPrice %></span>
+                                                                    <span class="min-purchase">Min. Purchase: ₹<%= coupon.minimumPrice %></span>
+                                                                    <span class="expiry">Valid till: <%= new Date(coupon.expireOn).toLocaleDateString() %></span>
+                                                                </div>
+                                                            </div>
+                                                        <% }) %>
+                                                    <% } else { %>
+                                                        <p class="no-coupons">No coupons available at the moment</p>
+                                                    <% } %>
+                                                </div>
                                             </div>
                                             <h6 class="checkout__title">Billing Details</h6>
                                             <% if (addresses && addresses.address.length> 0) { %>
@@ -551,6 +631,82 @@
     console.error('Error applying coupon:', error);
   }
 });
+</script>
+
+<script>
+    function applyCouponCode(code) {
+        const couponElement = document.querySelector(`[onclick="applyCouponCode('${code}')"]`);
+        const currentCouponCode = document.getElementById('couponCodeInput').value;
+        const subtotal = parseFloat(document.querySelector('.checkout__total__all li:first-child span').textContent.replace('₹', ''));
+        const couponInput = document.getElementById('couponCode'); // Get the visible input element
+        
+        // If this coupon is already selected, deselect it
+        if (code === currentCouponCode) {
+            // Reset all visual states
+            couponElement.style.opacity = '1';
+            couponElement.style.backgroundColor = '';
+            couponElement.style.borderColor = '';
+            
+            // Reset both input fields
+            document.getElementById('couponCodeInput').value = '';
+            couponInput.value = ''; // Clear the visible input
+            
+            document.getElementById('couponMessage').textContent = 'Coupon removed';
+            document.getElementById('couponMessage').className = 'text-info';
+            
+            // Reset the totals
+            document.querySelector('.coupon-discount').style.display = 'none';
+            document.getElementById('totalAmount').textContent = `₹${subtotal.toFixed(2)}`;
+            
+            // Re-enable all coupons
+            document.querySelectorAll('.coupon-item').forEach(item => {
+                item.style.opacity = '1';
+                item.style.pointerEvents = 'auto';
+                item.style.backgroundColor = '';
+                item.style.borderColor = '';
+            });
+            return;
+        }
+        
+        // Apply new coupon
+        const offerPrice = parseFloat(couponElement.querySelector('.discount').textContent.replace('Save ₹', ''));
+        const minimumPrice = parseFloat(couponElement.querySelector('.min-purchase').textContent.replace('Min. Purchase: ₹', ''));
+        
+        // Validate minimum purchase
+        if (subtotal < minimumPrice) {
+            document.getElementById('couponMessage').textContent = `Minimum purchase of ₹${minimumPrice} required`;
+            document.getElementById('couponMessage').className = 'text-danger';
+            return;
+        }
+        
+        // Calculate new totals
+        const discount = Math.min(offerPrice, subtotal);
+        const newTotal = subtotal - discount;
+        
+        // Update UI for successful application
+        document.getElementById('couponMessage').textContent = 'Coupon applied successfully';
+        document.getElementById('couponMessage').className = 'text-success';
+        document.querySelector('.coupon-discount').style.display = 'block';
+        document.getElementById('discountAmount').textContent = `₹${discount.toFixed(2)}`;
+        document.getElementById('totalAmount').textContent = `₹${newTotal.toFixed(2)}`;
+        
+        // Update both input fields with the coupon code
+        document.getElementById('couponCodeInput').value = code;
+        couponInput.value = code; // Update the visible input
+        
+        // Update coupon visuals
+        document.querySelectorAll('.coupon-item').forEach(item => {
+            item.style.opacity = '0.5';
+            item.style.pointerEvents = 'auto'; // Keep clickable for deselection
+            item.style.backgroundColor = '';
+            item.style.borderColor = '';
+        });
+        
+        // Highlight selected coupon
+        couponElement.style.opacity = '1';
+        couponElement.style.backgroundColor = '#e8f5e9';
+        couponElement.style.borderColor = '#4caf50';
+    }
 </script>
 </body>
 
