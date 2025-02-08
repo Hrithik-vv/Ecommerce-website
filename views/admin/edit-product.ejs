@@ -287,11 +287,14 @@
               <label class="form-label">Category</label>
               <select name="category" class="form-control">
                 <option value="">Select Category</option>
-                <% categoryInfo.forEach(category => { %>
-                  <option value="<%= category._id %>" <%= product.category.equals(category._id) ? 'selected' : '' %>>
-                    <%= category.name %>
-                  </option>
-                <% }) %>
+                <% if (categoryInfo && categoryInfo.length > 0) { %>
+                  <% categoryInfo.forEach(category => { %>
+                    <option value="<%= category._id %>" 
+                      <%= (product.category && product.category.toString() === category._id.toString()) ? 'selected' : '' %>>
+                      <%= category.name %>
+                    </option>
+                  <% }) %>
+                <% } %>
               </select>
               <div id="category-error" class="error-message"></div>
             </div>
@@ -794,25 +797,28 @@
             const productId = new URLSearchParams(window.location.search).get("id");
             const formDataObject = {};
 
+            // Handle images separately
+            const imageData = {
+              image1: document.getElementById('photo1').value,
+              image2: document.getElementById('photo2').value,
+              image3: document.getElementById('photo3').value,
+              image4: document.getElementById('photo4').value
+            };
+
+            // Add all form fields to formDataObject
             formData.forEach((value, key) => {
-              formDataObject[key] = value;
+              if (!key.startsWith('image')) {
+                formDataObject[key] = value;
+              }
             });
 
-            const filteredProduct = Object.keys(formDataObject)
-              .filter(key =>
-                !key.startsWith('deleteImage') &&
-                formDataObject[key] !== '' &&
-                formDataObject[key] !== '{}'
-              )
-              .reduce((obj, key) => {
-                obj[key] = formDataObject[key];
-                return obj;
-              }, {});
+            // Add image data
+            Object.assign(formDataObject, imageData);
 
             try {
               const response = await fetch(`/admin/edit-product/${productId}`, {
                 method: "POST",
-                body: JSON.stringify(filteredProduct),
+                body: JSON.stringify(formDataObject),
                 headers: {
                   "Content-Type": "application/json"
                 }

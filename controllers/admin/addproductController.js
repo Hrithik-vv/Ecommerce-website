@@ -128,54 +128,70 @@ async function deleteImageFromFolder(imagePath) {
 
 // Edit product details
 const editProduct = async (req, res) => {
-  const productId = req.params.id;
-  const product = await Product.findById(productId);
-  const { _id } = product;
-
-  imagesp = {};
-  const images = [req.body.image1, req.body.image2, req.body.image3, req.body.image4];
-  
-  images.forEach((x, y) => {
-    if (x[0] === "i") {
-      images[y] = null;
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
-  });
-  
-  images.forEach((image, index) => {
-    if (image) {
-      const base64WithoutPrefix = image.replace(/^data:image\/\w+;base64,/, "");
-      const binary = Buffer.from(base64WithoutPrefix, "base64");
-      
-      // Save updated image file
-      fs.writeFile(
-        path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`, `image${index}.png`),
-        binary,
-        (err) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("Image updated successfully");
-          }
-        }
-      );
-      imagesp[`image${index+1}`] = `images/${_id}/image${index}.png`;
+
+    const { image1, image2, image3, image4, ...productData } = req.body;
+    const images = [image1, image2, image3, image4];
+    const imageUpdates = {};
+
+    // Create product directory if it doesn't exist
+    const productDir = path.join("public", "images", productId);
+    await fs.promises.mkdir(productDir, { recursive: true });
+
+    // Process each image
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      const imageKey = `image${i + 1}`;
+
+      // Skip if image is unchanged (starts with "images/")
+      if (!image || image.startsWith('images/')) {
+        continue;
+      }
+
+      // Process new image
+      if (image.startsWith('data:image')) {
+        const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        const imagePath = path.join(productDir, `image${i}.png`);
+        
+        // Save new image
+        await fs.promises.writeFile(imagePath, imageBuffer);
+        
+        // Update image path in database
+        imageUpdates[imageKey] = `images/${productId}/image${i}.png`;
+      }
     }
-  });
-  
-  delete req.body.images;
-  delete req.body.image1;
-  delete req.body.image2;
-  delete req.body.image3;
-  delete req.body.image4;
 
-  const mongodata = { ...imagesp, ...req.body };
-  
-  await Product.findByIdAndUpdate(productId, { $set: mongodata }, { new: true, runValidators: true });
+    // Update product in database
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { 
+        ...productData,
+        ...imageUpdates
+      },
+      { new: true, runValidators: true }
+    );
 
-  res.status(200).json({
-    success: true,
-    message: "Product updated successfully",
-  });
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      images: imageUpdates
+    });
+
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update product",
+      error: error.message
+    });
+  }
 };
 
 // Delete a product image

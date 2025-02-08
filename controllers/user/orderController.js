@@ -2,9 +2,8 @@ const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
-const adress = require("../../models/addressSchema");
+const Address = require("../../models/addressSchema");
 const mongoose = require("mongoose");
-const address = require("../../models/addressSchema");
 const razorpay = require("../../config/razorpay");
 require("dotenv").config();
 
@@ -43,7 +42,7 @@ const orderView = async (req, res) => {
 
     // Render the product details in the template
 
-    const a = await await adress.findOne(
+    const a = await Address.findOne(
       {
         userId: order.userId,
         "address._id": new mongoose.Types.ObjectId(order.shippingAddress),
@@ -194,10 +193,123 @@ const processPayment = async (req, res) => {
   }
 };
 
+const placeOrder = async (req, res) => {
+  try {
+    const userId = req.session.user_id;
+    const { paymentMethod, addressId } = req.body;
+
+    // Get user's cart
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    if (!cart || cart.items.length === 0) {
+      return res.json({ success: false, message: 'Cart is empty' });
+    }
+
+    // Get delivery address
+    const userAddress = await Address.findOne({ userId });
+    const deliveryAddress = userAddress.addresses.find(addr => addr._id.toString() === addressId);
+    
+    if (!deliveryAddress) {
+      return res.json({ success: false, message: 'Invalid delivery address' });
+    }
+
+    // Calculate total amount
+    const totalAmount = cart.items.reduce((total, item) => {
+      return total + (item.price * item.quantity);
+    }, 0);
+
+    // Create new order
+    const order = new Order({
+      userId,
+      items: cart.items,
+      totalAmount,
+      shippingAddress: deliveryAddress,
+      paymentMethod,
+      paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Paid',
+      orderStatus: 'Pending'
+    });
+
+    // Save order
+    await order.save();
+
+    if (paymentMethod === 'COD') {
+      // Clear cart after successful order
+      await Cart.findOneAndUpdate(
+        { userId },
+        { $set: { items: [], totalAmount: 0 } }
+      );
+
+      return res.json({
+        success: true,
+        message: 'Order placed successfully',
+        orderId: order._id,
+        method: 'COD'
+      });
+    } else {
+      // For Razorpay, return order details for payment
+      return res.json({
+        success: true,
+        orderId: order._id,
+        amount: totalAmount,
+        method: 'Razorpay'
+      });
+    }
+
+  } catch (error) {
+    console.error('Place order error:', error);
+    res.status(500).json({ success: false, message: 'Failed to place order' });
+  }
+};
+
+const verifyPayment = async (req, res) => {
+  try {
+    const { payment, order } = req.body;
+    
+    // Update order status after successful payment
+    await Order.findByIdAndUpdate(
+      order.receipt,
+      {
+        $set: {
+          paymentStatus: 'Paid',
+          'payment.razorpay_payment_id': payment.razorpay_payment_id,
+          'payment.razorpay_order_id': payment.razorpay_order_id,
+          'payment.razorpay_signature': payment.razorpay_signature
+        }
+      }
+    );
+
+    // Clear cart after successful payment
+    await Cart.findOneAndUpdate(
+      { userId: req.session.user_id },
+      { $set: { items: [], totalAmount: 0 } }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    res.status(500).json({ success: false, message: 'Payment verification failed' });
+  }
+};
+
+const orderSuccess = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId)
+      .populate('items.productId');
+    
+    res.render('orderSuccess', { order });
+  } catch (error) {
+    console.error('Order success page error:', error);
+    res.status(500).render('error');
+  }
+};
+
 module.exports = {
   orderView,
   orderHistory,
   orderPlaced,
   createOrder,
   processPayment,
+  placeOrder,
+  verifyPayment,
+  orderSuccess,
 };

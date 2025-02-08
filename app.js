@@ -121,13 +121,9 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Database connection
-mongoose.connect('mongodb://localhost:27017/your_database')
-    .then(() => {
-        console.log('Database connected successfully');
-    })
-    .catch((err) => {
-        console.error('Database connection error:', err);
-    });
+// Replace multiple mongoose.connect() calls with a single connection
+mongoose.connect(process.env.MONGODB_URI || 'your_mongodb_connection_string')
+  .then(() => console.log('DB Connected'))
+  .catch((err) => console.log('DB Connection Error:', err));
 
 module.exports = app;
