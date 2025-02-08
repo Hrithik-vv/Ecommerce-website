@@ -144,9 +144,10 @@
       .preview-container {
         position: relative;
         margin-top: 10px;
+        display: block;
       }
 
-      preview-image {
+      .preview-image {
         max-width: 200px;
         max-height: 200px;
         display: block;
@@ -172,7 +173,9 @@
       .cropper-container {
         max-width: 500px;
         margin: 10px 0;
-        display: none;
+        width: 100%;
+        height: auto;
+        position: relative;
       }
 
       .actions-container {
@@ -279,42 +282,24 @@
               <div class="form-group">
                 <div class="image-upload-box" onclick="document.getElementById('image<%= i %>').click()">
                   <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
-                  <p>Click to upload image <%= i %>
-                  </p>
-                  <input type="file" id="image<%= i %>" name="images" accept="image/png, image/jpeg, image/jpg"
-                    style="display: none" onchange="handleImageSelect(`<%= i %>`)" />
+                  <p>Click to upload image <%= i %></p>
+                  <input type="file" id="image<%= i %>" name="images" 
+                    accept="image/png, image/jpeg, image/jpg"
+                    style="display: none" 
+                    onchange="handleImageSelect(<%= i %>)" />
                 </div>
 
                 <div class="preview-container" id="previewContainer<%= i %>">
                   <% if(product['image' + i]) { %>
-                    <img src="/<%= product['image' + i] %>" alt="Image <%= i %>" id="prev<%= i %>"
-                      class="preview-image" />
-                    <!-- <button
-                type="button"
-                class="delete-btn"
-                onclick="confirmDelete(`<%= i %>`)"
-              >
-                <i class="fas fa-trash"></i>
-              </button> -->
-                    <% } %>
+                    <img src="/<%= product['image' + i] %>" alt="Image <%= i %>" 
+                      id="prev<%= i %>" class="preview-image" />
+                  <% } %>
                 </div>
 
-                <div class="cropper-container" id="cropperContainer<%= i %>">
-                  <img id="croppedImg<%= i %>" src="" style="max-width: 100%" />
-                  <div class="actions-container mt-3">
-                    <button type="button" class="btn btn-primary" onclick="saveCroppedImage(`<%= i %>`)">
-                      Save Cropped Image
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="cancelCropping(`<%= i %>`)">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-
-                <input type="hidden" id="photo<%= i %>" name="image<%= i %>" value="<%= product['image' + i] %>" />
-                <input type="hidden" id="deleteImage<%= i %>" name="deleteImage<%= i %>" value="false" />
+                <input type="hidden" id="photo<%= i %>" name="image<%= i %>" 
+                  value="<%= product['image' + i] %>" />
               </div>
-              <% } %>
+            <% } %>
           </div>
         </div>
 
@@ -332,173 +317,54 @@
       let croppers = {};
 
       function handleImageSelect(imageNumber) {
+        const files = document.getElementById(`image${imageNumber}`);
+        const preview = document.getElementById(`prev${imageNumber}`);
+        const file = files.files[0];
 
+        if (file) {
+          const objectURL = URL.createObjectURL(file);
+          preview.src = objectURL;
+          preview.style.display = "block";
 
-        const file = document.getElementById(`image${imageNumber}`).files[0];
-        console.log(file);
-
-        if (!file) {
-          alert('no file')
-        }
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          // Hide preview and show cropper
-          document.getElementById(
-            `previewContainer${imageNumber}`
-          ).style.display = "none";
-          const cropperContainer = document.getElementById(
-            `cropperContainer${imageNumber}`
-          );
-          cropperContainer.style.display = "block";
-          cropperContainer.className = "";
-
-          const image = document.getElementById(`croppedImg${imageNumber}`);
-
-          image.src = e.target.result;
-          image.classList.remove(image.classList[0])
           if (croppers[imageNumber]) {
             croppers[imageNumber].destroy();
           }
 
-          croppers[imageNumber] = new Cropper(image, {
+          // Initialize a new Cropper
+          croppers[imageNumber] = new Cropper(preview, {
             aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 1,
-            background: false,
+            cropBoxResizable: false,
+            cropBoxMovable: true,
+            dragMode: "none",
+            ready: function () {
+              this.cropper.setCropBoxData({
+                width: 100,
+                height: 100,
+              });
+            },
           });
-        };
-        reader.readAsDataURL(file);
-      }
-
-      function saveCroppedImage(imageNumber) {
-
-
-        if (!croppers[imageNumber]) return;
-
-        const canvas = croppers[imageNumber].getCroppedCanvas();
-        const croppedImageData = canvas.toDataURL("image/jpeg");
-
-
-
-        // Update hidden input and preview
-        document.getElementById(`photo${imageNumber}`).value = croppedImageData;
-
-
-        const previewImg = document.getElementById(`prev${imageNumber}`);
-        if (!previewImg) {
-          const previewContainer = document.getElementById(
-            `previewContainer${imageNumber}`
-          );
-          const newPreviewImg = document.createElement("img");
-          newPreviewImg.id = `prev${imageNumber}`;
-          newPreviewImg.className = "preview-image";
-          newPreviewImg.src = croppedImageData;
-
-          const deleteBtn = document.createElement("button");
-          deleteBtn.className = "delete-btn";
-          deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-          deleteBtn.onclick = () => confirmDelete(imageNumber);
-
-          previewContainer.appendChild(newPreviewImg);
-          previewContainer.appendChild(deleteBtn);
-        } else {
-          previewImg.src = croppedImageData;
-        }
-
-        // Show preview and hide cropper
-        document.getElementById(`previewContainer${imageNumber}`).style.display =
-          "block";
-        document.getElementById(`cropperContainer${imageNumber}`).style.display =
-          "none";
-
-        // Cleanup
-        croppers[imageNumber].destroy();
-        croppers[imageNumber] = null;
-      }
-
-      function cancelCropping(imageNumber) {
-        if (croppers[imageNumber]) {
-          croppers[imageNumber].destroy();
-          croppers[imageNumber] = null;
-        }
-        document.getElementById(`image${imageNumber}`).value = "";
-        document.getElementById(`cropperContainer${imageNumber}`).style.display =
-          "none";
-        document.getElementById(`previewContainer${imageNumber}`).style.display =
-          "block";
-      }
-
-      async function confirmDelete(imageNumber) {
-        const result = await Swal.fire({
-          title: "Delete Image?",
-          text: "Are you sure you want to delete this image?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#ef4444",
-          cancelButtonColor: "#3085d6",
-          confirmButtonText: "Yes, delete it!",
-        });
-
-        if (result.isConfirmed) {
-          try {
-            // Get product ID from URL or hidden input
-            const productId = new URLSearchParams(window.location.search).get(
-              "id"
-            );
-
-            // If it's a new image that hasn't been saved yet
-            if (!productId) {
-              deleteImage(imageNumber);
-              Swal.fire("Deleted!", "The image has been removed.", "success");
-              return;
-            }
-
-            // For existing images, call the API
-            const response = await fetch(
-              `/admin/product/${productId}/image/${imageNumber}`,
-              {
-                method: "DELETE",
-              }
-            );
-
-            const data = await response.json();
-
-            if (data.success) {
-              deleteImage(imageNumber);
-              Swal.fire("Deleted!", "The image has been deleted.", "success");
-            } else {
-              throw new Error(data.message);
-            }
-          } catch (error) {
-            console.error("Error deleting image:", error);
-            Swal.fire("Error!", "Failed to delete the image.", "error");
-          }
         }
       }
 
-      function deleteImage(imageNumber) {
-        // Clear file input
-        document.getElementById(`image${imageNumber}`).value = "";
-
-        // Clear preview container
-        const previewContainer = document.getElementById(
-          `previewContainer${imageNumber}`
-        );
-        previewContainer.innerHTML = "";
-
-        // Mark image for deletion in backend
-        document.getElementById(`deleteImage${imageNumber}`).value = "true";
-
-        // Clear hidden input
-        document.getElementById(`photo${imageNumber}`).value = "";
-
-        // Reset cropper if exists
-        if (croppers[imageNumber]) {
-          croppers[imageNumber].destroy();
-          croppers[imageNumber] = null;
+      // Add form submit handler
+      document.getElementById("addform").addEventListener("submit", (event) => {
+        let images = []; // Initialize the array
+        for (let i = 1; i <= 4; i++) {
+          const canvas = croppers[i]?.getCroppedCanvas();
+          const base64Image = canvas ? canvas.toDataURL("image/png") : ""; 
+          images.push(base64Image);
         }
-      }
+
+        // Set the hidden input fields' values
+        document.getElementById("photo1").value = images[0];
+        document.getElementById("photo2").value = images[1];
+        document.getElementById("photo3").value = images[2];
+        document.getElementById("photo4").value = images[3];
+
+        // Now submit the form
+        event.preventDefault(); 
+        event.target.submit(); 
+      });
     </script>
 
     <script>
@@ -610,7 +476,6 @@
 
         form.addEventListener('submit', async function (e) {
           e.preventDefault();
-
 
           let isValid = true;
 
