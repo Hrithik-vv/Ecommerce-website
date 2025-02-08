@@ -11,6 +11,7 @@ const adminRouter = require("./routes/adminRouter"); // Admin routes
 const nocache = require("nocache");
 const flash = require('connect-flash');
 const Cart = require("./models/cartSchema")
+const mongoose = require('mongoose');
 
 connectDB();
 
@@ -43,8 +44,6 @@ app.use(
     },
   })
 );
-
-
 
 // Initialize Passport and restore authentication state
 app.use(passport.initialize());
@@ -122,6 +121,13 @@ app.use(async (req, res, next) => {
   next();
 });
 
-
+// Database connection
+mongoose.connect('mongodb://localhost:27017/your_database')
+    .then(() => {
+        console.log('Database connected successfully');
+    })
+    .catch((err) => {
+        console.error('Database connection error:', err);
+    });
 
 module.exports = app;

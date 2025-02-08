@@ -1,32 +1,40 @@
-const mongoose = require("mongoose")
-const {Schema} = mongoose;
+const mongoose = require ("mongoose");
+const {Schema} =mongoose;
 
-const categorySchema = new mongoose.Schema({
-    name: {
-        type : String,
-        required : true,
-        unique : true,
-        isBlocked: { type: Boolean, default: false }
-
-    },
-    description :{
-        type : String,
+const cartSchema = new Schema({
+    userId :{
+        type:mongoose.Schema.Types.ObjectId,
+        ref : "User",
         required : true
     },
-    isListed: {
-        type: Boolean,
-        default:true
-    },
-     categoryOffer:{
-        type : Number,
-        default:0
-     },
-     createAt: {
-        type: Date,
-        default : Date.now
-     }
+    items :[{
+        productId:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:'Product',
+            required:true
+        },
+        quantity :{
+            type: Number,
+            default:true
+        },
+        productPrice:{
+            type:Number,
+            required:true
+        },
+        totalPrice:{
+            type:Number,
+            required:true
+        },
+        status:{
+            type:String,
+            default:"Placed"
+        },
+        cancellationReason:{
+            type:String,
+            defult:"none"
+        }
+    }]
 })
 
-const categoty = mongoose.model("Category",categorySchema);
-
-module.exports =categoty;
+const Cart = mongoose.model("Cart",cartSchema);
+module.exports = Cart;
