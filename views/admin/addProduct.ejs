@@ -194,6 +194,176 @@
       .image-upload-box:hover {
         border-color: #666;
       }
+
+      .variant-item {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .variant-item:hover {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .modal {
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
+
+      .modal-dialog {
+        max-width: 500px;
+        margin: 0 auto;
+        position: relative;
+        top: 20px; /* Distance from top of screen */
+      }
+
+      .modal-content {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        background: #fff;
+      }
+
+      .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 12px 12px 0 0;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+
+      .modal-header .modal-title {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 1.25rem;
+        margin: 0;
+      }
+
+      .modal-header .close {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #4a5568;
+        opacity: 0.7;
+        cursor: pointer;
+        padding: 0.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+      }
+
+      .modal-header .close:hover {
+        opacity: 1;
+        background-color: #e2e8f0;
+      }
+
+      .modal-header .close span {
+        line-height: 1;
+        display: block;
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .modal-body .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .modal-body .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #4a5568;
+      }
+
+      .modal-body .form-control {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        width: 100%;
+        transition: all 0.2s;
+      }
+
+      .modal-body .form-control:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      }
+
+      .modal-body select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0aec0'%3e%3cpath d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+      }
+
+      .modal-footer {
+        border-top: 1px solid #e9ecef;
+        border-radius: 0 0 12px 12px;
+        padding: 1.25rem 1.5rem;
+        background-color: #f8f9fa;
+      }
+
+      .modal-footer .btn {
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.2s;
+      }
+
+      .modal-footer .btn-secondary {
+        background-color: #e2e8f0;
+        color: #4a5568;
+        border: none;
+      }
+
+      .modal-footer .btn-secondary:hover {
+        background-color: #cbd5e0;
+      }
+
+      .modal-footer .btn-primary {
+        background-color: #4f46e5;
+        border: none;
+      }
+
+      .modal-footer .btn-primary:hover {
+        background-color: #4338ca;
+      }
+
+      /* Animation for modal */
+      .modal.fade .modal-dialog {
+        transform: translate(0, -50px);
+        transition: transform 0.3s ease-out;
+      }
+
+      .modal.show .modal-dialog {
+        transform: none;
+      }
+
+      /* Ensure modal appears on top */
+      .modal {
+        z-index: 1050;
+      }
+
+      .modal-backdrop {
+        z-index: 1040;
+      }
     </style>
   </head>
 
@@ -227,32 +397,7 @@
         </div>
 
         <!-- Pricing and Inventory -->
-        <div class="card">
-          <h3 class="section-title">Pricing & Inventory</h3>
-          <div class="form-row">
-            <!-- <div class="form-group">
-            <label class="form-label">Regular Price</label>
-            <input
-              type="text"
-              name="regularPrice"
-              class="form-control"
-              placeholder="$0.00"
-            />
-            <div id="regularPrice-error" class="error-message"></div>
-          </div> -->
-            <div class="form-group">
-              <label class="form-label">Sale Price</label>
-              <input type="text" name="salePrice" class="form-control" placeholder="$0.00" />
-              <div id="salePrice-error" class="error-message"></div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Quantity</label>
-              <input type="number" name="quantity" class="form-control" placeholder="0" />
-              <div id="quantity-error" class="error-message"></div>
-            </div>
-          </div>
-        </div>
-
+       
         <!-- Categories and Attributes -->
         <div class="card">
           <h3 class="section-title">Categories & Attributes</h3>
@@ -268,11 +413,6 @@
                   <% }) %>
               </select>
               <div id="category-error" class="error-message"></div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Color</label>
-              <input type="text" name="color" class="form-control" placeholder="Enter color" />
-              <div id="color-error" class="error-message"></div>
             </div>
           </div>
         </div>
@@ -316,6 +456,65 @@
         <input type="hidden" id="photo2" name="image2" />
         <input type="hidden" id="photo3" name="image3" />
         <input type="hidden" id="photo4" name="image4" />
+
+        <!-- Add this before the Submit Button card -->
+        <div class="card">
+          <h3 class="section-title">Product Variants</h3>
+          <button type="button" class="btn btn-primary" onclick="openVariantModal()">
+            <i class="fas fa-plus mr-2"></i> Add Variant
+          </button>
+          
+          <div id="variantsContainer" class="mt-4">
+            <!-- Variants will be displayed here -->
+          </div>
+        </div>
+
+        <!-- Variant Modal -->
+        <div class="modal fade" id="variantModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" style="display: none;">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Add Product Variant</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label class="form-label">Color</label>
+                  <input type="text" id="variantColor" class="form-control" placeholder="Enter color">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Size</label>
+                  <select id="variantSize" class="form-control">
+                    <option value="">Select Size</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Price</label>
+                  <input type="number" id="variantPrice" class="form-control" placeholder="Enter price">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Stock</label>
+                  <input type="number" id="variantStock" class="form-control" placeholder="Enter stock quantity">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="addVariant()">Add Variant</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add hidden input for variants data -->
+        <input type="hidden" id="variantsData" name="variants">
 
         <!-- Submit Button -->
         <div class="card">
@@ -494,54 +693,12 @@
             ],
           },
           {
-            input: document.querySelector('input[name="salePrice"]'),
-            errorElement: document.getElementById("salePrice-error"),
-            validations: [
-              {
-                validate: (value) => value.trim() !== "",
-                message: "Sale price is required",
-              },
-              {
-                validate: (value) => /^\$?(\d+(\.\d{1,2})?)$/.test(value),
-                message: "Invalid price format",
-              },
-            ],
-          },
-          {
-            input: document.querySelector('input[name="quantity"]'),
-            errorElement: document.getElementById("quantity-error"),
-            validations: [
-              {
-                validate: (value) => value.trim() !== "",
-                message: "Quantity is required",
-              },
-              {
-                validate: (value) => /^\d+$/.test(value),
-                message: "Quantity must be a positive number",
-              },
-            ],
-          },
-          {
             input: document.querySelector('select[name="category"]'),
             errorElement: document.getElementById("category-error"),
             validations: [
               {
                 validate: (value) => value.trim() !== "",
                 message: "Category is required",
-              },
-            ],
-          },
-          {
-            input: document.querySelector('input[name="color"]'),
-            errorElement: document.getElementById("color-error"),
-            validations: [
-              {
-                validate: (value) => value.trim() !== "",
-                message: "Color is required",
-              },
-              {
-                validate: (value) => /^[a-zA-Z\s]+$/.test(value),
-                message: "Color can only contain letters and spaces",
               },
             ],
           },
@@ -567,19 +724,23 @@
 
           // Reset previous error messages
           fields.forEach((field) => {
-            field.errorElement.textContent = "";
+            if (field.errorElement) {
+              field.errorElement.textContent = "";
+            }
           });
           imagesErrorElement.textContent = "";
 
           // Validate each field
           fields.forEach((field) => {
-            const value = field.input.value;
+            if (field.input && field.errorElement) {
+              const value = field.input.value;
 
-            for (let validation of field.validations) {
-              if (!validation.validate(value)) {
-                field.errorElement.textContent = validation.message;
-                isValid = false;
-                break;
+              for (let validation of field.validations) {
+                if (!validation.validate(value)) {
+                  field.errorElement.textContent = validation.message;
+                  isValid = false;
+                  break;
+                }
               }
             }
           });
@@ -587,6 +748,13 @@
           // Validate images
           if (!hasValidImage) {
             imagesErrorElement.textContent = "At least one image is required";
+            isValid = false;
+          }
+
+          // Validate variants
+          const variantsData = document.getElementById('variantsData').value;
+          if (!variantsData || JSON.parse(variantsData).length === 0) {
+            alert('Please add at least one product variant');
             isValid = false;
           }
 
@@ -598,7 +766,72 @@
       });
     </script>
 
+    <script>
+      let variants = [];
+
+      function openVariantModal() {
+        $('#variantModal').modal('show');
+      }
+
+      function addVariant() {
+        const color = document.getElementById('variantColor').value;
+        const size = document.getElementById('variantSize').value;
+        const price = document.getElementById('variantPrice').value;
+        const stock = document.getElementById('variantStock').value;
+
+        if (!color || !size || !price || !stock) {
+          alert('Please fill all fields');
+          return;
+        }
+
+        const variant = {
+          color,
+          size,
+          price: parseFloat(price),
+          stock: parseInt(stock)
+        };
+
+        variants.push(variant);
+        updateVariantsDisplay();
+        document.getElementById('variantsData').value = JSON.stringify(variants);
+        $('#variantModal').modal('hide');
+
+        // Reset form
+        document.getElementById('variantColor').value = '';
+        document.getElementById('variantSize').value = '';
+        document.getElementById('variantPrice').value = '';
+        document.getElementById('variantStock').value = '';
+      }
+
+      function removeVariant(index) {
+        variants.splice(index, 1);
+        updateVariantsDisplay();
+        document.getElementById('variantsData').value = JSON.stringify(variants);
+      }
+
+      function updateVariantsDisplay() {
+        const container = document.getElementById('variantsContainer');
+        container.innerHTML = variants.map((variant, index) => `
+          <div class="variant-item card p-3 mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Color:</strong> ${variant.color} | 
+                <strong>Size:</strong> ${variant.size} | 
+                <strong>Price:</strong> ₹${variant.price} | 
+                <strong>Stock:</strong> ${variant.stock}
+              </div>
+              <button type="button" class="btn btn-danger btn-sm" onclick="removeVariant(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 
   <%- include("../../views/partials/admin/adminFooter.ejs") %>

@@ -201,6 +201,82 @@
       .image-upload-box:hover {
         border-color: #666;
       }
+
+      .variant-card {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .variant-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .variant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .variant-input-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .variant-input-group .form-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .variant-input-group .form-control {
+        background-color: white;
+        border: 1px solid #e2e8f0;
+      }
+
+      .variant-input-group .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background-color: white;
+        width: 90%;
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+      }
+
+      .mb-3 {
+        margin-bottom: 1rem;
+      }
     </style>
   </head>
 
@@ -227,22 +303,7 @@
         </div>
 
         <!-- Pricing and Inventory -->
-        <div class="card">
-          <h3 class="section-title">Pricing & Inventory</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Sale Price</label>
-              <input type="text" name="salePrice" value="<%= product.salePrice  %>" class="form-control"
-                placeholder="$0.00" />
-              <div id="salePrice-error" class="error-message"></div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Quantity</label>
-              <input type="number" name="quantity" value="<%=product.quantity%>" class="form-control" placeholder="0" />
-              <div id="quantity-error" class="error-message"></div>
-            </div>
-          </div>
-        </div>
+       
 
         <!-- Categories and Attributes -->
         <div class="card">
@@ -251,21 +312,85 @@
             <div class="form-group">
               <label class="form-label">Category</label>
               <select name="category" class="form-control">
-
-                <!-- <option value="">Select Category</option> -->
                 <% categoryInfo.forEach(category=> { %>
                   <option value="<%= category._id %>">
                     <%= category.name %>
                   </option>
-                  <% }) %>
+                <% }) %>
               </select>
               <div id="category-error" class="error-message"></div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Color</label>
-              <input type="text" name="color" value="<%= product.color  %>" class="form-control"
-                placeholder="Enter color" />
-              <div id="color-error" class="error-message"></div>
+          </div>
+        </div>
+
+        <!-- Variants Section -->
+        <div class="card">
+          <h3 class="section-title">Variants</h3>
+          <button type="button" class="btn btn-primary mb-3" onclick="openVariantModal()">
+            <i class="fas fa-plus"></i> Add Variant
+          </button>
+          <div id="variant-container" class="form-row">
+            <% product.variants.forEach((variant, index) => { %>
+              <div class="variant-card">
+                <div class="variant-header">
+                  <%= variant.color %> - <%= variant.size %>
+                </div>
+                <div class="variant-grid">
+                  <div class="variant-input-group">
+                    <label class="form-label">Stock</label>
+                    <input 
+                      type="number" 
+                      name="variants[<%= index %>][stock]" 
+                      class="form-control"
+                      value="<%= variant.stock %>"
+                      min="0"
+                    />
+                  </div>
+                  <div class="variant-input-group">
+                    <label class="form-label">Price ($)</label>
+                    <input 
+                      type="number" 
+                      name="variants[<%= index %>][price]" 
+                      class="form-control"
+                      value="<%= variant.price %>"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                </div>
+                <input type="hidden" name="variants[<%= index %>][color]" value="<%= variant.color %>" />
+                <input type="hidden" name="variants[<%= index %>][size]" value="<%= variant.size %>" />
+                <input type="hidden" name="variants[<%= index %>][_id]" value="<%= variant._id %>" />
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <!-- Add Variant Modal -->
+        <div id="variantModal" class="modal">
+          <div class="modal-content">
+            <h4>Add New Variant</h4>
+            <div class="variant-form">
+              <div class="form-group">
+                <label class="form-label">Color</label>
+                <input type="text" id="newColor" class="form-control" placeholder="Enter color">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Size</label>
+                <input type="text" id="newSize" class="form-control" placeholder="Enter size">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Stock</label>
+                <input type="number" id="newStock" class="form-control" min="0" placeholder="Enter stock">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Price ($)</label>
+                <input type="number" id="newPrice" class="form-control" min="0" step="0.01" placeholder="Enter price">
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="addNewVariant()">Add</button>
+                <button type="button" class="btn btn-danger" onclick="closeVariantModal()">Cancel</button>
+              </div>
             </div>
           </div>
         </div>
@@ -276,7 +401,7 @@
           <p class="mb-3">
             Upload up to 4 images. First image will be the cover (main) image.
           </p>
-
+<% console.log(product); %>
           <div class="image-upload-container">
             <% for(let i=1; i <=4; i++) { %>
               <div class="form-group">
@@ -490,29 +615,14 @@
           if (imagesErrorElement) {
             imagesErrorElement.textContent = '';
           }
-
-          // Validate each field
-          fields.forEach(field => {
-            const value = field.input.value;
-
-            for (let validation of field.validations) {
-              if (!validation.validate(value)) {
-                if (field.errorElement) {
-                  field.errorElement.textContent = validation.message;
-                }
-                isValid = false;
-                break;
-              }
-            }
-          });
-
-          // Validate images
+       
           
 
           // If all validations pass, proceed with form submission
-          if (isValid) {
+          if (1) {
             const formData = new FormData(this);
             const productId = new URLSearchParams(window.location.search).get("id");
+            alert(productId)
             const formDataObject = {};
 
             formData.forEach((value, key) => {
@@ -532,7 +642,7 @@
 console.log(filteredProduct);
 
             try {
-              const response = await fetch(`/admin/editproduct/${productId}`, {
+              const response = await fetch(`/admin/editProduct/${productId}`, {
                 method: "POST",
                 body: JSON.stringify(filteredProduct),
                 headers: {
@@ -569,6 +679,83 @@ console.log(filteredProduct);
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+
+    <script>
+      function openVariantModal() {
+        document.getElementById('variantModal').style.display = 'block';
+      }
+
+      function closeVariantModal() {
+        document.getElementById('variantModal').style.display = 'none';
+      }
+
+      function addNewVariant() {
+        const color = document.getElementById('newColor').value;
+        const size = document.getElementById('newSize').value;
+        const stock = document.getElementById('newStock').value;
+        const price = document.getElementById('newPrice').value;
+
+        if (!color || !size || !stock || !price) {
+          alert('Please fill all fields');
+          return;
+        }
+
+        // Update the selector to target the form-row inside the variants card
+        const variantContainer = document.getElementById('variant-container');
+        const newIndex = document.querySelectorAll('.variant-card').length;
+
+        const variantHTML = `
+          <div class="variant-card">
+            <div class="variant-header">
+              ${color} - ${size}
+            </div>
+            <div class="variant-grid">
+              <div class="variant-input-group">
+                <label class="form-label">Stock</label>
+                <input 
+                  type="number" 
+                  name="variants[${newIndex}][stock]" 
+                  class="form-control"
+                  value="${stock}"
+                  min="0"
+                />
+              </div>
+              <div class="variant-input-group">
+                <label class="form-label">Price ($)</label>
+                <input 
+                  type="number" 
+                  name="variants[${newIndex}][price]" 
+                  class="form-control"
+                  value="${price}"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+            </div>
+            <input type="hidden" name="variants[${newIndex}][color]" value="${color}" />
+            <input type="hidden" name="variants[${newIndex}][size]" value="${size}" />
+            <input type="hidden" name="variants[${newIndex}][_id]" value="" />
+          </div>
+        `;
+
+        variantContainer.insertAdjacentHTML('beforeend', variantHTML);
+        closeVariantModal();
+
+        // Reset form
+        document.getElementById('newColor').value = '';
+        document.getElementById('newSize').value = '';
+        document.getElementById('newStock').value = '';
+        document.getElementById('newPrice').value = '';
+      }
+
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        const modal = document.getElementById('variantModal');
+        if (event.target === modal) {
+          closeVariantModal();
+        }
+      }
+    </script>
   </body>
 
   </main>

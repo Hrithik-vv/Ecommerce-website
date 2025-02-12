@@ -22,104 +22,83 @@ const loadaddproduct = async (req, res) => {
 
 // Add a new product
 const addproduct = async (req, res) => {
-  const {
-    category,
-    color,
-    quantity,
-    salePrice,
-    regularPrice,
-    description,
-    brand,
-    productName,
-    image1,
-    image2,
-    image3,
-    image4,
-  } = req.body;
+  try {
+    const {
+      category,
+      description,
+      productName,
+      variants: variantsJson
+    } = req.body;
 
-  const newproduct = new Product({
-    category,
-    color,
-    quantity,
-    salePrice,
-    regularPrice,
-    description,
-    brand,
-    productName,
-  });
+    // Parse variants from JSON string
+    const variants = JSON.parse(variantsJson);
 
-  console.log(newproduct);
-  const { _id } = await newproduct.save();
+    // Create product with dummy image paths first
+    const newproduct = new Product({
+      category,
+      description,
+      productName,
+      variants,
+      image1: 'dummy',
+      image2: 'dummy', 
+      image3: 'dummy',
+      image4: 'dummy'
+    });
 
-  const images = [image1, image2, image3, image4];
-  
-  // Create a folder with product ID
-  await fs.mkdir(
-    path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`),
-    { recursive: true },
-    (err) => {
-      if (err) {
-        return console.error("Error creating directory:", err);
-      }
-      console.log("Directory created successfully!");
-    }
-  );
+    const { _id } = await newproduct.save();
 
-  imagesp = [];
-  images.forEach((image, index) => {
-    const base64WithoutPrefix = image.replace(/^data:image\/\w+;base64,/, "");
-    const binary = Buffer.from(base64WithoutPrefix, "base64");
-    
-    // Save image file in created folder
-    fs.writeFile(
-      path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`, `image${index}.png`),
-      binary,
+    // Create product images directory
+    await fs.mkdir(
+      path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`),
+      { recursive: true },
       (err) => {
         if (err) {
-          console.log(err);
-        } else {
-          console.log("Image saved successfully");
+          return console.error("Error creating directory:", err);
         }
+        console.log("Directory created successfully!");
       }
     );
-    imagesp.push(`images/${_id}/image${index}.png`);
-  });
 
-  mongodata = {
-    image1: imagesp[0],
-    image2: imagesp[1],
-    image3: imagesp[2],
-    image4: imagesp[3],
-  };
+    // Process uploaded images
+    const images = [req.body.image1, req.body.image2, req.body.image3, req.body.image4];
+    const imagesp = [];
 
-  await Product.findByIdAndUpdate(_id, { $set: mongodata }, { new: true, runValidators: true });
-  res.redirect("/admin/product");
-};
+    images.forEach((image, index) => {
+      if (!image) return;
 
-// Delete an image from the folder and database
-async function deleteImageFromFolder(imagePath) {
-  try {
-    if (!imagePath) return;
-    const fullPath = path.join(__dirname, "../public", imagePath);
-    
-    try {
-      await fs.access(fullPath);
-      await fs.unlink(fullPath);
-      console.log("Successfully deleted image from folder:", fullPath);
-    } catch (err) {
-      if (err.code === "ENOENT") {
-        console.log("File does not exist:", fullPath);
-      } else {
-        throw err;
-      }
-    }
+      const base64WithoutPrefix = image.replace(/^data:image\/\w+;base64,/, "");
+      const binary = Buffer.from(base64WithoutPrefix, "base64");
+      
+      fs.writeFile(
+        path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`, `image${index}.png`),
+        binary,
+        (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("Image saved successfully");
+          }
+        }
+      );
+      imagesp.push(`images/${_id}/image${index}.png`);
+    });
+
+    // Update product with real image paths
+    const mongodata = {
+      image1: imagesp[0] || 'dummy',
+      image2: imagesp[1] || 'dummy',
+      image3: imagesp[2] || 'dummy', 
+      image4: imagesp[3] || 'dummy'
+    };
+
+    await Product.findByIdAndUpdate(_id, { $set: mongodata }, { new: true, runValidators: true });
+    res.redirect("/admin/product");
+
   } catch (error) {
-    console.error("Error deleting image from folder:", error);
-    throw error;
+    console.error(error);
+    res.status(500).json({ error: "Error adding product" });
   }
-}
-
-// Edit product details
+};
 const editProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -162,8 +141,30 @@ const editProduct = async (req, res) => {
     delete req.body.image3;
     delete req.body.image4;
 
+    // Process variants
+    const variants = [];
+    const variantKeys = Object.keys(req.body).filter(key => key.startsWith('variants['));
+    const variantIndices = [...new Set(variantKeys.map(key => key.match(/\[(\d+)\]/)[1]))];
+
+    variantIndices.forEach(index => {
+      variants.push({
+        stock: req.body[`variants[${index}][stock]`],
+        price: req.body[`variants[${index}][price]`],
+        color: req.body[`variants[${index}][color]`],
+        size: req.body[`variants[${index}][size]`],
+        _id: req.body[`variants[${index}][_id]`] || new mongoose.Types.ObjectId()
+      });
+    });
+
     // Combine updated data
-    const mongodata = { ...req.body, ...imagesp };
+    const mongodata = { 
+      ...req.body,
+      ...imagesp,
+      variants
+    };
+
+    // Remove individual variant fields
+    variantKeys.forEach(key => delete mongodata[key]);
     
     // Update product
     await Product.findByIdAndUpdate(productId, 
@@ -184,6 +185,31 @@ const editProduct = async (req, res) => {
     });
   }
 };
+// Delete an image from the folder and database
+async function deleteImageFromFolder(imagePath) {
+  try {
+    if (!imagePath) return;
+    const fullPath = path.join(__dirname, "../public", imagePath);
+    
+    try {
+      await fs.access(fullPath);
+      await fs.unlink(fullPath);
+      console.log("Successfully deleted image from folder:", fullPath);
+    } catch (err) {
+      if (err.code === "ENOENT") {
+        console.log("File does not exist:", fullPath);
+      } else {
+        throw err;
+      }
+    }
+  } catch (error) {
+    console.error("Error deleting image from folder:", error);
+    throw error;
+  }
+}
+
+// Edit product details
+
 
 // Delete a product image
 const deleteProductImage = async (req, res) => {

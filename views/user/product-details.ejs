@@ -459,70 +459,78 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="product__details__content">
                                 <div class="name">
-                                    <h4>
-                                        <%= product.productName %>
-                                    </h4>
+                                    <h4><%= product.productName %></h4>
                                 </div>
                                 <div class="des">
-                                    <h6>
-                                        <%= product.description %>
-                                    </h6>
+                                    <h6><%= product.description %></h6>
                                 </div>
 
                                 <div class="rating">
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <span> - 5 Reviews</span>
+                                    <% for(let i = 0; i < 5; i++) { %>
+                                        <i class="fa fa-star<%= i < product.rating ? '' : '-o' %>"></i>
+                                    <% } %>
+                                    <span> - <%= product.rating %> Rating</span>
                                 </div>
+
+                                <!-- Color and Size Selection -->
+                                <div class="product__details__option">
+                                    <div class="product__details__option__color">
+                                        <span>Color:</span>
+                                        <% 
+                                        // Get unique colors
+                                        const colors = [...new Set(product.variants.map(v => v.color))];
+                                        colors.forEach(color => { 
+                                        %>
+                                            <label style="background-color: <%= color %>;">
+                                                <input type="radio" name="color" value="<%= color %>">
+                                            </label>
+                                        <% }); %>
+                                    </div>
+
+                                    <div class="product__details__option__size">
+                                        <span>Size:</span>
+                                        <% 
+                                        // Get unique sizes
+                                        const sizes = [...new Set(product.variants.map(v => v.size))];
+                                        sizes.forEach(size => { 
+                                        %>
+                                            <label for="<%= size.toLowerCase() %>">
+                                                <%= size %>
+                                                <input type="radio" id="<%= size.toLowerCase() %>" name="size" value="<%= size %>">
+                                            </label>
+                                        <% }); %>
+                                    </div>
+                                </div>
+
+                                <!-- Price will be updated via JavaScript based on selected variant -->
                                 <div class="price">
-                                    <h3>₹ <%= product.salePrice %>
-                                    </h3>
+                                    <h3>₹ <span id="variant-price">
+                                        <%= product.variants[0].price %>
+                                    </span></h3>
                                 </div>
 
                                 <p class="<%= 
-                                product.status === 'Available' ? 'status-available' : 
-                                product.status === 'out of stock' ? 'status-out-of-stock' : 
-                                'status-discontinued' 
-                            %>">
+                                    product.status === 'Available' ? 'status-available' : 
+                                    product.status === 'out of stock' ? 'status-out-of-stock' : 
+                                    'status-discontinued' 
+                                %>">
                                     <%= product.status %>
                                 </p>
-                                <div class="offer-badgecont">
-                                    <div class="offer-badge">50% OFF</div>
-                                </div>
 
-                                <!-- Product Options -->
-                                <div class="product__details__option">
-                                    <div class="product__details__option__size">
-                                        <span>Size:</span>
-                                        <label for="xxl">xxl
-                                            <input type="radio" id="xxl">
-                                        </label>
-                                        <label class="active" for="xl">xl
-                                            <input type="radio" id="xl">
-                                        </label>
-                                        <label for="l">l
-                                            <input type="radio" id="l">
-                                        </label>
-                                        <label for="sm">s
-                                            <input type="radio" id="sm">
-                                        </label>
-                                    </div>
-                                    <form action="/checkout" method="POST">
-                                        <input type="hidden" name="productId" value="<%= product._id %>">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="primary-btn">Buy Now</button>
-                                    </form>
-                                </div>
-                                <form action="shopping-cart" method="POST" class="quantity-controls">
+                                <!-- Add to Cart Form -->
+                                <form action="/shopping-cart" method="POST" class="quantity-controls">
                                     <input type="hidden" name="productId" value="<%= product._id %>">
-                                    <input type="number" name="quantity" value="1" min="1" class="quantity-input"
-                                        aria-label="Quantity">
-                                    <button type="submit" class="add-to-cart-btn">
-                                        Add to Cart
-                                    </button>
+                                    <input type="hidden" name="variantId" id="selected-variant">
+                                    <input type="number" name="quantity" value="1" min="1" max="" class="quantity-input" id="quantity-input">
+                                    <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                                </form>
+
+                                <!-- Buy Now Form -->
+                                <form action="/checkout" method="POST">
+                                    <input type="hidden" name="productId" value="<%= product._id %>">
+                                    <input type="hidden" name="variantId" id="checkout-variant">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="primary-btn">Buy Now</button>
                                 </form>
                             </div>
 
@@ -580,7 +588,7 @@
                                             accompanied with specific software to operate the unit and must feature
                                             a touchscreen and touchpad.</p>
                                         <p>As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
+                                            was substantial during it's early release. For approximately $700.00,
                                             consumers could purchase one of top-of-the-line Pocket PCs in 2003.
                                             These days, customers are finding that prices have become much more
                                             reasonable now that the newness is wearing off. For approximately
@@ -588,7 +596,7 @@
                                     </div>
                                     <div class="product__details__tab__content__item">
                                         <h5>Material used</h5>
-                                        <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        <p>Polyester is deemed lower quality due to its none natural quality's. Made
                                             from synthetic materials, not natural like wool. Polyester suits become
                                             creased easily and are known for not being breathable. Polyester suits
                                             tend to have a shine to them compared to wool and cotton suits, this can
@@ -610,7 +618,7 @@
                                             accompanied with specific software to operate the unit and must feature
                                             a touchscreen and touchpad.</p>
                                         <p>As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
+                                            was substantial during it's early release. For approximately $700.00,
                                             consumers could purchase one of top-of-the-line Pocket PCs in 2003.
                                             These days, customers are finding that prices have become much more
                                             reasonable now that the newness is wearing off. For approximately
@@ -618,7 +626,7 @@
                                     </div>
                                     <div class="product__details__tab__content__item">
                                         <h5>Material used</h5>
-                                        <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        <p>Polyester is deemed lower quality due to its none natural quality's. Made
                                             from synthetic materials, not natural like wool. Polyester suits become
                                             creased easily and are known for not being breathable. Polyester suits
                                             tend to have a shine to them compared to wool and cotton suits, this can
@@ -644,7 +652,7 @@
                                             accompanied with specific software to operate the unit and must feature
                                             a touchscreen and touchpad.</p>
                                         <p>As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
+                                            was substantial during it's early release. For approximately $700.00,
                                             consumers could purchase one of top-of-the-line Pocket PCs in 2003.
                                             These days, customers are finding that prices have become much more
                                             reasonable now that the newness is wearing off. For approximately
@@ -652,7 +660,7 @@
                                     </div>
                                     <div class="product__details__tab__content__item">
                                         <h5>Material used</h5>
-                                        <p>Polyester is deemed lower quality due to its none natural quality’s. Made
+                                        <p>Polyester is deemed lower quality due to its none natural quality's. Made
                                             from synthetic materials, not natural like wool. Polyester suits become
                                             creased easily and are known for not being breathable. Polyester suits
                                             tend to have a shine to them compared to wool and cotton suits, this can
@@ -679,55 +687,8 @@
                         <h3 class="related-title">Related Product</h3>
                     </div>
                 </div>
-                <div class="row">
-                    <% if (relatedProducts && relatedProducts.length> 0) { %>
-                        <% relatedProducts.forEach((relatedProduct)=> { %>
-                            <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                                <div class="product__item">
-                                    <div class="product__item__pic set-bg"
-                                        data-setbg="<%= relatedProduct.image1 || 'default-image.jpg' %>">
-                                        <!-- Make the image clickable -->
-                                        <a href="/productDetails?id=<%= relatedProduct._id %>">
-                                            <img src="<%= relatedProduct.image1 || 'default-image.jpg' %>"
-                                                alt="<%= relatedProduct.productName %>">
-                                        </a>
-                                        <% if (relatedProduct.label) { %>
-                                            <span class="label">
-                                                <%= relatedProduct.label %>
-                                            </span>
-                                            <%}%>
-                                                <ul class="product__hover">
-                                                    <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                                    <li><a href="#"><img src="img/icon/compare.png" alt="">
-                                                            <span>Compare</span></a></li>
-                                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                                                </ul>
-                                    </div>
-                                    <div class="product__item__text">
-                                        <h6>
-                                            <p onclick="window.location.href='/productDetails?id=<%=product._id %>'">
-                                                <%= product.productName %>
-                                            </p>
-                                        </h6>
-                                        <a href="#" class="add-cart">+ Add To Cart</a>
-                                        <div class="rating">
-                                            <% for (let i=0; i < 5; i++) { %>
-                                                <i
-                                                    class="fa <%= i < relatedProduct.rating ? 'fa-star' : 'fa-star-o' %>"></i>
-                                                <% } %>
-                                        </div>
-                                        <h5>₹<%= relatedProduct.salePrice.toLocaleString('en-IN') %>
-                                        </h5>
-                                    </div>
-                                </div>
-                            </div>
-                            <% }); %>
-                                <% } else { %>
-                                    <p>No related products found</p>
-                                    <% } %>
-                </div>
+               
             </div>
-
         </section>
         <!-- Related Section End -->
         <!-- Footer Section Begin -->
@@ -884,18 +845,17 @@
         </script>
 
         <script>
-            document.querySelector('.primary-btn').addEventListener('click', function () {
-                // Get product details (you can dynamically generate these from your product data)
-                const productId = <%= product.id %>; // Fetch the product ID
-                const productName = <%= product.productName %>;
-                const productPrice = <%= product.salePrice %>;
-                const quantity = document.querySelector('.pro-qty input').value;
+            document.querySelector('.primary-btn').addEventListener('click', function() {
+                const productId = '<%= product._id %>'; // Use string format for MongoDB ObjectId
+                const productName = '<%= product.productName %>';
+                const variantId = document.getElementById('checkout-variant').value;
+                const quantity = document.querySelector('.quantity-input').value;
 
                 // Create product object
                 const product = {
                     productId,
                     productName,
-                    productPrice,
+                    variantId,
                     quantity
                 };
 
@@ -907,20 +867,58 @@
                     },
                     body: JSON.stringify(product)
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Product added to cart');
-                        } else {
-                            alert('Failed to add product to cart');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Product added to cart');
+                    } else {
+                        alert('Failed to add product to cart');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             });
         </script>
 
+        <!-- Add this JavaScript to handle variant selection -->
+        <script>
+            const variants = <%- JSON.stringify(product.variants) %>;
+            const priceElement = document.getElementById('variant-price');
+            const quantityInput = document.getElementById('quantity-input');
+            const selectedVariantInput = document.getElementById('selected-variant');
+            const checkoutVariantInput = document.getElementById('checkout-variant');
+
+            function updateVariantDetails() {
+                const selectedColor = document.querySelector('input[name="color"]:checked')?.value;
+                const selectedSize = document.querySelector('input[name="size"]:checked')?.value;
+
+                if (selectedColor && selectedSize) {
+                    const variant = variants.find(v => 
+                        v.color === selectedColor && 
+                        v.size === selectedSize
+                    );
+
+                    if (variant) {
+                        priceElement.textContent = variant.price;
+                        quantityInput.max = variant.stock;
+                        selectedVariantInput.value = variant._id;
+                        checkoutVariantInput.value = variant._id;
+                    }
+                }
+            }
+
+            // Add event listeners to color and size inputs
+            document.querySelectorAll('input[name="color"], input[name="size"]')
+                .forEach(input => input.addEventListener('change', updateVariantDetails));
+
+            // Initialize with first variant
+            if (variants.length > 0) {
+                const firstVariant = variants[0];
+                document.querySelector(`input[value="${firstVariant.color}"]`)?.click();
+                document.querySelector(`input[value="${firstVariant.size}"]`)?.click();
+            }
+        </script>
 
         <!-- Search End -->
 
