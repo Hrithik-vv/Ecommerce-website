@@ -206,7 +206,7 @@
 
   <body>
     <div class="container">
-      <form id="addform" action="/admin/editproduct" method="post">
+      <form id="addform" >
         <!-- Basic Information -->
         <div class="card">
           <h3 class="section-title">Edit Product</h3>
@@ -541,18 +541,15 @@ console.log(filteredProduct);
               });
 
               const data = await response.json();
-
+              
               if (data.success) {
-                Swal.fire({
-                  icon: "success",
-                  title: "Success!",
-                  text: "Product updated successfully",
-                  showConfirmButton: true,
-                }).then((result) => {
-                  if (result.isConfirmed) {
+                
+             
+                  
+               
                     window.location.href = "/admin/product";
-                  }
-                });
+                  
+                
               } else {
                 throw new Error(data.message);
               }

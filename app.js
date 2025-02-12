@@ -15,8 +15,8 @@ const Cart = require("./models/cartSchema")
 connectDB();
 
 // Middleware to parse JSON and URL-encoded data in requests
-app.use(express.json({ limit: "5mb" }));
-app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Session Configuration
 app.use(
