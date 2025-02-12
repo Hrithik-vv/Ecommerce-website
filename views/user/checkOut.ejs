@@ -224,7 +224,7 @@
                         </div>
                         <% } %>
                             <div class="checkout__form">
-                                <form method="post" action="/checkout">
+                                <form method="post" action="/place-order" >
                                     <div class="row">
                                         <div class="col-lg-8 col-md-6">
                                             <div class="coupon-application mt-3">
@@ -531,13 +531,12 @@
     <!-- Razorpay script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-
         document.querySelector('form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
             const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
 
+            // Only prevent default for Razorpay payments
             if (paymentMethod === 'razorpay') {
+                e.preventDefault();
                 const formData = new FormData(this);
                 const products = JSON.parse(document.getElementById('productsData').value);
                 const totalAmount = <%= total %>;
@@ -602,10 +601,8 @@
                     console.error('Payment error:', error);
                     alert('Payment processing failed');
                 }
-            } else {
-                // For COD or other methods
-                this.submit();
             }
+            // For COD, let the form submit naturally to /place-order
         });
     </script>
 

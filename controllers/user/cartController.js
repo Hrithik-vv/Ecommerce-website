@@ -314,6 +314,7 @@ const processCheckout = async (req, res) => {
 const loadCheckoutPage = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { productId, variantId, quantity } = req.body;
 
     // Check if user is logged in
     if (!userId) {
@@ -330,38 +331,33 @@ const loadCheckoutPage = async (req, res) => {
       return res.redirect("/login");
     }
 
-    // Fetch cart data with product and variant information
-    const cart = await Cart.findOne({ userId }).populate({
-      path: 'items.productId',
-      populate: {
-        path: 'variants',
-        model: 'Variant'
-      }
-    });
-
-    if (!cart || cart.items.length === 0) {
-      req.flash("error", "Your cart is empty");
+    // Fetch product and variant details
+    const product = await Product.findById(productId).populate('variants');
+    if (!product) {
+      req.flash("error", "Product not found");
       return res.redirect("/shopping-cart");
     }
 
-    // Process cart items to include variant details
-    const cartItems = cart.items.map(item => {
-      const product = item.productId;
-      const variant = product.variants.find(v => v._id.toString() === item.variantId);
-      
-      return {
-        ...item.toObject(),
-        variant: variant ? {
-          color: variant.color,
-          size: variant.size,
-          price: variant.price
-        } : null,
-        totalPrice: variant ? variant.price * item.quantity : item.totalPrice
-      };
-    });
+    const variant = product.variants.find(v => v._id.toString() === variantId);
+    if (!variant) {
+      req.flash("error", "Product variant not found");
+      return res.redirect("/shopping-cart");
+    }
 
-    // Calculate total with variant prices
-    const total = cartItems.reduce((acc, item) => acc + item.totalPrice, 0);
+    // Create cart item with variant details
+    const cartItem = {
+      productId: product,
+      quantity: parseInt(quantity),
+      variant: {
+        color: variant.color,
+        size: variant.size,
+        price: variant.price
+      },
+      totalPrice: variant.price * parseInt(quantity)
+    };
+
+    // Calculate total
+    const total = cartItem.totalPrice;
 
     // Fetch available coupons
     const coupons = await Coupon.find({
@@ -372,7 +368,7 @@ const loadCheckoutPage = async (req, res) => {
     });
 
     res.render("checkout", {
-      cartItems,
+      cartItems: [cartItem], // Pass as array for consistency
       total,
       addresses: userAddress,
       user: user,
@@ -382,6 +378,7 @@ const loadCheckoutPage = async (req, res) => {
         error: req.flash('error')
       }
     });
+
   } catch (error) {
     console.error("Error loading checkout page:", error);
     req.flash("error", "Unable to load checkout");
