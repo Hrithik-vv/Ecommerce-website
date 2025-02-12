@@ -313,57 +313,77 @@ const processCheckout = async (req, res) => {
 
 const loadCheckoutPage = async (req, res) => {
   try {
-    console.log("Loading checkout page..."); // Debug log
-
     const userId = req.user._id;
 
     // Check if user is logged in
     if (!userId) {
-      console.log("User not logged in, redirecting to login..."); // Debug log
       req.flash("error", "Please login to checkout");
       return res.redirect("/login");
     }
 
     // Fetch user data
     const user = await User.findById(userId).populate("addresses", { userId });
-    const a = await adress.findOne({ userId: user._id });
+    const userAddress = await adress.findOne({ userId: user._id });
 
     if (!user) {
-      console.log("User not found, redirecting to login..."); // Debug log
       req.flash("error", "User not found");
       return res.redirect("/login");
     }
 
-    // Fetch cart data
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    // Fetch cart data with product and variant information
+    const cart = await Cart.findOne({ userId }).populate({
+      path: 'items.productId',
+      populate: {
+        path: 'variants',
+        model: 'Variant'
+      }
+    });
+
     if (!cart || cart.items.length === 0) {
-      console.log("Cart is empty, redirecting to shopping cart..."); // Debug log
       req.flash("error", "Your cart is empty");
       return res.redirect("/shopping-cart");
     }
+
+    // Process cart items to include variant details
+    const cartItems = cart.items.map(item => {
+      const product = item.productId;
+      const variant = product.variants.find(v => v._id.toString() === item.variantId);
+      
+      return {
+        ...item.toObject(),
+        variant: variant ? {
+          color: variant.color,
+          size: variant.size,
+          price: variant.price
+        } : null,
+        totalPrice: variant ? variant.price * item.quantity : item.totalPrice
+      };
+    });
+
+    // Calculate total with variant prices
+    const total = cartItems.reduce((acc, item) => acc + item.totalPrice, 0);
 
     // Fetch available coupons
     const coupons = await Coupon.find({
       isList: true,
       createdOn: { $lte: new Date() },
       expireOn: { $gte: new Date() },
-      usedBy: { $ne: userId } // Exclude coupons already used by this user
+      usedBy: { $ne: userId }
     });
 
-    console.log("Rendering checkout page..."); // Debug log
     res.render("checkout", {
-      cartItems: cart.items,
-      total: cart.items.reduce((acc, item) => acc + item.totalPrice, 0),
-      addresses: a,
+      cartItems,
+      total,
+      addresses: userAddress,
       user: user,
-      coupons: coupons, // Pass available coupons to the view
+      coupons,
       messages: {
         success: req.flash('success'),
         error: req.flash('error')
       }
     });
   } catch (error) {
-    console.error("Error loading checkout page:", error); // Debug log
+    console.error("Error loading checkout page:", error);
     req.flash("error", "Unable to load checkout");
     res.redirect("/shopping-cart");
   }

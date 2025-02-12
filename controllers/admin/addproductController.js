@@ -146,14 +146,50 @@ const editProduct = async (req, res) => {
     const variantKeys = Object.keys(req.body).filter(key => key.startsWith('variants['));
     const variantIndices = [...new Set(variantKeys.map(key => key.match(/\[(\d+)\]/)[1]))];
 
+    // Get existing variants from product
+    const existingVariants = product.variants || [];
+
     variantIndices.forEach(index => {
-      variants.push({
+      const variantId = req.body[`variants[${index}][_id]`];
+      const variantData = {
         stock: req.body[`variants[${index}][stock]`],
         price: req.body[`variants[${index}][price]`],
         color: req.body[`variants[${index}][color]`],
-        size: req.body[`variants[${index}][size]`],
-        _id: req.body[`variants[${index}][_id]`] || new mongoose.Types.ObjectId()
-      });
+        size: req.body[`variants[${index}][size]`]
+      };
+
+      if (variantId) {
+        // If variant has ID, find and update existing variant
+        const existingVariant = existingVariants.find(v => v._id.toString() === variantId);
+        if (existingVariant) {
+          variants.push({
+            ...variantData,
+            _id: existingVariant._id
+          });
+        } else {
+          // If ID not found, create new variant
+          variants.push({
+            ...variantData,
+            _id: new mongoose.Types.ObjectId()
+          });
+        }
+      } else {
+        // If no ID, check if variant with same color and size exists
+        const existingVariant = existingVariants.find(v => 
+          v.color === variantData.color && v.size === variantData.size
+        );
+        if (existingVariant) {
+          variants.push({
+            ...variantData,
+            _id: existingVariant._id
+          });
+        } else {
+          variants.push({
+            ...variantData,
+            _id: new mongoose.Types.ObjectId()
+          });
+        }
+      }
     });
 
     // Combine updated data
@@ -180,7 +216,7 @@ const editProduct = async (req, res) => {
     console.error("Error updating product:", error);
     res.status(500).json({
       success: false,
-      message: "Error updating product",
+      message: "Error updating product", 
       error: error.message
     });
   }

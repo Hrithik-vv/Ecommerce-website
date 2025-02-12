@@ -200,6 +200,12 @@
             color: #666;
             font-style: italic;
         }
+
+        .variant-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 8px;
+        }
     </style>
 </head>
 
@@ -285,21 +291,25 @@
                                                 <h4 class="order__title">Your Order</h4>
                                                 <div class="checkout__order__products">Product <span>Total</span></div>
                                                 <ul class="checkout_total_products">
-                                                    <% cartItems.forEach((item, index)=> { %>
+                                                    <% cartItems.forEach((item, index) => { %>
                                                         <li data-product-id="<%= item.productId._id %>"
+                                                            data-variant-id="<%= item.variantId %>"
                                                             data-quantity="<%= item.quantity %>">
                                                             <div class="product-details">
-                                                                <span class="product-number">
-                                                                    <%= index + 1 %>.
-                                                                </span>
+                                                                <span class="product-number"><%= index + 1 %>.</span>
                                                                 <%= item.productId.productName %>
+                                                                <% if (item.variant) { %>
+                                                                    <span class="variant-details">
+                                                                        (<%= item.variant.color %>, <%= item.variant.size %>)
+                                                                    </span>
+                                                                <% } %>
                                                             </div>
                                                             <div class="product-price">
                                                                 <span class="quantity">Qty: <%= item.quantity %></span>
                                                                 ₹<%= item.totalPrice.toFixed(2) %>
                                                             </div>
                                                         </li>
-                                                        <% }) %>
+                                                    <% }) %>
                                                 </ul>
                                                 <ul class="checkout__total__all">
                                                     <li>Subtotal <span>₹<%= total.toFixed(2) %></span></li>
