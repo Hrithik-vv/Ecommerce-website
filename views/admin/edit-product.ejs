@@ -300,6 +300,20 @@
               placeholder="Enter product description"><%= product.description  %></textarea>
             <div id="description-error" class="error-message"></div>
           </div>
+          <div class="form-group">
+            <label class="form-label">Offer (%)</label>
+            <input 
+              type="number" 
+              id="offer" 
+              name="offer" 
+              class="form-control" 
+              value="<%= product.offer || 0 %>"
+              placeholder="Enter offer percentage"
+              min="0"
+              max="100"
+            />
+            <div id="offer-error" class="error-message"></div>
+          </div>
         </div>
 
         <!-- Pricing and Inventory -->
@@ -593,6 +607,20 @@
               {
                 validate: (value) => /^[a-zA-Z\s]+$/.test(value),
                 message: 'Color can only contain letters and spaces'
+              }
+            ]
+          },
+          {
+            input: document.querySelector('input[name="offer"]'),
+            errorElement: document.getElementById('offer-error'),
+            validations: [
+              {
+                validate: (value) => value === '' || (value >= 0 && value <= 100),
+                message: 'Offer must be between 0 and 100'
+              },
+              {
+                validate: (value) => value === '' || Number.isInteger(Number(value)),
+                message: 'Offer must be a whole number'
               }
             ]
           }

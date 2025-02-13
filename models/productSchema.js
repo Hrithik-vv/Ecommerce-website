@@ -69,6 +69,16 @@ const productSchema = new Schema(
     rating: {
       type: Number,
       default: 0
+    },
+    offer: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+      validate: {
+        validator: Number.isInteger,
+        message: '{VALUE} is not an integer value'
+      }
     }
   },
   { timestamps: true }

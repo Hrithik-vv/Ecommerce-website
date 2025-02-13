@@ -187,6 +187,13 @@ const editCategory = async (req, res) => {
     const { categoryname, description } = req.body;
     const existingCategory = await Category.findOne({ name: categoryname });
 
+    
+
+
+ 
+
+
+
     if (existingCategory) {
       return res
         .status(400)

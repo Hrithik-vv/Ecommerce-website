@@ -27,7 +27,8 @@ const addproduct = async (req, res) => {
       category,
       description,
       productName,
-      variants: variantsJson
+      variants: variantsJson,
+      offer
     } = req.body;
 
     // Parse variants from JSON string
@@ -39,6 +40,7 @@ const addproduct = async (req, res) => {
       description,
       productName,
       variants,
+      offer: offer || 0, // Set default to 0 if no offer provided
       image1: 'dummy',
       image2: 'dummy', 
       image3: 'dummy',
