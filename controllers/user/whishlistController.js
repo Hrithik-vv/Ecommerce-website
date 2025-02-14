@@ -70,16 +70,7 @@ const removeProduct = async (req,res)=>{
     try {
         const productId = req.query.productId;
         const user = req.session.user;
-        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
-        
-        console.log(user._id);
-        
     
-        
-        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
-       
-
-
 const mongoose = require('mongoose');
 
 const result = await Wishlist.findOneAndUpdate(

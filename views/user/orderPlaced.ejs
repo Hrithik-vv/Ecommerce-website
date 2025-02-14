@@ -1,19 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Order Successful</title>
-    <!-- Include your styles -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Placed Successfully</title>
+    <style>
+        .order-success {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success-icon {
+            color: #28a745;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .order-message {
+            margin: 20px 0;
+            color: #333;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <% include includes/header %>
+ 
     
-    <div class="container text-center py-5">
-        <h1 class="text-success">Order Placed Successfully!</h1>
-        <p>Your order ID: <%= orderId %></p>
-        <p>Payment ID: <%= paymentId %></p>
-        <a href="/orders" class="btn btn-primary">View Orders</a>
+    <div class="order-success">
+        <div class="success-icon">✓</div>
+        <h1>Thank You!</h1>
+        <div class="order-message">
+            <p>Your order has been placed successfully.</p>
+            <% if (userid) { %>
+                <p>Order ID: <%= userid %></p>
+            <% } %>
+        </div>
+        <a href="/" class="back-button">Continue Shopping</a>
     </div>
 
-    <% include includes/footer %>
+    
 </body>
 </html>

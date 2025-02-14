@@ -257,7 +257,14 @@
                 <div class="col-lg-4">
                     <div class="cart-summary">
                         <h3 class="cart-total">Total: ₹<span id="cart-total"><%= cartItems.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2) %></span></h3>
-                        <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
+                        <form action="/checkoutload" method="POST" style="display: inline;">
+                            <% cartItems.forEach((item, index) => { %>
+                                <input type="hidden" name="items[<%= index %>][productId]" value="<%= item.productId._id %>">
+                                <input type="hidden" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">
+                                <input type="hidden" name="items[<%= index %>][price]" value="<%= item.productPrice %>">
+                            <% }); %>
+                            <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+                        </form>
                     </div>
                 </div>
             <% } %>

@@ -641,6 +641,7 @@
                                 <form action="/shopping-cart" method="POST" class="quantity-controls">
                                     <input type="hidden" name="productId" value="<%= product._id %>">
                                     <input type="hidden" name="variantId" id="selected-variant">
+                                    <input type="hidden" name="price" id="variant-price-input">
                                     <input type="number" name="quantity" value="1" min="1" max="" class="quantity-input" id="quantity-input">
                                     <button type="submit" class="add-to-cart-btn">Add to Cart</button>
                                 </form>
@@ -1070,13 +1071,13 @@
                         // Update price display
                         priceElement.textContent = variant.price;
                         
+                        // Update hidden inputs
+                        document.getElementById('selected-variant').value = variant._id;
+                        document.getElementById('variant-price-input').value = variant.price;
+                        
                         // Update quantity max based on stock
                         quantityInput.max = variant.stock;
                         
-                        // Update hidden variant IDs
-                        selectedVariantInput.value = variant._id;
-                        checkoutVariantInput.value = variant._id;
-
                         // Update quantity if current value exceeds new max
                         if (parseInt(quantityInput.value) > variant.stock) {
                             quantityInput.value = variant.stock;
