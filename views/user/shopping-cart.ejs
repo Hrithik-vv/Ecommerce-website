@@ -179,6 +179,26 @@
     color: white;
     text-decoration: none;
   }
+
+  /* Add these styles for the product image and name layout */
+  .product-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .product-name {
+    font-weight: 500;
+    color: #1f2937;
+  }
 </style>
 
 <div class="wishlist-header">
@@ -222,8 +242,15 @@
                                     </tr>
                                 <% } else { %>
                                     <% cartItems.forEach((item) => { %>
-                                        <tr data-item-id="<%= item.productId._id %>">
-                                            <td><%= item.productId.productName %></td>
+                                        <tr data-item-id="<%= item.productId %>">
+                                         
+                                           
+                                            <td>
+                                                <div class="product-cell">
+                                                    <img class="product-image" src="/<%= item.productId.image1 %>" alt="Product image">
+                                                    <span class="product-name"><%= item.productId.productName %></span>
+                                                </div>
+                                            </td>
                                             <td>₹<%= item.productPrice %></td>
                                             <td>
                                                 <div class="quantity-controls">
@@ -241,7 +268,7 @@
 
 
                                                     </form>
-                                                    <a href="/remove-from-cart/<%= item.productId._id %>" class="remove-link">Remove</a>
+                                                    <a href="/remove-from-cart/<%= item.productId %>" class="remove-link">Remove</a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -259,7 +286,7 @@
                         <h3 class="cart-total">Total: ₹<span id="cart-total"><%= cartItems.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2) %></span></h3>
                         <form action="/checkoutload" method="POST" style="display: inline;">
                             <% cartItems.forEach((item, index) => { %>
-                                <input type="hidden" name="items[<%= index %>][productId]" value="<%= item.productId._id %>">
+                                <input type="hidden" name="items[<%= index %>][productId]" value="<%= item.productId %>">
                                 <input type="hidden" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">
                                 <input type="hidden" name="items[<%= index %>][price]" value="<%= item.productPrice %>">
                             <% }); %>

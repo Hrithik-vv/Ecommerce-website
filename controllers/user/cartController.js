@@ -67,11 +67,12 @@ const addToCart = async (req, res) => {
 module.exports = { addToCart };
 
 const viewCart = async (req, res) => {
+ 
   try {
     const userId = req.user._id;
     const cart = await Cart.findOne({ userId }).populate(
       "items.productId",
-      "productName price" // Populate only the necessary fields initially
+      "productName price image1 image2 image3 image4 variants status" // Added image fields and variants
     );
 
     console.log('Cart fetched:', cart);
@@ -90,18 +91,29 @@ const viewCart = async (req, res) => {
 
     // Loop through cart items and query the product quantity directly
     const updatedCartItems = await Promise.all(cart.items.map(async (item) => {
-      // Query the Product model to grab the quantity of the product
-      const product = await Product.findById(item.productId._id, 'quantity');  // Only grab the quantity
+      // Query the Product model to grab the quantity and variant info
+      const product = await Product.findById(item.productId);
 
       if (product) {
-        // Assign the quantity from the product model to a new field in the cart item
-        item.productStock = product.quantity; // Product's available stock
+        // Find matching variant
+        const variant = product.variants.find(v => v._id.toString() === item.variantId?.toString());
+        
+        // Assign product details
+        item.productStock = variant ? variant.stock : 0;
+        item.productImages = {
+          image1: product.image1,
+          image2: product.image2,
+          image3: product.image3,
+          image4: product.image4
+        };
+        item.productStatus = product.status;
+        item.variant = variant;
       }
 
-      return item; // Return the updated cart item
+      return item;
     }));
 
-    // Send updated cart items with product stock
+    // Send updated cart items with product details
     res.render("shopping-cart", {
       cartItems: updatedCartItems,
     });

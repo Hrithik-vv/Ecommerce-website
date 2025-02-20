@@ -250,8 +250,6 @@
 </section>
 
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
  function validateForm() {
    document.querySelectorAll(".error-message").forEach((element) => (element.innerHTML = ""));
@@ -318,51 +316,45 @@
 
 
 function confirmDelete(couponId) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/admin/deleteCoupon?id=${couponId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire(
-                        'Deleted!',
-                        'Coupon has been deleted successfully.',
-                        'success'
-                    ).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire(
-                        'Error!',
-                        'Failed to delete coupon.',
-                        'error'
-                    );
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire(
-                    'Error!',
-                    'An error occurred while deleting the coupon.',
-                    'error'
-                );
-            });
-        }
-    });
-}
+   Swal.fire({
+     title: "Are you sure?",
+     text: "You won't be able to revert this!",
+     icon: "warning",
+     showCancelButton: true,
+     confirmButtonColor: "#d33",
+     cancelButtonColor: "#3085d6",
+     confirmButtonText: "Yes, delete it!",
+   }).then((result) => {
+     if (result.isConfirmed) {
+       deleteCoupon(couponId);
+     }
+   });
+ }
+
+
+ function deleteCoupon(couponId) {
+   $.ajax({
+     url: `/admin/deletecoupon?id=${couponId}`,
+     method: "GET",
+     success: function () {
+       Swal.fire({
+         icon: "success",
+         title: "Deleted!",
+         text: "The coupon has been deleted.",
+         confirmButtonText: "OK",
+       }).then(() => {
+         window.location.reload();
+       });
+     },
+     error: function () {
+       Swal.fire({
+         icon: "error",
+         title: "Error!",
+         text: "Failed to delete the coupon. Please try again.",
+       });
+     },
+   });
+ }
 
 function setDefultStartDate(){
 
@@ -373,5 +365,6 @@ let day = today.getDate().toString().padStart(2,"0");
 document.getElementById("startingDate").value = `${year}-${month}-${day}`
 }
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <%- include("../../views/partials/admin/adminFooter.ejs") %>
 

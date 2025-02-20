@@ -476,7 +476,9 @@
                         <% } %>
                     </div>
                     <p>
-                      Price: ₹<%= product.salePrice ? product.salePrice.toLocaleString('en-IN') : 'N/A' %>
+                      <% if (product.variants && product.variants[0]) { %>
+                        Price: ₹<%= product.variants[0].price %>
+                      <% } %>
                     </p>
                   </div>
                 </div>

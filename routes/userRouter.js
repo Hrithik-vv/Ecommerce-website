@@ -8,6 +8,9 @@ const productController = require("../controllers/user/productController");
 const cartController = require('../controllers/user/cartController');
 const wishlistController = require('../controllers/user/whishlistController');
 const { createOrder, processPayment } = require('../controllers/user/orderController');
+const auth = require('../middlewares/auth');
+const couponController = require('../controllers/admin/couponController');
+
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/", userController.loadHomepage);
@@ -119,15 +122,7 @@ router.get('/order-placed',userAuth, (req, res) => {
   });
 });
 
-
-
-
-
-
-
-
-
-
-
+// Coupon routes
+router.post('/apply-coupon', couponController.applyCoupon)
 
 module.exports = router;

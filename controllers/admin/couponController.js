@@ -1,140 +1,91 @@
 const Coupon = require("../../models/couponSchema");
 const mongoose = require("mongoose");
 
+// Admin Coupon Controllers
 const loadCoupon = async (req, res) => {
   try {
-    const findCoupons = await Coupon.find({});
-
-    return res.render("coupons", { coupons: findCoupons });
+    const coupons = await Coupon.find({});
+    return res.render("coupons", { coupons });
   } catch (error) {
-    return res.redirect("/pageerror");
+    console.error("Load coupon error:", error);
+    return res.redirect("/admin/error");
   }
 };
 
 const createCoupon = async (req, res) => {
   try {
-    const date = {
-      couponName: req.body.couponName,
-      startDate: new Date(req.body.startDate + "T00:00:00"),
-      endDate: new Date(req.body.endDate + "T00:00:00"),
-      offerPrice: parseInt(req.body.offerPrice),
-      minimumPrice: parseInt(req.body.minimumPrice),
-    };
-
+    const { couponName, startDate, endDate, offerPrice, minimumPrice } = req.body;
+    
     const newCoupon = new Coupon({
-      name: date.couponName,
-      createdOn: date.startDate,
-      expireOn: date.endDate,
-      offerPrice: date.offerPrice,
-      minimumPrice: date.minimumPrice,
+      name: couponName,
+      createdOn: new Date(startDate + "T00:00:00"),
+      expireOn: new Date(endDate + "T00:00:00"),
+      offerPrice: parseInt(offerPrice),
+      minimumPrice: parseInt(minimumPrice),
     });
 
     await newCoupon.save();
-    return res.redirect("/admin/coupon");
+    return res.json({ success: true, message: "Coupon created successfully" });
   } catch (error) {
-    res.redirect("/pageerror");
-    console.log("create coupon error", error);
-  }
-};
-
-const editCoupon = async (req, res) => {
-  try {
-    const id = req.query.id;
-    const findCoupons = await Coupon.findOne({ _id: id });
-    res.render("edit-Coupon", {
-      findCoupons: findCoupons,
-    });
-  } catch (error) {
-    res.redirect("/pageerror");
-    console.log("edit coupon error", EvalError);
-  }
-};
-
-const updateCoupon = async (req, res) => {
-  try {
-    const couponId = req.body.couponId; // Fixed typo
-    const oid = new mongoose.Types.ObjectId(couponId);
-
-    const startDate = new Date(req.body.startDate);
-    const endDate = new Date(req.body.endDate);
-
-    const updateData = {
-      name: req.body.couponName,
-      createdOn: startDate,
-      expireOn: endDate,
-      offerPrice: parseInt(req.body.offerPrice),
-      minimumPrice: parseInt(req.body.minimumPrice), // Fixed typo
-    };
-
-    const result = await Coupon.updateOne(
-      { _id: oid },
-      { $set: updateData },
-      { new: true }
-    );
-
-    if (result.modifiedCount > 0) {
-      res.json({ success: true });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: "No changes made or coupon not found",
-      });
-    }
-  } catch (error) {
-    console.error("Update coupon error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error occurred",
+    console.error("Create coupon error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: error.code === 11000 ? "Coupon code already exists" : "Failed to create coupon" 
     });
   }
 };
 
-const deleteCoupon = async (req, res) => {
-  try {
-    const id = req.query.id;
-    await Coupon.deleteOne({ _id: id });
-    res
-      .status(200)
-      .send({ success: true, message: "Coupon deleted successfully" });
-  } catch (error) {
-    console.error("Error deleteting coupon", error);
-    res.status(500).send({ succedd: false, message: "Faild to delete" });
-  }
-};
-
-//Apply coupon
- const applycoupon = async (req, res) => {
+// User Coupon Application
+const applyCoupon = async (req, res) => {
   try {
     const { couponCode, total } = req.body;
-    const userId = req.session.user_id;
+    const userId = req.session.user;
+
+    if (!couponCode || !total) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing coupon code or total amount' 
+      });
+    }
+
+    if (!userId) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Please login to apply coupon' 
+      });
+    }
 
     const coupon = await Coupon.findOne({ 
-      name: couponCode,
+      name: new RegExp('^' + couponCode + '$', 'i'),
       isList: true,
       createdOn: { $lte: new Date() },
-      expireOn: { $gte: new Date() }
+      expireOn: { $gte: new Date() },
+      userId: { $ne: userId }
     });
 
     if (!coupon) {
-      return res.json({ success: false, message: 'Invalid coupon code' });
-    }
-
-    if (total < coupon.minimumPrice) {
-      return res.json({ 
+      return res.status(404).json({ 
         success: false, 
-        message: `Minimum purchase of ₹${coupon.minimumPrice} required`
+        message: 'Invalid coupon or already used' 
       });
     }
 
-    if (coupon.usedBy.includes(userId)) {
-      return res.json({ 
+    if (total < coupon.minimumPrice) {
+      return res.status(400).json({ 
         success: false, 
-        message: 'This coupon has already been used' 
+        message: `Minimum purchase of ₹${coupon.minimumPrice} required` 
       });
     }
 
     const discount = Math.min(coupon.offerPrice, total);
     const newTotal = total - discount;
+
+    // Store coupon in session
+    req.session.appliedCoupon = {
+      id: coupon._id,
+      code: couponCode,
+      discount
+    };
 
     return res.json({
       success: true,
@@ -144,16 +95,16 @@ const deleteCoupon = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Coupon application error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to apply coupon' 
+    });
   }
 };
 
 module.exports = {
   loadCoupon,
   createCoupon,
-  editCoupon,
-  updateCoupon,
-  deleteCoupon,
-  applycoupon
+  applyCoupon
 };

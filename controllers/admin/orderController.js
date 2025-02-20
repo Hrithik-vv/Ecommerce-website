@@ -32,8 +32,6 @@ const message = ";;;;;;;;"
     }
 };
 
-
-
 // Update order status using form submission
 const updateOrderStatus = async (req, res) => {
     try {
