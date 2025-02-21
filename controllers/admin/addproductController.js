@@ -40,7 +40,7 @@ const addproduct = async (req, res) => {
       description,
       productName,
       variants,
-      offer: offer || 0, // Set default to 0 if no offer provided
+      offer: offer || 0, 
       image1: 'dummy',
       image2: 'dummy', 
       image3: 'dummy',
@@ -245,9 +245,6 @@ async function deleteImageFromFolder(imagePath) {
     throw error;
   }
 }
-
-// Edit product details
-
 
 // Delete a product image
 const deleteProductImage = async (req, res) => {

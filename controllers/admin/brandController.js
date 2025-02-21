@@ -44,7 +44,6 @@ const addBrand = async (req, res) => {
         throw new Error("Image upload is required.");
       }
 
-      const image = req.file.filename; // Get the uploaded image filename
 
       // Create a new brand entry
       const newBrand = new Brand({
@@ -52,14 +51,14 @@ const addBrand = async (req, res) => {
         brandImage: image,
       });
 
-      await newBrand.save(); // Save the brand to the database
-      res.redirect("admin/brand"); // Redirect to the brand management page
+      await newBrand.save(); 
+      res.redirect("admin/brand"); 
     } else {
-      res.status(400).send("Brand already exists."); // Handle duplicate brand case
+      res.status(400).send("Brand already exists."); 
     }
   } catch (error) {
     console.error("Add brand error:", error.message);
-    res.redirect("pageerror"); // Redirect to the error page
+    res.redirect("pageerror"); 
   }
 };
 

@@ -9,7 +9,7 @@ const addToCart = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId, variantId, quantity, price } = req.body;
-
+   
     // Validate input
     if (!productId || !variantId || !quantity || !price) {
       return res.status(400).json({
@@ -26,7 +26,7 @@ const addToCart = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid quantity or price"
-      });
+      })
     }
 
     // Find or create cart
@@ -67,12 +67,11 @@ const addToCart = async (req, res) => {
 module.exports = { addToCart };
 
 const viewCart = async (req, res) => {
- 
   try {
     const userId = req.user._id;
     const cart = await Cart.findOne({ userId }).populate(
       "items.productId",
-      "productName price image1 image2 image3 image4 variants status" // Added image fields and variants
+      "productName price image1 image2 image3 image4 variants status"
     );
 
     console.log('Cart fetched:', cart);
@@ -108,6 +107,12 @@ const viewCart = async (req, res) => {
         };
         item.productStatus = product.status;
         item.variant = variant;
+
+        // Add color and size from variant
+        if (variant) {
+          item.color = variant.color;
+          item.size = variant.size;
+        }
       }
 
       return item;
@@ -202,6 +207,7 @@ const updateQuantity = async (req, res) => {
 
 //checkOut
 const processCheckout = async (req, res) => {
+
   try {
     const userId = req.user._id;  // Changed from req.session.user_id to req.user._id
     const { selectedAddressId, paymentMethod } = req.body;
@@ -224,11 +230,15 @@ const processCheckout = async (req, res) => {
 
     // Create order
     const order = new Order({
+      couponId: req.body.couponCode,
       userId: userId,
       products: cart.items.map(item => ({
         productId: item.productId._id,
+        variantId: item.variantId,
         quantity: item.quantity,
-        totalPrice: item.totalPrice
+        totalPrice: item.totalPrice,
+        color: item.color,
+        size: item.size
       })),
       totalAmount: totalAmount,
       shippingAddress: selectedAddressId,
@@ -497,6 +507,21 @@ const loadCheckoutPage = async (req, res) => {
           req.flash('error', 'Your cart is empty');
           return res.redirect('/shopping-cart');
       }
+
+      // Add size and color to cart items from variants
+      const updatedCartItems = await Promise.all(cart.items.map(async (item) => {
+          const product = await Product.findById(item.productId);
+          if (product) {
+              const variant = product.variants.find(v => v._id.toString() === item.variantId?.toString());
+              if (variant) {
+                  item.size = variant.size;
+                  item.color = variant.color;
+              }
+          }
+          return item;
+      }));
+
+      cart.items = updatedCartItems;
 
       // Fetch user data and addresses
       const user = await User.findById(userId).populate('addresses');

@@ -296,13 +296,18 @@
                                                             data-variant-id="<%= item.variantId %>"
                                                             data-quantity="<%= item.quantity %>">
                                                             <div class="product-details">
+                                                               
                                                                 <span class="product-number"><%= index + 1 %>.</span>
-                                                                <%= item.productId.productName %>
-                                                                <% if (item.variant) { %>
-                                                                    <span class="variant-details">
-                                                                        (<%= item.variant.color %>, <%= item.variant.size %>)
-                                                                    </span>
-                                                                <% } %>
+                                                                <div>
+                                                                    <%= item.productId.productName %>
+                                                                   
+                                                                        <div class="variant-details">
+                                                                            <input type="text" name="color" value="<%= item.color %>" hidden>
+                                                                            <input type="text" name="size" value="<%= item.size %>" hidden>
+                                                                            Color: <%= item.color %> | Size: <%= item.size %>
+                                                                        </div>
+                                                                  
+                                                                </div>
                                                             </div>
                                                             <div class="product-price">
                                                                 <span class="quantity">Qty: <%= item.quantity %></span>
@@ -447,7 +452,10 @@
                 // Collect product information
                 const products = Array.from(document.querySelectorAll('.checkout_total_products li')).map(li => ({
                     productId: li.dataset.productId,
-                    quantity: parseInt(li.dataset.quantity)
+                    variantId: li.dataset.variantId,
+                    quantity: parseInt(li.dataset.quantity),
+                    color: li.querySelector('input[name="color"]').value,
+                    size: li.querySelector('input[name="size"]').value
                 }));
 
                 // Log the data to console

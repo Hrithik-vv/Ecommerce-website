@@ -13,9 +13,13 @@ const cartSchema = new Schema({
             ref:'Product',
             required:true
         },
+        variantId:{
+            type: String,
+            required: true
+        },
         quantity :{
             type: Number,
-            default:true
+            default: 1
         },
         productPrice:{
             type:Number,
@@ -31,7 +35,7 @@ const cartSchema = new Schema({
         },
         cancellationReason:{
             type:String,
-            defult:"none"
+            default:"none"
         }
     }]
 })

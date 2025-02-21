@@ -199,6 +199,22 @@
     font-weight: 500;
     color: #1f2937;
   }
+
+  .product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .product-variants {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .variant-info {
+    display: inline-block;
+    margin-right: 1rem;
+  }
 </style>
 
 <div class="wishlist-header">
@@ -248,7 +264,13 @@
                                             <td>
                                                 <div class="product-cell">
                                                     <img class="product-image" src="/<%= item.productId.image1 %>" alt="Product image">
-                                                    <span class="product-name"><%= item.productId.productName %></span>
+                                                    <div class="product-details">
+                                                        <span class="product-name"><%= item.productId.productName %></span>
+                                                        <div class="product-variants">
+                                                            <span class="variant-info">Color: <%= item.color %></span>
+                                                            <span class="variant-info">Size: <%= item.size %></span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td>₹<%= item.productPrice %></td>

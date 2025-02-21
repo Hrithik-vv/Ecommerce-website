@@ -967,6 +967,7 @@
 
         <script>
             document.querySelector('.primary-btn').addEventListener('click', function() {
+                
                 const productId = '<%= product._id %>'; // Use string format for MongoDB ObjectId
                 const productName = '<%= product.productName %>';
                 const variantId = document.getElementById('checkout-variant').value;

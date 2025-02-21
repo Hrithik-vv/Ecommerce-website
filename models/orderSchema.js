@@ -11,17 +11,23 @@ const orderSchema = new Schema({
         ref: 'User', 
         required: true 
     },
+    couponId: {
+        type: String
+    },
     products: [{  
         productId: { 
             type: Schema.Types.ObjectId, 
             ref: 'Product', 
             required: true 
         },
+        variantId: { type: String },
         quantity: { type: Number, required: true },
-        totalPrice: { type: Number, required: true }
+        totalPrice: { type: Number, required: true },
+        color: { type: String },
+        size: { type: String }
     }],
     totalAmount: { type: Number, required: true },
-    shippingAddress: { type: String, required: true },
+    shippingAddress: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
     paymentMethod: { type: String, required: true },
     status: { 
         type: String,
@@ -29,12 +35,11 @@ const orderSchema = new Schema({
         enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
         default: 'Pending'
     },
-
     paymentStatus: {
         type: String,
         enum: ['pending', 'completed', 'failed'],
         default: 'pending'
-      },
+    },
     razorpayOrderId: String,
     razorpayPaymentId: String,
     razorpaySignature: String,

@@ -1,253 +1,237 @@
 <%- include("../../views/partials/admin/adminHeader.ejs") %>
 <style>
-    .content-main{
-        width: 1200px;
-        margin-left: 280px;
+    /* Base Styles */
+    .content-main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-left:300px ;
     }
-    .col-md-3 {
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      margin: 10px;
-      background: #f8f9fa;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+    .content-header {
+        text-align: center;
+        margin-bottom: 2rem;
     }
-  
-    .error-message {
-      color: red;
-      font-size: 14px;
-      margin-top: 5px;
+
+    .content-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
     }
-  
+
+    /* Form Card Styles */
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+        display: flex;
+        gap: 2rem;
+    }
+
+    .form-section {
+        flex: 1;
+        max-width: 350px;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .table-section {
+        flex: 2;
+    }
+
+    /* Form Elements */
     .form-label {
-      font-weight: 600;
-      color: #333;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
     }
-  
+
     .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #bbb;
-      border-radius: 5px;
-      box-sizing: border-box;
-      font-size: 16px;
-      background: #fff;
-      transition: 0.3s ease;
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
     }
-  
+
     .form-control:focus {
-      border-color: #007bff;
-      outline: none;
-      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        outline: none;
     }
-  
-    .d-grid {
-      margin-top: 20px;
-    }
-  
-    .btn-primary {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-  
-    .btn-primary:hover {
-      background-color: #0056b3;
-    }
-  
-    .btn-danger {
-      background-color: #dc3545;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 15px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-  
-    .btn-danger:hover {
-      background-color: #b02a37;
-    }
-  
-    .table-responsive {
-      background: #ffffff;
-      padding: 15px;
-      margin-right: 100px;
-      margin-left: -91px;
-      border-radius: 10px;
-      box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
-    }
-  
+
+    /* Enhanced Table */
     .table {
-      width: 100%;
-      border-collapse: collapse;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
     }
-  
-    .table th,
+
+    .table th {
+        background-color: #f8f9fa;
+        color: #2d3748;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        padding: 16px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
     .table td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #4a5568;
+        font-size: 14px;
     }
-  
-    .table thead {
-      background: #007bff;
-      color: white;
+
+    /* Action Buttons */
+    .btn {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-  
-    .table tbody tr:hover {
-      background: rgba(0, 123, 255, 0.1);
+
+    .btn-primary {
+        background: linear-gradient(to right, #4299e1, #667eea);
+        color: white !important;
     }
-  
-    .text-start {
-      font-weight: 500;
+
+    .btn-danger {
+        background: linear-gradient(to right, #f56565, #e53e3e);
+        color: white !important;
     }
-  
-    .ml-105 {
-      margin-left: 30px;
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        opacity: 0.95;
     }
-  
+
+    /* Error Messages */
+    .error-message {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: -0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .col-md-3 {
-        margin: 10px 0;
-      }
+        .card-body {
+            flex-direction: column;
+        }
+        
+        .form-section {
+            max-width: 100%;
+        }
     }
-  </style>
-  
+</style>
+
 <section class="content-main">
- <div class="content-header">
-   <div>
-     <h2 class="content-title card-title">Coupons</h2>
-   </div>
- </div>
- <div class="card">
-   <div class="card-body">
-     <div class="row">
-       <div class="col-md-3">
-         <form method="post" action="/admin/createCoupon">
-           <body onload="setDefultStartDate()"></body>
-             <div class="mb-4">
-               <label for="coupon-name" class="form-label">Coupon Name</label>
-               <input
-                 type="text"
-                 id="coupon-name"
-                 name="couponName"
-                 placeholder="Type here"
-                 class="form-control"
-               />
-               <div id="error-coupon-name" class="error-message"></div>
-             </div>
+    <div class="content-header">
+        <h2 class="content-title">Coupons</h2>
+    </div>
 
+    <div class="card">
+        <div class="card-body">
+            <!-- Form Section -->
+            <div class="form-section">
+                <form method="post" action="/admin/createCoupon">
+                    <div class="mb-4">
+                        <label class="form-label">Coupon Name</label>
+                        <input type="text" name="couponName" class="form-control">
+                        <div id="error-coupon-name" class="error-message"></div>
+                    </div>
 
-             <div>
-               <label for="startingDate" class="form-label">Start Date</label>
-               <input
-                 type="date"
-                 name="startDate"
-                 class="form-control"
-                 required="true"
-                 id="startingDate"
-               />
-               <div id="error-start-date" class="error-message"></div>
-             </div>
+                    <div class="mb-4">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="startDate" class="form-control" required>
+                        <div id="error-start-date" class="error-message"></div>
+                    </div>
 
+                    <div class="mb-4">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="endDate" class="form-control" required>
+                        <div id="error-end-date" class="error-message"></div>
+                    </div>
 
-             <div>
-               <label for="expiringDate" class="form-label">End Date</label>
-               <input
-                 type="date"
-                 name="endDate"
-                 class="form-control"
-                 id="expiringDate"
-                 required="true"
-               />
-               <div id="error-end-date" class="error-message"></div>
-             </div>
+                    <div class="mb-4">
+                        <label class="form-label">Offer Price</label>
+                        <input type="text" name="offerPrice" class="form-control">
+                        <div id="error-offer-price" class="error-message"></div>
+                    </div>
 
+                    <div class="mb-4">
+                        <label class="form-label">Minimum Price</label>
+                        <input type="text" name="minimumPrice" class="form-control">
+                        <div id="error-minimum-price" class="error-message"></div>
+                    </div>
 
-             <div>
-               <label for="offer-price" class="form-label">Offer Price</label>
-               <input
-                 type="text"
-                 name="offerPrice"
-                 placeholder="Type here"
-                 class="form-control"
-               />
-               <div id="error-offer-price" class="error-message"></div>
-             </div>
+                    <button type="submit" class="btn btn-primary w-100" onclick="return validateForm(event)">
+                        Add Coupon
+                    </button>
+                </form>
+            </div>
 
-
-             <div>
-               <label for="minimum-price" class="form-label"
-                 >Minimum Price</label
-               >
-               <input
-                 type="text"
-                 name="minimumPrice"
-                 placeholder="Type here"
-                 class="form-control"
-               />
-               <div id="error-minimum-price" class="error-message"></div>
-             </div>
-
-
-             <div class="d-grid">
-               <button
-                 class="btn btn-primary mt-20"
-                 onclick="return validateForm(event)"
-                 type="submit"
-               >
-                 Add Coupon
-               </button>
-             </div>
-             <div id="err-msg" class="error-message"></div>
-           </body>
-         </form>
-       </div>
-       <div class="col-md-7 ml-105">
-         <div class="table-responsive">
-             <table class="table table-hover">
-                 <thead>
-                     <tr>
-                         <th>Name</th>
-                         <th>Created On</th>
-                         <th>Expire On</th>
-                         <th>Offer Price</th>
-                         <th>Minimum Price</th>
-                         <th>Status</th>
-                         <th>Edit/Delete</th>
-                     </tr>
-                 </thead>
-                 <tbody>
-                    <%for(let i=0; i<coupons.length; i++){%>
-
-
-                     <tr>
-                         <td class="text-start"><%=coupons[i].name%></td>
-                         <td class="text-start"><%= new Date(coupons[i].createdOn).toLocaleDateString('en-US') %></td>
-                         <td class="text-start"><%= new Date(coupons[i].expireOn).toLocaleDateString('en-US') %></td>                         
-                         <td class="text-start"><%=coupons[i].offerPrice%></td>
-                         <td class="text-start"><%=coupons[i].minimumPrice%></td>
-                         <td class="text-start"><%=coupons[i].isList%></td>
-                         <td class="text-start">
-                             <a href="/admin/editCoupon?id=<%=coupons[i]._id%>" class="btn btn-primary btn-sm" >Edit</a>
-                             <a href="#" onclick="confirmDelete('<%=coupons[i]._id%>')" class="btn btn-danger btn-sm" style="height: 35px;width: 105px;"">Delete</a>
-                         </td>
-                     </tr>
-                     <%}%>
-                 </tbody>
-             </table>
-         </div>
-     </div>
-     </div>
-   </div>
- </div>
+            <!-- Table Section -->
+            <div class="table-section">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Created On</th>
+                                <th>Expire On</th>
+                                <th>Offer Price</th>
+                                <th>Minimum Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for(let i=0; i<coupons.length; i++){ %>
+                            <tr>
+                                <td><%= coupons[i].name %></td>
+                                <td><%= new Date(coupons[i].createdOn).toLocaleDateString('en-US') %></td>
+                                <td><%= new Date(coupons[i].expireOn).toLocaleDateString('en-US') %></td>
+                                <td><%= coupons[i].offerPrice %></td>
+                                <td><%= coupons[i].minimumPrice %></td>
+                                <td><%= coupons[i].isList %></td>
+                                <td>
+                                    <a href="/admin/editCoupon?id=<%= coupons[i]._id %>" 
+                                       class="btn btn-primary btn-sm">Edit</a>
+                                    <a href="#" onclick="confirmDelete('<%= coupons[i]._id %>')" 
+                                       class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+
 
 
 <script>
