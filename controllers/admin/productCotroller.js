@@ -1,5 +1,7 @@
 const Product = require("../../models/productSchema");
 const category = require("../../models/categorySchema");
+
+
 // Load and display all products
 const loadproduct = async (req, res) => {
   const products = await Product.find({});

@@ -6,6 +6,8 @@
     <title>Product Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
@@ -21,7 +23,7 @@
                             <%= product.productName %>
                         </h2>
                         <p class="text-gray-600 text-sm mt-1">
-                            Product Status: <%= product.status %>
+                            Product Status: <%= order.status %>
                         </p>
                     </div>
                 </div>
@@ -54,7 +56,8 @@
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <h3 class="text-lg font-medium text-blue-800 mb-2">Price Information</h3>
                     <p class="text-gray-700 font-medium">
-                        Price: ₹<%= (product.salePrice) %>
+                     
+                        Price: ₹<%= (order.totalAmount) %>
                     </p>
                 </div>
             </div>
@@ -63,12 +66,30 @@
         <!-- Order Info -->
         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 mb-6">
             <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">
+                <h2 id="order-status" class="text-xl font-semibold text-gray-800">
                     Order Status: <%= order.status %>
                 </h2>
                 <p class="text-gray-600 text-sm mt-1">
                     Order ID: <%= order.orderId %>
                 </p>
+
+                <% if (order.status === 'Pending' || order.status === 'Shipped' || order.status === 'Processing') { %>
+                    <div id="aaa" class="mt-4">
+                        <button onclick="confirmCancelOrder('<%= order._id %>')" 
+                                class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                            Cancel Order
+                        </button>
+                    </div>
+                <% } %>
+
+                <% if (order.status === 'Delivered') { %>
+                    <div class="mt-4">
+                        <button onclick="confirmReturnOrder('<%= order._id %>')" 
+                                class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                            Return Order
+                        </button>
+                    </div>
+                <% } %>
 
                 <!-- Shipping Information -->
                 <div class="mt-4">
@@ -97,5 +118,82 @@
             </div>
         </div>
     </div>
+    <!-- Add JavaScript functions at the end of body -->
+    <script>
+        function confirmCancelOrder(orderId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to cancel this order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    cancelOrder(orderId);
+                }
+            });
+        }
+
+        function confirmReturnOrder(orderId) {
+            Swal.fire({
+                title: 'Return Order',
+                text: "Are you sure you want to return this order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, return it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    returnOrder(orderId);
+                }
+            });
+        }
+
+        function cancelOrder(orderId) {
+            fetch(`/cancel-order/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())  
+            .then(data => {
+                
+                if (data.success) {
+                    alert('Order cancelled successfully');
+                    // Update the DOM to hide the cancel button and update the order status
+                    document.getElementById('aaa').style.display = 'none'; // Assuming you have an ID for the button
+                    document.getElementById(`order-status`).innerText = 'Order Status: Cancelled'; // Assuming you have an ID for the status
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function returnOrder(orderId) {
+            fetch(`/return-order/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    // Update the DOM to hide the return button and update the order status
+                    document.querySelector(`#return-button-${orderId}`).style.display = 'none'; // Assuming you have an ID for the button
+                    document.querySelector(`#order-status-${orderId}`).innerText = 'Returned'; // Assuming you have an ID for the status
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }           
+    </script>
 </body>
 </html>

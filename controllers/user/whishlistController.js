@@ -10,7 +10,7 @@ const loadWishlist = async (req, res) => {
         // Find the user's wishlist and populate product details
         const a = await Wishlist.findOne({ userId })
         .populate("Products.productId") 
-        const productsinwish = a.Products .map(item => item.productId);
+        const productsinwish = a.Products.map(item => item.productId);
 
         res.render("wishlist", {
             user: req.session.user, 

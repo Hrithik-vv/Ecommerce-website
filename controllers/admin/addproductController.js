@@ -28,7 +28,7 @@ const addproduct = async (req, res) => {
       description,
       productName,
       variants: variantsJson,
-      offer
+      offer,
     } = req.body;
 
     // Parse variants from JSON string
@@ -40,18 +40,22 @@ const addproduct = async (req, res) => {
       description,
       productName,
       variants,
-      offer: offer || 0, 
-      image1: 'dummy',
-      image2: 'dummy', 
-      image3: 'dummy',
-      image4: 'dummy'
+      offer: offer || 0,
+      image1: "dummy",
+      image2: "dummy",
+      image3: "dummy",
+      image4: "dummy",
     });
 
     const { _id } = await newproduct.save();
 
     // Create product images directory
     await fs.mkdir(
-      path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`),
+      path.join(
+        "C:\\Users\\Admin\\Desktop\\7th week\\project\\public",
+        "images",
+        `${_id}`
+      ),
       { recursive: true },
       (err) => {
         if (err) {
@@ -62,7 +66,12 @@ const addproduct = async (req, res) => {
     );
 
     // Process uploaded images
-    const images = [req.body.image1, req.body.image2, req.body.image3, req.body.image4];
+    const images = [
+      req.body.image1,
+      req.body.image2,
+      req.body.image3,
+      req.body.image4,
+    ];
     const imagesp = [];
 
     images.forEach((image, index) => {
@@ -70,9 +79,14 @@ const addproduct = async (req, res) => {
 
       const base64WithoutPrefix = image.replace(/^data:image\/\w+;base64,/, "");
       const binary = Buffer.from(base64WithoutPrefix, "base64");
-      
+
       fs.writeFile(
-        path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`, `image${index}.png`),
+        path.join(
+          "C:\\Users\\Admin\\Desktop\\7th week\\project\\public",
+          "images",
+          `${_id}`,
+          `image${index}.png`
+        ),
         binary,
         (err) => {
           if (err) {
@@ -87,15 +101,18 @@ const addproduct = async (req, res) => {
 
     // Update product with real image paths
     const mongodata = {
-      image1: imagesp[0] || 'dummy',
-      image2: imagesp[1] || 'dummy',
-      image3: imagesp[2] || 'dummy', 
-      image4: imagesp[3] || 'dummy'
+      image1: imagesp[0] || "dummy",
+      image2: imagesp[1] || "dummy",
+      image3: imagesp[2] || "dummy",
+      image4: imagesp[3] || "dummy",
     };
 
-    await Product.findByIdAndUpdate(_id, { $set: mongodata }, { new: true, runValidators: true });
+    await Product.findByIdAndUpdate(
+      _id,
+      { $set: mongodata },
+      { new: true, runValidators: true }
+    );
     res.redirect("/admin/product");
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error adding product" });
@@ -106,24 +123,39 @@ const editProduct = async (req, res) => {
     const productId = req.params.id;
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
-    
+
     const { _id } = product;
     const imagesp = {};
-    
+
     // Get image data from request body
-    const images = [req.body.image1, req.body.image2, req.body.image3, req.body.image4];
-    
+    const images = [
+      req.body.image1,
+      req.body.image2,
+      req.body.image3,
+      req.body.image4,
+    ];
+
     // Process only images that exist and start with data:image
     images.forEach((image, index) => {
-      if (image && image.startsWith('data:image')) {
-        const base64WithoutPrefix = image.replace(/^data:image\/\w+;base64,/, "");
+      if (image && image.startsWith("data:image")) {
+        const base64WithoutPrefix = image.replace(
+          /^data:image\/\w+;base64,/,
+          ""
+        );
         const binary = Buffer.from(base64WithoutPrefix, "base64");
-        
+
         // Save updated image file
         fs.writeFile(
-          path.join("C:\\Users\\Admin\\Desktop\\7th week\\project\\public", "images", `${_id}`, `image${index}.png`),
+          path.join(
+            "C:\\Users\\Admin\\Desktop\\7th week\\project\\public",
+            "images",
+            `${_id}`,
+            `image${index}.png`
+          ),
           binary,
           (err) => {
             if (err) {
@@ -133,7 +165,7 @@ const editProduct = async (req, res) => {
             }
           }
         );
-        imagesp[`image${index+1}`] = `images/${_id}/image${index}.png`;
+        imagesp[`image${index + 1}`] = `images/${_id}/image${index}.png`;
       }
     });
 
@@ -145,68 +177,75 @@ const editProduct = async (req, res) => {
 
     // Process variants
     const variants = [];
-    const variantKeys = Object.keys(req.body).filter(key => key.startsWith('variants['));
-    const variantIndices = [...new Set(variantKeys.map(key => key.match(/\[(\d+)\]/)[1]))];
+    const variantKeys = Object.keys(req.body).filter((key) =>
+      key.startsWith("variants[")
+    );
+    const variantIndices = [
+      ...new Set(variantKeys.map((key) => key.match(/\[(\d+)\]/)[1])),
+    ];
 
     // Get existing variants from product
     const existingVariants = product.variants || [];
 
-    variantIndices.forEach(index => {
+    variantIndices.forEach((index) => {
       const variantId = req.body[`variants[${index}][_id]`];
       const variantData = {
         stock: req.body[`variants[${index}][stock]`],
         price: req.body[`variants[${index}][price]`],
         color: req.body[`variants[${index}][color]`],
-        size: req.body[`variants[${index}][size]`]
+        size: req.body[`variants[${index}][size]`],
       };
 
       if (variantId) {
         // If variant has ID, find and update existing variant
-        const existingVariant = existingVariants.find(v => v._id.toString() === variantId);
+        const existingVariant = existingVariants.find(
+          (v) => v._id.toString() === variantId
+        );
         if (existingVariant) {
           variants.push({
             ...variantData,
-            _id: existingVariant._id
+            _id: existingVariant._id,
           });
         } else {
           // If ID not found, create new variant
           variants.push({
             ...variantData,
-            _id: new mongoose.Types.ObjectId()
+            _id: new mongoose.Types.ObjectId(),
           });
         }
       } else {
         // If no ID, check if variant with same color and size exists
-        const existingVariant = existingVariants.find(v => 
-          v.color === variantData.color && v.size === variantData.size
+        const existingVariant = existingVariants.find(
+          (v) => v.color === variantData.color && v.size === variantData.size
         );
         if (existingVariant) {
           variants.push({
             ...variantData,
-            _id: existingVariant._id
+            _id: existingVariant._id,
           });
         } else {
           variants.push({
             ...variantData,
-            _id: new mongoose.Types.ObjectId()
+            _id: new mongoose.Types.ObjectId(),
           });
         }
       }
     });
 
     // Combine updated data
-    const mongodata = { 
+    const mongodata = {
       ...req.body,
       ...imagesp,
-      variants
+      variants,
     };
 
     // Remove individual variant fields
-    variantKeys.forEach(key => delete mongodata[key]);
-    
+    variantKeys.forEach((key) => delete mongodata[key]);
+
     // Update product
-    await Product.findByIdAndUpdate(productId, 
-      { $set: mongodata }, 
+    await Product.findByIdAndUpdate(
+      productId,
+      { $set: mongodata },
       { new: true, runValidators: true }
     );
 
@@ -218,8 +257,8 @@ const editProduct = async (req, res) => {
     console.error("Error updating product:", error);
     res.status(500).json({
       success: false,
-      message: "Error updating product", 
-      error: error.message
+      message: "Error updating product",
+      error: error.message,
     });
   }
 };
@@ -228,7 +267,7 @@ async function deleteImageFromFolder(imagePath) {
   try {
     if (!imagePath) return;
     const fullPath = path.join(__dirname, "../public", imagePath);
-    
+
     try {
       await fs.access(fullPath);
       await fs.unlink(fullPath);
@@ -252,14 +291,18 @@ const deleteProductImage = async (req, res) => {
     const { productId, imageNumber } = req.params;
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
     const imageField = `image${imageNumber}`;
     const imagePath = product[imageField];
 
     if (!imagePath) {
-      return res.status(400).json({ success: false, message: "No image to delete" });
+      return res
+        .status(400)
+        .json({ success: false, message: "No image to delete" });
     }
 
     await deleteImageFromFolder(imagePath);
@@ -269,7 +312,13 @@ const deleteProductImage = async (req, res) => {
     res.json({ success: true, message: "Image deleted successfully" });
   } catch (error) {
     console.error("Error in deleteProductImage:", error);
-    res.status(500).json({ success: false, message: "Error deleting image", error: error.message });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Error deleting image",
+        error: error.message,
+      });
   }
 };
 

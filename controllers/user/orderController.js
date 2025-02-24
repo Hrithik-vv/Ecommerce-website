@@ -6,17 +6,16 @@ const adress = require("../../models/addressSchema");
 const mongoose = require("mongoose");
 const address = require("../../models/addressSchema");
 const razorpay = require("../../config/razorpay");
+const Wallet = require("../../models/walletSchema");
 require("dotenv").config();
 
 const orderView = async (req, res) => {
   try {
-    const { productId } = req.query;
-    console.log("Product ID:", productId);
+    const { orderId } = req.query; // Changed from productId to orderId
+    console.log("Order ID:", orderId);
 
-    // Find the order containing the productId in its products array
-    const order = await Order.findOne({
-      "products.productId": new mongoose.Types.ObjectId(productId),
-    })
+    // Find the order using the orderId
+    const order = await Order.findById(orderId)
       .populate({
         path: "products.productId",
         select: "productName image1 status salePrice", // Only select necessary fields for the product
@@ -24,26 +23,19 @@ const orderView = async (req, res) => {
       .populate({
         path: "shippingAddress", // Populate the shippingAddress field
         select: "name city state pincode phone altPhone", // Select necessary fields from the address
-      })
-      .sort({ createdAt: -1 });
+      });
+    res.send(order);
+    return;
     // If no order is found, send a 404 response
     if (!order) {
       return res.status(404).send("Order not found.");
     }
 
-    // Filter the product details from the order based on the productId
-    const product = await Product.findById(productId);
+    // Log the specific order document for debugging
+    console.log("Order details:", order);
 
-    if (!product) {
-      return res.status(404).send("Product not found in the order.");
-    }
-
-    // Log the product details for debugging
-    console.log("Product details:", product);
-
-    // Render the product details in the template
-
-    const a = await await adress.findOne(
+    // Render the order details in the template
+    const a = await adress.findOne(
       {
         userId: order.userId,
         "address._id": new mongoose.Types.ObjectId(order.shippingAddress),
@@ -51,7 +43,7 @@ const orderView = async (req, res) => {
       { "address.$": 1 }
     );
 
-    res.render("orderview", { product, order, address: a.address[0] });
+    res.render("orderview", { order, address: a.address[0] });
   } catch (error) {
     console.error("Error fetching orders:", error);
     res.status(500).send("Internal Server Error");
@@ -194,7 +186,93 @@ const processPayment = async (req, res) => {
   }
 };
 
+
+const loadOrderHistory = async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.session.user })
+      .populate({
+        path: 'products.productId',
+        select: 'productName image1'
+      });
+
+    res.render("orderhistory", { orders });
+
+  } catch (error) {
+    console.error('Error fetching order history:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+const cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId);
+    
+    // Update the stock of each product variant based on the order quantity
+    await Promise.all(order.products.map(async (item) => {
+      await Product.updateOne(
+        { _id: item.productId, "variants._id": item.variantId },
+        { $inc: { "variants.$.stock": item.quantity } }
+      );
+    }));
+
+    // Update or create user's wallet with the order amount
+    const userId = order.userId; // Assuming order has userId field
+    const wallet = await Wallet.findOne({ userId }); // Assuming you have a Wallet model
+
+    const refundAmount = order.totalAmount; // Assuming totalAmount is available in the order
+
+    if (wallet) {
+      // If wallet exists, update the balance and add a transaction record
+      wallet.balance += refundAmount; // Assuming wallet has a balance field
+      wallet.transactions.push({
+        amount: refundAmount,
+        type: 'credit', // Indicating this is a credit transaction
+        date: new Date(),
+        description: `Refund for cancelled order ${orderId}`
+      });
+      await wallet.save();
+    } else {
+      // If wallet does not exist, create a new wallet with the transaction record
+      const newWallet = new Wallet({
+        userId,
+        balance: refundAmount,
+        transactions: [{
+          amount: refundAmount,
+          type: 'credit',
+          date: new Date(),
+          description: `Refund for cancelled order ${orderId}`
+        }]
+      });
+      await newWallet.save();
+    }
+
+    order.status = 'Cancelled'; 
+    await order.save();
+    res.json({ success: true, message: 'Order cancelled successfully' });
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    res.status(500).json({ success: false, message: 'Order cancellation failed' });
+  }
+};  
+
+const returnOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId);  
+    order.status = 'Returned';
+    await order.save();
+    res.json({ success: true, message: 'Order returned successfully' });
+  } catch (error) {
+    console.error('Error returning order:', error);
+    res.status(500).json({ success: false, message: 'Order return failed' });
+  }
+};  
 module.exports = {
+  cancelOrder,
+  returnOrder,
+  loadOrderHistory, 
   orderView,
   orderHistory,
   orderPlaced,

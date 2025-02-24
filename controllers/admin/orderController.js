@@ -59,5 +59,4 @@ const updateOrderStatus = async (req, res) => {
 
 
 
-
-module.exports = { adminOrderView ,updateOrderStatus};
+    module.exports = { adminOrderView ,updateOrderStatus};

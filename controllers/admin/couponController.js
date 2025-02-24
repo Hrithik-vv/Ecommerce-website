@@ -4,13 +4,19 @@ const mongoose = require("mongoose");
 // Admin Coupon Controllers
 const loadCoupon = async (req, res) => {
   try {
-    const coupons = await Coupon.find({});
-    return res.render("coupons", { coupons });
+      const coupons = await Coupon.find(); 
+      const currentPage = parseInt(req.query.page) || 1; 
+      res.render('coupons', { 
+          coupons,
+          currentPage,
+          title: 'Coupons Management'
+      });
   } catch (error) {
-    console.error("Load coupon error:", error);
-    return res.redirect("/admin/error");
+      console.error(error);
+      res.status(500).send("Server Error");
   }
 };
+
 
 const createCoupon = async (req, res) => {
   try {
@@ -108,3 +114,5 @@ module.exports = {
   createCoupon,
   applyCoupon
 };
+
+

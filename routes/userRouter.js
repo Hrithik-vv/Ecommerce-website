@@ -7,7 +7,7 @@ const { userAuth, already } = require("../middlewares/auth");
 const productController = require("../controllers/user/productController");
 const cartController = require('../controllers/user/cartController');
 const wishlistController = require('../controllers/user/whishlistController');
-const { createOrder, processPayment } = require('../controllers/user/orderController');
+const { createOrder, processPayment,loadOrderHistory,cancelOrder,returnOrder } = require('../controllers/user/orderController');
 const auth = require('../middlewares/auth');
 const couponController = require('../controllers/admin/couponController');
 
@@ -93,6 +93,7 @@ router.get("/shopping-cart", userAuth,cartController.viewCart);
 router.post("/shopping-cart", userAuth, cartController.addToCart);
 router.get("/remove-from-cart/:productId", userAuth, cartController.removeFromCart);
 router.post('/cart/update', cartController.updateQuantity);
+router.post("/cart/add", userAuth, cartController.addToCart);
 //filte
 router.get("/shop",productController.getProducts)
 
@@ -124,5 +125,10 @@ router.get('/order-placed',userAuth, (req, res) => {
 
 // Coupon routes
 router.post('/apply-coupon', couponController.applyCoupon)
+
+router.get('/order-history', userAuth, loadOrderHistory);
+
+router.post('/cancel-order/:orderId', userAuth, cancelOrder);
+router.post('/return-order/:orderId', userAuth, returnOrder);
 
 module.exports = router;

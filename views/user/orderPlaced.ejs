@@ -3,52 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Placed Successfully</title>
+    <title>Order Success</title>
     <style>
-        .order-success {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            perspective: 1000px;
+        }
+
+        .success-container {
             text-align: center;
-            padding: 40px 20px;
+            padding: 2rem;
             max-width: 600px;
-            margin: 50px auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 90%;
+            animation: containerFloat 1s ease-out forwards;
         }
+
+        .icon-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 2rem;
+            transform-style: preserve-3d;
+            animation: iconRotate 1.2s ease-out;
+        }
+
         .success-icon {
-            color: #28a745;
-            font-size: 48px;
-            margin-bottom: 20px;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #32CD32, #228B22);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(50, 205, 50, 0.3);
         }
-        .order-message {
-            margin: 20px 0;
-            color: #333;
+
+        .checkmark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) rotate(45deg);
+            width: 45px;
+            height: 85px;
+            border-bottom: 10px solid white;
+            border-right: 10px solid white;
+            animation: checkmarkDraw 0.8s ease-out 0.6s forwards;
+            opacity: 0;
         }
-        .back-button {
+
+        .message-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            animation: cardSlideUp 0.8s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .thank-you {
+            color: #4a5568;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .status {
+            color: #718096;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress {
+            width: 33%;
+            height: 100%;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            border-radius: 5px;
+            animation: progressFill 2s ease-out;
+            position: relative;
+        }
+
+        .progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.3) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            animation: progressShine 2s infinite;
+        }
+
+        .track-button {
             display: inline-block;
-            padding: 10px 20px;
-            background: #007bff;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(to right, #667eea, #764ba2);
             color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
             text-decoration: none;
-            border-radius: 4px;
-            margin-top: 20px;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .track-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .track-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                transparent,
+                rgba(255,255,255,0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: buttonShine 3s infinite;
+        }
+
+        @keyframes containerFloat {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes iconRotate {
+            from {
+                transform: rotateY(-180deg);
+            }
+            to {
+                transform: rotateY(0);
+            }
+        }
+
+        @keyframes checkmarkDraw {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%) rotate(45deg) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -60%) rotate(45deg) scale(1);
+            }
+        }
+
+        @keyframes cardSlideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes progressFill {
+            from { width: 0; }
+            to { width: 33%; }
+        }
+
+        @keyframes progressShine {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        }
+
+        @keyframes buttonShine {
+            from { transform: translateX(-100%) rotate(45deg); }
+            to { transform: translateX(100%) rotate(45deg); }
+        }
+
+        @media (max-width: 480px) {
+            .success-container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .icon-container {
+                width: 120px;
+                height: 120px;
+            }
+
+            .checkmark {
+                width: 35px;
+                height: 65px;
+                border-bottom: 8px solid white;
+                border-right: 8px solid white;
+            }
+
+            .track-button {
+                padding: 1rem 2.5rem;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
- 
-    
-    <div class="order-success">
-        <div class="success-icon">✓</div>
-        <h1>Thank You!</h1>
-        <div class="order-message">
-            <p>Your order has been placed successfully.</p>
-            <% if (userid) { %>
-                <p>Order ID: <%= userid %></p>
-            <% } %>
+    <div class="success-container">
+        <div class="icon-container">
+            <div class="success-icon">
+                <div class="checkmark"></div>
+            </div>
         </div>
-        <a href="/" class="back-button">Continue Shopping</a>
+        
+        <div class="message-card">
+            <h1>Order Placed!</h1>
+            <p class="thank-you">Thank you for shopping with us</p>
+            <p class="status">Your package is being prepared for shipment</p>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+        <a href="/order-history" class="track-button">Track Your Order</a>
     </div>
-
-    
 </body>
 </html>

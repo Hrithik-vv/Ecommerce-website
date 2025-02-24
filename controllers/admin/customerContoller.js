@@ -2,15 +2,15 @@ const User = require("../../models/userSchema");
 
 const customerInfo = async (req, res) => {
   try {
-    const search = req.query.search || ""; 
-    const page = parseInt(req.query.page) || 1; 
-    const limit = 10; 
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
 
     // Match stage for search
     const matchStage = {
       isAdmin: false,
       $or: [
-        { name: { $regex: ".*" + search + ".*", $options: "i" } }, 
+        { name: { $regex: ".*" + search + ".*", $options: "i" } },
         { email: { $regex: ".*" + search + ".*", $options: "i" } },
       ],
     };
@@ -19,14 +19,14 @@ const customerInfo = async (req, res) => {
     const countPipeline = [{ $match: matchStage }, { $count: "total" }];
     const countResult = await User.aggregate(countPipeline);
     const totalDocuments = countResult.length > 0 ? countResult[0].total : 0;
-    const totalPages = Math.ceil(totalDocuments / limit); 
+    const totalPages = Math.ceil(totalDocuments / limit);
 
     // Get paginated data
     const pipeline = [
       { $match: matchStage },
-      { $sort: { name: 1 } }, 
-      { $skip: (page - 1) * limit }, 
-      { $limit: limit }, 
+      { $sort: { name: 1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
     ];
     const userData = await User.aggregate(pipeline);
 
@@ -48,7 +48,6 @@ const customerInfo = async (req, res) => {
     res.redirect("/pageerror");
   }
 };
-
 
 // Block  customer account
 const customerBlocked = async (req, res) => {

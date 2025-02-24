@@ -5,16 +5,16 @@ const User = require("../../models/userSchema");
 const adress = require("../../models/addressSchema");
 const Coupon = require("../../models/couponSchema");
 
+
 const addToCart = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId, variantId, quantity, price } = req.body;
-   
     // Validate input
     if (!productId || !variantId || !quantity || !price) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields"
+        message: "Missing required fields",
       });
     }
 
@@ -25,24 +25,30 @@ const addToCart = async (req, res) => {
     if (isNaN(qty) || qty <= 0 || isNaN(productPrice) || productPrice <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Invalid quantity or price"
-      })
+        message: "Invalid quantity or price",
+      });
     }
 
     // Find or create cart
-    let cart = await Cart.findOne({ userId }) || new Cart({ userId, items: [] });
+    let cart =
+      (await Cart.findOne({ userId })) || new Cart({ userId, items: [] });
 
     // Find existing item with same variant - with null checks
-    const itemIndex = cart.items.findIndex(item => {
-      return item && item.productId && item.variantId &&
-             item.productId.toString() === productId.toString() &&
-             item.variantId.toString() === variantId.toString();
+    const itemIndex = cart.items.findIndex((item) => {
+      return (
+        item &&
+        item.productId &&
+        item.variantId &&
+        item.productId.toString() === productId.toString() &&
+        item.variantId.toString() === variantId.toString()
+      );
     });
 
     if (itemIndex > -1) {
       // Update existing item
       cart.items[itemIndex].quantity += qty;
-      cart.items[itemIndex].totalPrice = cart.items[itemIndex].quantity * productPrice;
+      cart.items[itemIndex].totalPrice =
+        cart.items[itemIndex].quantity * productPrice;
     } else {
       // Add new item
       cart.items.push({
@@ -50,16 +56,15 @@ const addToCart = async (req, res) => {
         variantId,
         quantity: qty,
         productPrice,
-        totalPrice: productPrice * qty
+        totalPrice: productPrice * qty,
       });
     }
 
     await cart.save();
-    res.redirect('/shopping-cart');
-
+    res.redirect("/shopping-cart");
   } catch (error) {
-    console.error('Error in addToCart:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Error in addToCart:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -74,7 +79,7 @@ const viewCart = async (req, res) => {
       "productName price image1 image2 image3 image4 variants status"
     );
 
-    console.log('Cart fetched:', cart);
+    console.log("Cart fetched:", cart);
 
     if (!cart) {
       const newCart = new Cart({ userId, items: [] });
@@ -89,34 +94,37 @@ const viewCart = async (req, res) => {
     }
 
     // Loop through cart items and query the product quantity directly
-    const updatedCartItems = await Promise.all(cart.items.map(async (item) => {
-      // Query the Product model to grab the quantity and variant info
-      const product = await Product.findById(item.productId);
+    const updatedCartItems = await Promise.all(
+      cart.items.map(async (item) => {
+        // Query the Product model to grab the quantity and variant info
+        const product = await Product.findById(item.productId);
 
-      if (product) {
-        // Find matching variant
-        const variant = product.variants.find(v => v._id.toString() === item.variantId?.toString());
-        
-        // Assign product details
-        item.productStock = variant ? variant.stock : 0;
-        item.productImages = {
-          image1: product.image1,
-          image2: product.image2,
-          image3: product.image3,
-          image4: product.image4
-        };
-        item.productStatus = product.status;
-        item.variant = variant;
+        if (product) {
+          // Find matching variant
+          const variant = product.variants.find(
+            (v) => v._id.toString() === item.variantId?.toString()
+          );
 
-        // Add color and size from variant
-        if (variant) {
-          item.color = variant.color;
-          item.size = variant.size;
+          // Assign product details
+          item.productStock = variant ? variant.stock : 0;
+          item.productImages = {
+            image1: product.image1,
+            image2: product.image2,
+            image3: product.image3,
+            image4: product.image4,
+          };
+          item.productStatus = product.status;
+          item.variant = variant;
+
+          // Add color and size from variant
+          if (variant) {
+            item.color = variant.color;
+            item.size = variant.size;
+          }
         }
-      }
-
-      return item;
-    }));
+        return item;
+      })
+    );
 
     // Send updated cart items with product details
     res.render("shopping-cart", {
@@ -132,10 +140,10 @@ const viewCart = async (req, res) => {
 // Add this removeFromCart function
 const removeFromCart = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const productId = req.params.productId;
+    const userId = req.user._id; // Get the user ID from the session
+    const productId = req.params.productId; // Get the product ID from the request parameters
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId }); // Find the user's cart
     if (!cart) {
       return res
         .status(404)
@@ -146,8 +154,7 @@ const removeFromCart = async (req, res) => {
     cart.items = cart.items.filter(
       (item) => item.productId.toString() !== productId
     );
-
-    await cart.save();
+    await cart.save(); // Save the updated cart
 
     // Redirect back to cart page
     res.redirect("/shopping-cart");
@@ -164,11 +171,9 @@ const address = require("../../models/addressSchema");
 // Add these new functions
 const updateQuantity = async (req, res) => {
   try {
-    const userId = req.user._id;  // Get the user ID from the session
+    const userId = req.user._id; // Get the user ID from the session
     let { productId, quantity } = req.body;
-    const product= await Product.findById(productId)
-    
-     
+    const product = await Product.findById(productId);
 
     // Ensure the quantity is an integer
     const qty = parseInt(quantity, 10);
@@ -185,7 +190,7 @@ const updateQuantity = async (req, res) => {
       {
         $set: {
           "items.$.quantity": qty,
-          "items.$.totalPrice": qty * product.salePrice,  // Recalculate the total price
+          "items.$.totalPrice": qty * product.salePrice, // Recalculate the total price
         },
       },
       { new: true }
@@ -196,7 +201,7 @@ const updateQuantity = async (req, res) => {
       return res.redirect("/shopping-cart");
     }
 
-    res.redirect("/shopping-cart");  // Redirect back to cart
+    res.redirect("/shopping-cart"); // Redirect back to cart
   } catch (error) {
     console.error(error);
     req.flash("error", "Error updating quantity");
@@ -204,16 +209,14 @@ const updateQuantity = async (req, res) => {
   }
 };
 
-
 //checkOut
 const processCheckout = async (req, res) => {
-
   try {
-    const userId = req.user._id;  // Changed from req.session.user_id to req.user._id
-    const { selectedAddressId, paymentMethod } = req.body;
+    const userId = req.user._id; // Changed from req.session.user_id to req.user._id
+    const { selectedAddressId, paymentMethod, couponCode } = req.body;
 
     // Get cart
-    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
     if (!cart || cart.items.length === 0) {
       req.flash("error", "Your cart is empty");
       return res.redirect("/shopping-cart");
@@ -226,46 +229,63 @@ const processCheckout = async (req, res) => {
     }
 
     // Calculate total amount
-    const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const totalAmount = cart.items.reduce(
+      (sum, item) => sum + item.totalPrice,
+      0
+    );
 
     // Create order
     const order = new Order({
-      couponId: req.body.couponCode,
+      couponId: couponCode,
       userId: userId,
-      products: cart.items.map(item => ({
+      products: cart.items.map((item) => ({
         productId: item.productId._id,
         variantId: item.variantId,
         quantity: item.quantity,
         totalPrice: item.totalPrice,
         color: item.color,
-        size: item.size
+        size: item.size,
       })),
       totalAmount: totalAmount,
       shippingAddress: selectedAddressId,
-      paymentMethod: 'COD',
-      status: 'Processing',
-      paymentStatus: 'pending'
+      paymentMethod: "COD",
+      status: "Processing",
+      paymentStatus: "pending",
     });
 
     await order.save();
 
-    // Clear cart after successful order creation
-    await Cart.findOneAndUpdate(
-      { userId }, 
-      { $set: { items: [] } }
+    // Update coupon if provided
+    if (couponCode) {
+      const coupon = await Coupon.findOneAndUpdate(
+        { name: new RegExp("^" + couponCode + "$", "i") },
+        { $addToSet: { usedBy: userId } }, // Add userId to the usedBy array
+        { new: true } // Return the updated document
+      );
+    }
+
+    // Update product variant stock by decreasing the quantity
+    await Promise.all(
+      cart.items.map(async (item) => {
+        await Product.updateOne(
+          { _id: item.productId._id, "variants._id": item.variantId },
+          { $inc: { "variants.$.stock": -item.quantity } }
+        );
+      })
     );
+
+    // Clear cart after successful order creation
+    await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
     // Redirect to order success page
     req.flash("success", "Order placed successfully!");
-    res.redirect('/order-placed');
-
+    res.redirect("/order-placed");
   } catch (error) {
     console.error("Checkout error:", error);
     req.flash("error", "Error processing your order");
     res.redirect("/checkout");
   }
 };
-
 
 // address fetch
 const getCheckoutPage = async (req, res) => {
@@ -277,9 +297,8 @@ const getCheckoutPage = async (req, res) => {
       isList: true,
       createdOn: { $lte: new Date() },
       expireOn: { $gte: new Date() },
-      usedBy: { $ne: userId } // Exclude coupons already used by this user
+      usedBy: { $ne: userId }, // Exclude coupons already used by this user
     });
-
 
     res.render("checkout", {
       user: userData,
@@ -287,9 +306,9 @@ const getCheckoutPage = async (req, res) => {
       selectedAddress: req.session.selectedAddress,
       coupons: coupons, // Pass available coupons to the view
       messages: {
-        success: req.flash('success'),
-        error: req.flash('error')
-      }
+        success: req.flash("success"),
+        error: req.flash("error"),
+      },
     });
   } catch (error) {
     console.error("Checkout error:", error);
@@ -387,48 +406,45 @@ const placeOrder = async (req, res) => {
 
 const orderView = async (req, res) => {
   try {
-    const { productId } = req.query;
-    console.log("Product ID:", productId);
+    const orderId = req.query.orderId; // Changed from productId to orderId
+    console.log("Order ID:", orderId);
 
-    // Find the order containing the productId in its products array
+    // Find the order using the orderId
     const order = await Order.findOne({
-      "products.productId": new mongoose.Types.ObjectId(productId),
-    })
-      .populate({
-        path: "products.productId",
-        select: "productName image1 status salePrice", // Only select necessary fields for the product
-      })
-      .populate({
-        path: "shippingAddress", // Populate the shippingAddress field
-        select: "name city state pincode phone altPhone", // Select necessary fields from the address
-      })
-      .sort({ createdAt: -1 });
+      orderId: orderId,
+    }).populate({
+      path: "products.productId",
+      select: "productName image1 status salePrice", // Only select necessary fields for the product
+    });
     // If no order is found, send a 404 response
     if (!order) {
       return res.status(404).send("Order not found.");
     }
 
-    // Filter the product details from the order based on the productId
-    const product = await Product.findById(productId);
+    // Get the specific product from the order's products array
+    const orderProduct = order.products[0]; // Assuming we want the first product in the order
 
-    if (!product) {
+    if (!orderProduct) {
       return res.status(404).send("Product not found in the order.");
     }
 
-    // Log the product details for debugging
-    console.log("Product details:", product);
+    // Get full product details
+    const product = {
+      ...orderProduct.productId.toObject(),
+      quantity: orderProduct.quantity,
+      status: orderProduct.productId.status,
+    };
 
-    // Render the product details in the template
+    const a = await adress.findOne({
+      userId: order.userId,
+      "address._id": new mongoose.Types.ObjectId(order.shippingAddress),
+    });
 
-    const a = await await adress.findOne(
-      {
-        userId: order.userId,
-        "address._id": new mongoose.Types.ObjectId(order.shippingAddress),
-      },
-      { "address.$": 1 }
-    );
-
-    res.render("orderview", { product, order, address: a.address[0] });
+    res.render("orderview", {
+      product,
+      order,
+      address: a.address[0],
+    });
   } catch (error) {
     console.error("Error fetching orders:", error);
     res.status(500).send("Internal Server Error");
@@ -497,64 +513,66 @@ const orderHistory = async (req, res) => {
 
 const loadCheckoutPage = async (req, res) => {
   try {
-      const userId = req.user._id;
-      
-      // Fetch cart data
-      const cart = await Cart.findOne({ userId })
-          .populate('items.productId');
+    const userId = req.user._id;
 
-      if (!cart || cart.items.length === 0) {
-          req.flash('error', 'Your cart is empty');
-          return res.redirect('/shopping-cart');
-      }
+    // Fetch cart data
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
 
-      // Add size and color to cart items from variants
-      const updatedCartItems = await Promise.all(cart.items.map(async (item) => {
-          const product = await Product.findById(item.productId);
-          if (product) {
-              const variant = product.variants.find(v => v._id.toString() === item.variantId?.toString());
-              if (variant) {
-                  item.size = variant.size;
-                  item.color = variant.color;
-              }
+    if (!cart || cart.items.length === 0) {
+      req.flash("error", "Your cart is empty");
+      return res.redirect("/shopping-cart");
+    }
+
+    // Add size and color to cart items from variants
+    const updatedCartItems = await Promise.all(
+      cart.items.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        if (product) {
+          const variant = product.variants.find(
+            (v) => v._id.toString() === item.variantId?.toString()
+          );
+          if (variant) {
+            item.size = variant.size;
+            item.color = variant.color;
           }
-          return item;
-      }));
+        }
+        return item;
+      })
+    );
 
-      cart.items = updatedCartItems;
+    cart.items = updatedCartItems;
 
-      // Fetch user data and addresses
-      const user = await User.findById(userId).populate('addresses');
-      const userAddress = await adress.findOne({ userId: user._id });
+    // Fetch user data and addresses
+    const user = await User.findById(userId).populate("addresses");
+    const userAddress = await adress.findOne({ userId: user._id });
 
-      // Calculate total
-      const total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    // Calculate total
+    const total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
-      // Fetch available coupons
-      const coupons = await Coupon.find({
-          isList: true,
-          createdOn: { $lte: new Date() },
-          expireOn: { $gte: new Date() },
-          usedBy: { $ne: userId }
-      });
+    // Fetch available coupons
+    const coupons = await Coupon.find({
+      isList: true,
+      createdOn: { $lte: new Date() },
+      expireOn: { $gte: new Date() },
+      usedBy: { $ne: userId },
+    });
 
-      // Render checkout page with all necessary data
-      res.render('checkout', {
-          cartItems: cart.items,
-          total,
-          user,
-          addresses: userAddress,
-          coupons,
-          messages: {
-              success: req.flash('success'),
-              error: req.flash('error')
-          }
-      });
-
+    // Render checkout page with all necessary data
+    res.render("checkout", {
+      cartItems: cart.items,
+      total,
+      user,
+      addresses: userAddress,
+      coupons,
+      messages: {
+        success: req.flash("success"),
+        error: req.flash("error"),
+      },
+    });
   } catch (error) {
-      console.error('Error loading checkout page:', error);
-      req.flash('error', 'Error loading checkout page');
-      return res.redirect('/shopping-cart');
+    console.error("Error loading checkout page:", error);
+    req.flash("error", "Error loading checkout page");
+    return res.redirect("/shopping-cart");
   }
 };
 
@@ -569,5 +587,5 @@ module.exports = {
   getCheckoutPage,
   orderView,
   orderPlaced,
-  orderHistory
+  orderHistory,
 };

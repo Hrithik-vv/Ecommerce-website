@@ -152,7 +152,7 @@
                                         <i class="fa <%= i < product.rating ? 'fa-star' : 'fa-star-o' %>"></i>
                                     <% } %>
                                 </div>
-                                <h5>$<%= product.salePrice %></h5>
+                                <h5>$<%=product.variants[0].price  %></h5>
                             </div>
                         </div>
                     </div>

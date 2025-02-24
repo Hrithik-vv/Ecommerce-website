@@ -586,7 +586,7 @@
                             });
 
                             const result = await verification.json();
-                            if (result.success) {
+                            if ( response.razorpay_payment_id) {
                                 window.location.href = `/order-placed?orderId=${result.orderId}`;
                             } else {
                                 alert('Payment verification failed');

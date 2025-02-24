@@ -262,6 +262,7 @@
                                          
                                            
                                             <td>
+                                              
                                                 <div class="product-cell">
                                                     <img class="product-image" src="/<%= item.productId.image1 %>" alt="Product image">
                                                     <div class="product-details">
@@ -285,12 +286,10 @@
                                             <td>
                                                 <div class="action-buttons">
                                                     <form class="quantity-form" action="/cart/update" method="POST" style="display: contents;">
-                                                        <input type="hidden" name="productId" value="<%= item.productId %>">
+                                                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
                                                         <input type="hidden" class="qty-input-hidden" name="quantity" value="<%= item.quantity %>">
-
-
                                                     </form>
-                                                    <a href="/remove-from-cart/<%= item.productId %>" class="remove-link">Remove</a>
+                                                    <a href="#" onclick="confirmRemove('<%= item.productId._id %>')" class="remove-link">Remove</a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -421,6 +420,22 @@ const e = async (productId, quantity) => {
     console.error('Error updating quantity:', error);
   }
 };
+
+function confirmRemove(productId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This item will be removed from your cart",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `/remove-from-cart/${productId}`;
+        }
+    });
+}
 
 </script>
 

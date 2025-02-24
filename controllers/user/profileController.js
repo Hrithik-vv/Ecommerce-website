@@ -8,6 +8,8 @@ const session = require("express-session");
 const { options } = require("../../routes/userRouter");
 const address = require("../../models/addressSchema");
 
+const Wallet = require("../../models/walletSchema");
+
 // otp global  fuction
 function generateOtp() {
   const digits = "1234567890";
@@ -157,13 +159,16 @@ const userProfile = async (req, res) => {
     const userId = req.session.user;
     const userData = await User.findById(userId);
     const addressData = await Address.findOne({ userId: userId });
+    const walletData = await Wallet.findOne({ userId: userId });
+
     res.render("profile", {
       user: userData,
       userAddress: addressData,
+      wallet: walletData
     });
   } catch (error) {
-    console.error("Error for retrive profiele data", error);
-    res.redirect("/pageNotFound");
+    console.error("Error for retrieve profile data", error);
+    res.redirect("/pageNotFound"); 
   }
 };
 
