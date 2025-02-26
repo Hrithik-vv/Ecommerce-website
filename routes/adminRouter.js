@@ -64,7 +64,8 @@ router.post('/update-order-status', updateOrderStatus);
 //Coupon Management
 router.get("/coupon",adminAuth,couponController.loadCoupon);
 router.post("/createCoupon",adminAuth,couponController.createCoupon)
-
+router.get('/editCoupon' , adminAuth ,couponController.loadeditCoupon)
+router.post('/coupon/delete',adminAuth,couponController.deleteCoupon)
 
 
 

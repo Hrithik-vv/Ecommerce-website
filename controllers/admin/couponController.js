@@ -4,16 +4,24 @@ const mongoose = require("mongoose");
 // Admin Coupon Controllers
 const loadCoupon = async (req, res) => {
   try {
-      const coupons = await Coupon.find(); 
-      const currentPage = parseInt(req.query.page) || 1; 
-      res.render('coupons', { 
-          coupons,
-          currentPage,
-          title: 'Coupons Management'
-      });
+    const itemsPerPage = 5;
+    const currentPage = parseInt(req.query.page) || 1;
+    const totalCoupons = await Coupon.countDocuments();
+    const totalPages = Math.ceil(totalCoupons / itemsPerPage);
+
+    const coupons = await Coupon.find({})
+      .skip((currentPage - 1) * itemsPerPage)
+      .limit(itemsPerPage);
+
+    res.render("coupons", {
+      coupons,
+      currentPage,
+      totalPages,
+      itemsPerPage
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).send("Server Error");
+    console.error("Error loading coupons:", error);
+    res.redirect("/admin/error");
   }
 };
 
@@ -109,10 +117,45 @@ const applyCoupon = async (req, res) => {
   }
 };
 
-module.exports = {
-  loadCoupon,
-  createCoupon,
-  applyCoupon
+const deleteCoupon = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const coupon = await Coupon.findById(id);
+    if (!coupon) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Coupon not found' 
+      });
+    }
+
+    await Coupon.deleteOne({ _id: id });
+
+    return res.json({
+      success: true,
+      message: 'Coupon deleted successfully'
+    });
+  } catch (error) {
+    console.error('Coupon deletion error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to delete coupon' 
+    });
+  }
 };
 
+const loadeditCoupon = async (req,res)=>{
+  try {
+    res.render()
+  } catch (error) {
+    
+  }
+}
 
+module.exports = {
+  deleteCoupon,
+  loadCoupon,
+  createCoupon,
+  applyCoupon,
+  loadeditCoupon
+};

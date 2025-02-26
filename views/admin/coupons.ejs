@@ -1,438 +1,437 @@
 <%- include("../../views/partials/admin/adminHeader.ejs") %>
-<style>
-    /* Base Styles */
-    .content-main {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        margin-left:300px ;
-    }
+    <style>
+        /* Base Styles */
+        .content-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-left: 300px;
+        }
 
-    .content-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
+        .content-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-    .content-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2d3748;
-    }
+        .content-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
 
-    /* Form Card Styles */
-    .card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
-    }
+        /* Form Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
 
-    .card-body {
-        padding: 2rem;
-        display: flex;
-        gap: 2rem;
-    }
-
-    .form-section {
-        flex: 1;
-        max-width: 350px;
-        padding: 1.5rem;
-        background: #f8f9fa;
-        border-radius: 8px;
-    }
-
-    .table-section {
-        flex: 2;
-    }
-
-    /* Form Elements */
-    .form-label {
-        font-weight: 600;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        border-color: #4299e1;
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
-        outline: none;
-    }
-
-    /* Enhanced Table */
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        background-color: white;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .table th {
-        background-color: #f8f9fa;
-        color: #2d3748;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 13px;
-        letter-spacing: 0.5px;
-        padding: 16px;
-        border-bottom: 2px solid #e2e8f0;
-    }
-
-    .table td {
-        padding: 16px;
-        border-bottom: 1px solid #e2e8f0;
-        color: #4a5568;
-        font-size: 14px;
-    }
-
-    /* Action Buttons */
-    .btn {
-        padding: 8px 20px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-primary {
-        background: linear-gradient(to right, #4299e1, #667eea);
-        color: white !important;
-    }
-
-    .btn-danger {
-        background: linear-gradient(to right, #f56565, #e53e3e);
-        color: white !important;
-    }
-
-    .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        opacity: 0.95;
-    }
-
-    /* Error Messages */
-    .error-message {
-        color: #e53e3e;
-        font-size: 0.875rem;
-        margin-top: -0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
         .card-body {
-            flex-direction: column;
+            padding: 2rem;
+            display: flex;
+            gap: 2rem;
         }
-        
+
         .form-section {
-            max-width: 100%;
+            flex: 1;
+            max-width: 350px;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
-    }
 
-    /* Add these styles to your existing CSS */
-    .pagination {
-        display: flex;
-        gap: 5px;
-    }
+        .table-section {
+            flex: 2;
+        }
 
-    .page-item {
-        list-style: none;
-    }
+        /* Form Elements */
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
 
-    .page-link {
-        padding: 8px 12px;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        color: #4a5568;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
 
-    .page-item.active .page-link {
-        background: linear-gradient(to right, #4299e1, #667eea);
-        color: white;
-        border-color: transparent;
-    }
+        .form-control:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+            outline: none;
+        }
 
-    .page-item.disabled .page-link {
-        color: #a0aec0;
-        pointer-events: none;
-        background-color: #f7fafc;
-    }
+        /* Enhanced Table */
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
 
-    .page-link:hover:not(.disabled) {
-        background-color: #edf2f7;
-        color: #2d3748;
-    }
+        .table th {
+            background-color: #f8f9fa;
+            color: #2d3748;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            padding: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
 
-    .pagination-container {
-        margin-top: 2rem;
-        padding: 1rem;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-</style>
+        .table td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            font-size: 14px;
+        }
 
-<section class="content-main">
-    <div class="content-header">
-        <h2 class="content-title">Coupons</h2>
-    </div>
+        /* Action Buttons */
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-    <div class="card">
-        <div class="card-body">
-            <!-- Form Section -->
-            <div class="form-section">
-                <form method="post" action="/admin/createCoupon">
-                    <div class="mb-4">
-                        <label class="form-label">Coupon Name</label>
-                        <input type="text" name="couponName" class="form-control">
-                        <div id="error-coupon-name" class="error-message"></div>
-                    </div>
+        .btn-primary {
+            background: linear-gradient(to right, #4299e1, #667eea);
+            color: white !important;
+        }
 
-                    <div class="mb-4">
-                        <label class="form-label">Start Date</label>
-                        <input type="date" name="startDate" class="form-control" required>
-                        <div id="error-start-date" class="error-message"></div>
-                    </div>
+        .btn-danger {
+            background: linear-gradient(to right, #f56565, #e53e3e);
+            color: white !important;
+        }
 
-                    <div class="mb-4">
-                        <label class="form-label">End Date</label>
-                        <input type="date" name="endDate" class="form-control" required>
-                        <div id="error-end-date" class="error-message"></div>
-                    </div>
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            opacity: 0.95;
+        }
 
-                    <div class="mb-4">
-                        <label class="form-label">Offer Price</label>
-                        <input type="text" name="offerPrice" class="form-control">
-                        <div id="error-offer-price" class="error-message"></div>
-                    </div>
+        /* Error Messages */
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.875rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
 
-                    <div class="mb-4">
-                        <label class="form-label">Minimum Price</label>
-                        <input type="text" name="minimumPrice" class="form-control">
-                        <div id="error-minimum-price" class="error-message"></div>
-                    </div>
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .card-body {
+                flex-direction: column;
+            }
 
-                    <button type="submit" class="btn btn-primary w-100" onclick="return validateForm(event)">
-                        Add Coupon
-                    </button>
-                </form>
-            </div>
+            .form-section {
+                max-width: 100%;
+            }
+        }
 
-            <!-- Table Section -->
-            <div class="table-section">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Created On</th>
-                                <th>Expire On</th>
-                                <th>Offer Price</th>
-                                <th>Minimum Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <%
-                            const itemsPerPage = 5;
-                            const page = typeof currentPage !== "undefined" ? parseInt(currentPage) : 1; // Ensure currentPage is defined
-                            const startIndex = (page - 1) * itemsPerPage;
-                            const endIndex = startIndex + itemsPerPage;
-                            const paginatedCoupons = coupons.slice(startIndex, endIndex);
-                        %>
-                        
+        /* Add these styles to your existing CSS */
+        .pagination {
+            display: flex;
+            gap: 5px;
+        }
 
-                            <% paginatedCoupons.forEach(coupon => { %>
-                            <tr>
-                                <td><%= coupon.name %></td>
-                                <td><%= new Date(coupon.createdOn).toLocaleDateString('en-US') %></td>
-                                <td><%= new Date(coupon.expireOn).toLocaleDateString('en-US') %></td>
-                                <td><%= coupon.offerPrice %></td>
-                                <td><%= coupon.minimumPrice %></td>
-                                <td><%= coupon.isList %></td>
-                                <td>
-                                    <a href="/admin/editCoupon?id=<%= coupon._id %>" 
-                                       class="btn btn-primary btn-sm">Edit</a>
-                                    <a href="#" onclick="confirmDelete('<%= coupon._id %>')" 
-                                       class="btn btn-danger btn-sm">Delete</a>
-                                </td>
-                            </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
+        .page-item {
+            list-style: none;
+        }
 
-                    <!-- Pagination -->
-                    <div class="pagination-container" style="margin-top: 20px; text-align: center;">
-                        <% const totalPages = Math.ceil(coupons.length / itemsPerPage) %>
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination justify-content-center">
-                                <!-- Previous Button -->
-                                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                                    <a class="page-link" href="?page=<%= currentPage - 1 %>" 
-                                       <%= currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : '' %>>
-                                        Previous
-                                    </a>
-                                </li>
+        .page-link {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            color: #4a5568;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
 
-                                <!-- Page Numbers -->
-                                <% for(let i = 1; i <= totalPages; i++) { %>
-                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        .page-item.active .page-link {
+            background: linear-gradient(to right, #4299e1, #667eea);
+            color: white;
+            border-color: transparent;
+        }
+
+        .page-item.disabled .page-link {
+            color: #a0aec0;
+            pointer-events: none;
+            background-color: #f7fafc;
+        }
+
+        .page-link:hover:not(.disabled) {
+            background-color: #edf2f7;
+            color: #2d3748;
+        }
+
+        .pagination-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Coupons</h2>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <!-- Form Section -->
+                <div class="form-section">
+                    <form method="post" action="/admin/createCoupon">
+                        <div class="mb-4">
+                            <label class="form-label">Coupon Name</label>
+                            <input type="text" name="couponName" class="form-control">
+                            <div id="error-coupon-name" class="error-message"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" name="startDate" class="form-control" required>
+                            <div id="error-start-date" class="error-message"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">End Date</label>
+                            <input type="date" name="endDate" class="form-control" required>
+                            <div id="error-end-date" class="error-message"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Offer Price</label>
+                            <input type="text" name="offerPrice" class="form-control">
+                            <div id="error-offer-price" class="error-message"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Minimum Price</label>
+                            <input type="text" name="minimumPrice" class="form-control">
+                            <div id="error-minimum-price" class="error-message"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" onclick="return validateForm(event)">
+                            Add Coupon
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-section">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Created On</th>
+                                    <th>Expire On</th>
+                                    <th>Offer Price</th>
+                                    <th>Minimum Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <!-- Remove the client-side pagination variables -->
+                            <tbody>
+                                <% coupons.forEach(coupon=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= coupon.name %>
+                                        </td>
+                                        <td>
+                                            <%= new Date(coupon.createdOn).toLocaleDateString('en-US') %>
+                                        </td>
+                                        <td>
+                                            <%= new Date(coupon.expireOn).toLocaleDateString('en-US') %>
+                                        </td>
+                                        <td>
+                                            <%= coupon.offerPrice %>
+                                        </td>
+                                        <td>
+                                            <%= coupon.minimumPrice %>
+                                        </td>
+                                        <td>
+                                            <%= coupon.isList %>
+                                        </td>
+                                        <td>
+                                            <a href="editCoupon?id=<%= coupon._id %>"
+                                                class="btn btn-primary btn-sm">Edit</a>
+                                            <a href="#" onclick="confirmDelete('<%= coupon._id %>')"
+                                                class="btn btn-danger btn-sm">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+
+                        </table>
+
+                        <!-- Pagination Section -->
+                        <div class="pagination-container">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <!-- Previous Button -->
+                                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
                                     </li>
-                                <% } %>
 
-                                <!-- Next Button -->
-                                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                                    <a class="page-link" href="?page=<%= currentPage + 1 %>"
-                                       <%= currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : '' %>>
-                                        Next
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
+                                    <!-- Page Numbers -->
+                                    <% for(let i=1; i <=totalPages; i++) { %>
+                                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                            <a class="page-link" href="?page=<%= i %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                        <% } %>
+
+                                            <!-- Next Button -->
+                                            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                                <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                                            </li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
 
 
-<script>
- function validateForm() {
-   document.querySelectorAll(".error-message").forEach((element) => (element.innerHTML = ""));
-   const sDate = document.getElementsByName("startDate")[0].value;
-   const eDate = document.getElementsByName("endDate")[0].value;
-   const sDateObj = new Date(sDate);
-   const eDateObj = new Date(eDate);
-   const todayDateObj = new Date();
-   todayDateObj.setHours(0, 0, 0, 0);
+    <script>
+        function validateForm() {
+            document.querySelectorAll(".error-message").forEach((element) => (element.innerHTML = ""));
+            const sDate = document.getElementsByName("startDate")[0].value;
+            const eDate = document.getElementsByName("endDate")[0].value;
+            const sDateObj = new Date(sDate);
+            const eDateObj = new Date(eDate);
+            const todayDateObj = new Date();
+            todayDateObj.setHours(0, 0, 0, 0);
 
 
-   if (sDateObj > eDateObj) {
-     document.getElementById("error-end-date").innerHTML ="End date should be after the start date";
-     return false;
-   }
+            if (sDateObj > eDateObj) {
+                document.getElementById("error-end-date").innerHTML = "End date should be after the start date";
+                return false;
+            }
 
 
-   if (sDateObj <= todayDateObj) {
-     document.getElementById("error-start-date").innerHTML ="Starting date should be greater than or equal to today's date";
-     return false;
-   }
+            if (sDateObj <= todayDateObj) {
+                document.getElementById("error-start-date").innerHTML = "Starting date should be greater than or equal to today's date";
+                return false;
+            }
 
 
-   let name = document.getElementsByName("couponName")[0].value;
-   const nameRegex = /^[A-Za-z0-9]{1,50}$/;
+            let name = document.getElementsByName("couponName")[0].value;
+            const nameRegex = /^[A-Za-z0-9]{1,50}$/;
 
 
-   if (!nameRegex.test(name)) {
-     document.getElementById("error-coupon-name").innerHTML =
-       "Coupon Name error";
-     return false;
-   }
+            if (!nameRegex.test(name)) {
+                document.getElementById("error-coupon-name").innerHTML =
+                    "Coupon Name error";
+                return false;
+            }
 
 
-   const offerPriceInput = document.getElementsByName("offerPrice")[0];
-   const minimumPriceInput = document.getElementsByName("minimumPrice")[0];
+            const offerPriceInput = document.getElementsByName("offerPrice")[0];
+            const minimumPriceInput = document.getElementsByName("minimumPrice")[0];
 
 
-   const offerPrice = offerPriceInput.value.trim() !== ""? parseInt(offerPriceInput.value): NaN;
-   const minimumPrice = minimumPriceInput.value.trim() !== ""? parseInt(minimumPriceInput.value): NaN;
+            const offerPrice = offerPriceInput.value.trim() !== "" ? parseInt(offerPriceInput.value) : NaN;
+            const minimumPrice = minimumPriceInput.value.trim() !== "" ? parseInt(minimumPriceInput.value) : NaN;
 
 
-   if (isNaN(offerPrice) || isNaN(minimumPrice) || offerPrice >= minimumPrice) {
-     document.getElementById("error-offer-price").innerHTML = "Offer Price must be greater than Minimum Price";
-     return false;
-   }
+            if (isNaN(offerPrice) || isNaN(minimumPrice) || offerPrice >= minimumPrice) {
+                document.getElementById("error-offer-price").innerHTML = "Offer Price must be less than Minimum Price";
+                return false;
+            }
 
 
-   if (isNaN(offerPrice) || isNaN(minimumPrice)) {
-     document.getElementById("error-offer-price").innerHTML ="Please enter numeric values for Offer Price and Minimum Price";
-     return false;
-   }
+            if (isNaN(offerPrice) || isNaN(minimumPrice)) {
+                document.getElementById("error-offer-price").innerHTML = "Please enter numeric values for Offer Price and Minimum Price";
+                return false;
+            }
 
 
-       const formData = {
-       couponName: name,
-       startDate: sDateObj,
-       endDate: eDateObj,
-       offerPrice: offerPrice,
-       minimumPrice: minimumPrice
-   };
-   return true;
- }
+            const formData = {
+                couponName: name,
+                startDate: sDateObj,
+                endDate: eDateObj,
+                offerPrice: offerPrice,
+                minimumPrice: minimumPrice
+            };
+            return true;
+        }
 
 
-function confirmDelete(couponId) {
-   Swal.fire({
-     title: "Are you sure?",
-     text: "You won't be able to revert this!",
-     icon: "warning",
-     showCancelButton: true,
-     confirmButtonColor: "#d33",
-     cancelButtonColor: "#3085d6",
-     confirmButtonText: "Yes, delete it!",
-   }).then((result) => {
-     if (result.isConfirmed) {
-       deleteCoupon(couponId);
-     }
-   });
- }
+        function confirmDelete(couponId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteCoupon(couponId);
+                }
+            });
+        }
 
 
- function deleteCoupon(couponId) {
-   $.ajax({
-     url: `/admin/deletecoupon?id=${couponId}`,
-     method: "GET",
-     success: function () {
-       Swal.fire({
-         icon: "success",
-         title: "Deleted!",
-         text: "The coupon has been deleted.",
-         confirmButtonText: "OK",
-       }).then(() => {
-         window.location.reload();
-       });
-     },
-     error: function () {
-       Swal.fire({
-         icon: "error",
-         title: "Error!",
-         text: "Failed to delete the coupon. Please try again.",
-       });
-     },
-   });
- }
+        function deleteCoupon(couponId) {
+            $.ajax({
+                url: `/admin/deletecoupon?id=${couponId}`,
+                method: "GET",
+                success: function () {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Deleted!",
+                        text: "The coupon has been deleted.",
+                        confirmButtonText: "OK",
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error!",
+                        text: "Failed to delete the coupon. Please try again.",
+                    });
+                },
+            });
+        }
 
-function setDefultStartDate(){
+        function setDefultStartDate() {
 
-const today =new Date();
-const year = today.getFullYear();
-let month = (today.getMonth()+1).toString().padStart(2,"0");
-let day = today.getDate().toString().padStart(2,"0");
-document.getElementById("startingDate").value = `${year}-${month}-${day}`
-}
-</script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<%- include("../../views/partials/admin/adminFooter.ejs") %>
-
+            const today = new Date();
+            const year = today.getFullYear();
+            let month = (today.getMonth() + 1).toString().padStart(2, "0");
+            let day = today.getDate().toString().padStart(2, "0");
+            document.getElementById("startingDate").value = `${year}-${month}-${day}`
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <%- include("../../views/partials/admin/adminFooter.ejs") %>
