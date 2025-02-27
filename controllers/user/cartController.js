@@ -11,10 +11,16 @@ const addToCart = async (req, res) => {
     const userId = req.user._id;
     const { productId, variantId, quantity, price } = req.body;
     // Validate input
-    if (!productId || !variantId || !quantity || !price) {
+    const missingFields = [];
+    if (!productId) missingFields.push("productId");
+    if (!variantId) missingFields.push("variantId");
+    if (!quantity) missingFields.push("quantity");
+    if (!price) missingFields.push("price");
+
+    if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields",
+        message: `Missing required fields: ${missingFields.join(", ")}`,
       });
     }
 
@@ -249,7 +255,7 @@ const processCheckout = async (req, res) => {
       totalAmount: totalAmount,
       shippingAddress: selectedAddressId,
       paymentMethod: "COD",
-      status: "Processing",
+      status: "Pending",
       paymentStatus: "pending",
     });
 
@@ -316,93 +322,94 @@ const getCheckoutPage = async (req, res) => {
   }
 };
 
-const placeOrder = async (req, res) => {
-  try {
-    let { selectedAddressId, products } = req.body;
+// const placeOrder = async (req, res) => {
+//   try {
+//     let { selectedAddressId, products } = req.body;
 
-    const userId = req.user._id;
-    products = JSON.parse(products);
-    // Get user with addresses
-    const user = await User.findById(userId);
-    if (!user) {
-      req.session.message = { type: "error", text: "User not found" };
-      return res.redirect("/checkout");
-    }
+//     const userId = req.user._id;
+//     products = JSON.parse(products);
+//     // Get user with addresses
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       req.session.message = { type: "error", text: "User not found" };
+//       return res.redirect("/checkout");
+//     }
 
-    // Find selected address
-    const address = adress.findById(selectedAddressId);
-    if (!address) {
-      req.session.message = { type: "error", text: "Address not found" };
-      return res.redirect("/checkout");
-    }
+//     // Find selected address
+//     const address = adress.findById(selectedAddressId);
+//     if (!address) {
+//       req.session.message = { type: "error", text: "Address not found" };
+//       return res.redirect("/checkout");
+//     }
 
-    const shippingAddress = `
-            ${address.name}, 
-            ${address.landMark}, 
-            ${address.city}, 
-            ${address.state}-${address.pincode}, 
-            Phone: ${address.phone}
-        `
-      .replace(/\s+/g, " ")
-      .trim();
+//     const shippingAddress = `
+//             ${address.name}, 
+//             ${address.landMark}, 
+//             ${address.city}, 
+//             ${address.state}-${address.pincode}, 
+//             Phone: ${address.phone}
+//         `
+//       .replace(/\s+/g, " ")
+//       .trim();
 
-    // Process products
+//     // Process products
 
-    const productIds = products.map((p) => p.productId);
-    const dbProducts = await Product.find({ _id: { $in: productIds } });
+//     const productIds = products.map((p) => p.productId);
+//     const dbProducts = await Product.find({ _id: { $in: productIds } });
 
-    if (dbProducts.length !== products.length) {
-      req.session.message = { type: "error", text: "Some products not found" };
-      return res.redirect("/checkout");
-    }
+//     if (dbProducts.length !== products.length) {
+//       req.session.message = { type: "error", text: "Some products not found" };
+//       return res.redirect("/checkout");
+//     }
 
-    // Build order products array
-    let totalAmount = 0;
-    const orderProducts = products.map((requestProduct) => {
-      const dbProduct = dbProducts.find(
-        (p) => p._id.toString() === requestProduct.productId
-      );
+//     // Build order products array
+//     let totalAmount = 0;
+//     const orderProducts = products.map((requestProduct) => {
+//       const dbProduct = dbProducts.find(
+//         (p) => p._id.toString() === requestProduct.productId
+//       );
 
-      const price = dbProduct.salePrice;
+//       const price = dbProduct.salePrice;
 
-      const totalPrice = price * requestProduct.quantity;
-      totalAmount += totalPrice;
+//       const totalPrice = price * requestProduct.quantity;
+//       totalAmount += totalPrice;
 
-      return {
-        productId: dbProduct._id,
-        quantity: requestProduct.quantity,
-        price: price,
-        totalPrice: totalPrice,
-      };
-    });
+//       return {
+//         productId: dbProduct._id,
+//         quantity: requestProduct.quantity,
+//         price: price,
+//         totalPrice: totalPrice,
+//       };
+//     });
 
-    // Create and save order
-    const newOrder = new Order({
-      userId: userId,
-      products: orderProducts,
-      totalAmount: totalAmount,
-      shippingAddress: selectedAddressId,
-      paymentMethod: "COD", // Update based on actual payment method
-    });
+//     // Create and save order
+//     const newOrder = new Order({
+//       userId: userId,
+//       products: orderProducts,
+//       totalAmount: totalAmount,
+//       shippingAddress: selectedAddressId,
+//       paymentStatus : "Pending",
+//       paymentMethod: "COD", // Update based on actual payment method
+//     });
 
-    await newOrder.save();
+//     await newOrder.save();
 
-    // Clear cart or handle post-order logic here
+//     // Clear cart or handle post-order logic here
 
-    req.session.message = {
-      type: "success",
-      text: `Order placed successfully! Order ID: ${newOrder.orderId}`,
-    };
-    res.render("order-placed", { productIds });
-  } catch (error) {
-    console.error("Order placement error:", error);
-    req.session.message = {
-      type: "error",
-      text: "Failed to place order. Please try again.",
-    };
-    res.redirect("/checkout");
-  }
-};
+//     req.session.message = {
+//       type: "success",
+//       text: `Order placed successfully! Order ID: ${newOrder.orderId}`,
+//     };
+//     res.render("order-placed", { productIds });
+//   } catch (error) {
+//     console.error("Order placement error:", error);
+//     req.session.message = {
+//       type: "error",
+//       text: "Failed to place order. Please try again.",
+//     };
+//     res.redirect("/checkout");
+//   }
+// };
 
 const orderView = async (req, res) => {
   try {
@@ -577,7 +584,7 @@ const loadCheckoutPage = async (req, res) => {
 };
 
 module.exports = {
-  placeOrder,
+  // placeOrder,
   updateQuantity,
   addToCart,
   viewCart,

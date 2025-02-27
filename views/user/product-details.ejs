@@ -669,10 +669,12 @@
                                 <div class="price">
                                     <h3>
                                         <span id="crossed-price">
-                                            ₹ <span id="original-price"><%= (product.variants[0].price * (1 + product.offer / 100)).toFixed(2) %></span>
+                                            ₹ <span id="original-price"><%= product.variants[0].price %></span>
                                         </span>
-                                        <span id="variant-price">₹ <%= product.variants[0].price %></span>
-                                        <span class="offer-badge">Offer: <%= product.offer %>%</span>
+                                        <span id="variant-price">
+                                            ₹ <%= (product.variants[0].price * (1 - Math.max(product.offer, product.category.categoryOffer) / 100)).toFixed(2) %>
+                                        </span>
+                                        <span class="offer-badge">Offer: <%= Math.max(product.offer, product.category.categoryOffer) %>%</span>
                                     </h3>
                                 </div>
 
@@ -686,7 +688,7 @@
                                 </p>
 
                                 <!-- Add to Cart Form -->
-                                <form action="/shopping-cart" method="POST" class="quantity-controls">
+                                <form class="quantity-controls" id="add-to-cart-form">
                                     <input type="hidden" name="productId" value="<%= product._id %>">
                                     <input type="hidden" name="variantId" id="selected-variant">
                                     <input type="hidden" name="price" id="variant-price-input">
@@ -1086,7 +1088,7 @@
 
                 // Get available sizes for selected color
                 const availableSizes = selectedColor ? 
-                    Array.from(new Set(variants
+                    Array.from(new Set(product.variants
                         .filter(v => v.color === selectedColor)
                         .map(v => v.size))) : [];
 
@@ -1138,12 +1140,20 @@
                     );
 
                     if (variant) {
+                        // Get the maximum offer percentage
+                        const maxOffer = Math.max(<%= product.offer %>, <%= product.category.categoryOffer %>);
+                        
+                        // Calculate discounted price
+                        const originalPrice = variant.price;
+                        const discountedPrice = (originalPrice * (1 - maxOffer / 100)).toFixed(2);
+                        
                         // Update price display
-                        priceElement.textContent = variant.price;
+                        document.getElementById('original-price').textContent = originalPrice;
+                        document.getElementById('variant-price').textContent = `₹ ${discountedPrice}`;
                         
                         // Update hidden inputs
                         document.getElementById('selected-variant').value = variant._id;
-                        document.getElementById('variant-price-input').value = variant.price;
+                        document.getElementById('variant-price-input').value = discountedPrice;
                         
                         // Update quantity max based on stock
                         quantityInput.max = variant.stock;
@@ -1229,6 +1239,64 @@
             if (variants.length > 0) {
                 updateBuyNowForm(); // Initialize the form with first variant
             }
+        </script>
+
+        <!-- Add this JavaScript to handle adding to cart -->
+        <script>
+            document.getElementById('add-to-cart-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const selectedColor = document.querySelector('input[name="color"]:checked')?.value;
+                const selectedSize = document.querySelector('input[name="size"]:checked')?.value;
+                
+                if (!selectedColor || !selectedSize) {
+                    alert('Please select both color and size');
+                    return;
+                }
+
+                const variant = variants.find(v => 
+                    v.color === selectedColor && 
+                    v.size === selectedSize
+                );
+
+                if (!variant) {
+                    alert('Please select a valid variant');
+                    return;
+                }
+
+                // Get price directly from the displayed price element, handling the format properly
+                const priceText = document.getElementById('variant-price').innerText;
+                const price = parseFloat(priceText.replace('₹', '').trim());
+
+                if (isNaN(price)) {
+                    alert('Invalid price value');
+                    return;
+                }
+
+                const formData = {
+                    productId: '<%= product._id %>',
+                    variantId: variant._id,
+                    quantity: parseInt(document.getElementById('quantity-input').value),
+                    price: price // Send the price directly
+                };
+
+                try {
+                    const response = await fetch('/shopping-cart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                if (response.ok) {
+                    window.location.href = '/shopping-cart';
+                }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error adding product to cart');
+                }
+            });
         </script>
 
         <!-- Search End -->

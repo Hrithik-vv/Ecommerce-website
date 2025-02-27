@@ -39,7 +39,7 @@ const createCoupon = async (req, res) => {
     });
 
     await newCoupon.save();
-    return res.json({ success: true, message: "Coupon created successfully" });
+    return res.redirect('/admin/coupon')
   } catch (error) {
     console.error("Create coupon error:", error);
     return res.status(500).json({ 
@@ -146,13 +146,52 @@ const deleteCoupon = async (req, res) => {
 
 const loadeditCoupon = async (req,res)=>{
   try {
-    res.render()
+    const findCoupons = await Coupon.findById(req.query.id);
+    
+    
+    res.render('edit-coupon',{findCoupons})
   } catch (error) {
+    console.log(error);
     
   }
 }
 
+
+const updateCoupon = async (req, res) => {
+  const { couponId, couponName, startDate, endDate, offerPrice, minimumPrice } = req.body;
+
+  try {
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Coupon not found' 
+      });
+    }
+
+    coupon.name = couponName;
+    coupon.startDate = startDate;
+    coupon.endDate = endDate;
+    coupon.offerPrice = offerPrice;
+    coupon.minimumPrice = minimumPrice;
+
+    await coupon.save();
+
+    return res.json({
+      success: true,
+      message: 'Coupon updated successfully'
+    });
+  } catch (error) {
+    console.error('Coupon update error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to update coupon' 
+    });
+  }
+};
+
 module.exports = {
+  updateCoupon,
   deleteCoupon,
   loadCoupon,
   createCoupon,

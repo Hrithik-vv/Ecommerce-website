@@ -1,9 +1,503 @@
 <%- include("../partials/admin/adminHeader.ejs") %>
-  <section class="content-main">
+
+<style>
+/* Classic Dashboard Styles */
+.content-main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #f8f9fa;
+    margin-left: 330px;
+    margin-top: 80px;
+    min-height: calc(100vh - 80px);
+    position: relative;
+    z-index: 1;
+}
+
+/* Header Styles */
+.content-header {
+    margin-bottom: 2rem;
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 2px solid #e9ecef;
+    background: #f8f9fa;
+    position: relative;
+    z-index: 2;
+}
+
+.content-title {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Filter Section */
+.filter-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    background-color: #34495e;
+    border-color: #34495e;
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+    transform: translateY(-2px);
+}
+
+/* Summary Cards */
+.summary-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.summary-card .icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.summary-card .title {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.summary-card .value {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Orders Table */
+.orders-table {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 2rem;
+}
+
+.table {
+    margin: 0;
+}
+
+.table thead th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.table tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #34495e;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Export Buttons */
+.export-buttons {
+    margin-bottom: 1rem;
+}
+
+.btn-export {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    color: #2c3e50;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    color: #2c3e50;
+}
+
+/* Date Inputs */
+.form-control {
+    border: 1px solid #e9ecef;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #34495e;
+    box-shadow: 0 0 0 0.2rem rgba(52, 73, 94, 0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-main {
+        margin-left: 0;
+        padding: 15px;
+        margin-top: 60px;
+    }
+
+    .content-title {
+        font-size: 2rem;
+    }
+
+    .summary-card {
+        margin-bottom: 15px;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+    }
+}
+
+/* Status Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.badge-success {
+    background: #27ae60;
+    color: #fff;
+}
+
+.badge-warning {
+    background: #f1c40f;
+    color: #2c3e50;
+}
+
+.badge-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.summary-card, .orders-table {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+</style>
+
+<section class="content-main">
     <div class="content-header">
-      <div>
-        <h2 class="content-title card-title">Dashboard</h2>
-      </div>
+        <h2 class="content-title">Sales Dashboard</h2>
     </div>
-  </section>
-  <%- include("../partials/admin/adminFooter.ejs") %>
+
+    <!-- Date Filter Section -->
+    <div class="filter-section">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <button class="btn btn-primary" onclick="filterSales('today')">Today</button>
+            <button class="btn btn-primary" onclick="filterSales('week')">This Week</button>
+            <button class="btn btn-primary" onclick="filterSales('month')">This Month</button>
+            <button class="btn btn-primary" onclick="filterSales('year')">This Year</button>
+            <div class="d-flex gap-2 mt-2 mt-md-0">
+                <input type="date" id="startDate" class="form-control">
+                <input type="date" id="endDate" class="form-control">
+                <button class="btn btn-primary" onclick="filterSales('custom')">Apply Range</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-shopping-cart icon text-primary"></i>
+                <div class="title">Total Orders</div>
+                <div class="value" id="totalOrders">0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-rupee-sign icon text-success"></i>
+                <div class="title">Total Revenue</div>
+                <div class="value" id="totalRevenue">₹0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-chart-line icon text-info"></i>
+                <div class="title">Average Order</div>
+                <div class="value" id="avgOrderValue">₹0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-box icon text-warning"></i>
+                <div class="title">Products Sold</div>
+                <div class="value" id="productsSold">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="orders-table">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Recent Orders</h5>
+                <div class="export-buttons">
+                    <button class="btn btn-export" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-export" onclick="exportReport('excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Products</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <!-- Table content will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="pagination" class="mt-4 d-flex justify-content-center"></div>
+</section>
+
+<script>
+let currentPage = 1;
+const itemsPerPage = 10;
+
+async function filterSales(period, page = 1) {
+    try {
+        let startDate, endDate;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        switch(period) {
+            case 'today':
+                startDate = new Date(today);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case 'week':
+                startDate = new Date(today);
+                startDate.setDate(today.getDate() - 7);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case 'month':
+                startDate = new Date(today);
+                startDate.setMonth(today.getMonth() - 1);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case 'year':
+                startDate = new Date(today);
+                startDate.setFullYear(today.getFullYear() - 1);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+            case 'custom':
+                startDate = new Date(document.getElementById('startDate').value);
+                endDate = new Date(document.getElementById('endDate').value);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+        }
+
+        console.log('Sending request with dates:', { startDate, endDate }); // Debug log
+
+        const response = await fetch('/admin/sales-report/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                page: page,
+                limit: itemsPerPage
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Received response:', result); // Debug log
+
+        if (result.success) {
+            updateDashboard(result.data);
+            updatePagination(result.data.pagination);
+        } else {
+            throw new Error(result.message || 'Failed to fetch data');
+        }
+    } catch (error) {
+        console.error('Error in filterSales:', error);
+        alert('Error fetching sales data: ' + error.message);
+    }
+}
+
+function updateDashboard(data) {
+    try {
+        // Update summary cards
+        document.getElementById('totalOrders').textContent = data.totalOrders;
+        document.getElementById('totalRevenue').textContent = '₹' + data.totalRevenue.toFixed(2);
+        document.getElementById('avgOrderValue').textContent = '₹' + data.averageOrderValue.toFixed(2);
+        document.getElementById('productsSold').textContent = data.productsSold;
+
+        // Update table
+        const tableBody = document.getElementById('salesTableBody');
+        tableBody.innerHTML = data.orders.map(order => `
+            <tr>
+                <td>${order.orderId}</td>
+                <td>${new Date(order.date).toLocaleDateString()}</td>
+                <td>${order.customerName}</td>
+                <td>${order.products}</td>
+                <td>₹${order.totalAmount.toFixed(2)}</td>
+                <td>${order.paymentMethod}</td>
+                <td>${order.status}</td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error updating dashboard:', error);
+        alert('Error updating dashboard display');
+    }
+}
+
+function updatePagination(pagination) {
+    const paginationContainer = document.getElementById('pagination');
+    const { currentPage, totalPages, hasNextPage, hasPrevPage } = pagination;
+    
+    let html = '<div class="pagination-controls">';
+    
+    // Previous button
+    html += `<button class="btn btn-secondary ${!hasPrevPage ? 'disabled' : ''}" 
+        onclick="changePage(${currentPage - 1})" ${!hasPrevPage ? 'disabled' : ''}>
+        Previous
+    </button>`;
+
+    // Page numbers
+    html += '<div class="page-numbers">';
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="btn ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}" 
+            onclick="changePage(${i})">${i}</button>`;
+    }
+    html += '</div>';
+
+    // Next button
+    html += `<button class="btn btn-secondary ${!hasNextPage ? 'disabled' : ''}" 
+        onclick="changePage(${currentPage + 1})" ${!hasNextPage ? 'disabled' : ''}>
+        Next
+    </button>`;
+    
+    html += '</div>';
+    
+    paginationContainer.innerHTML = html;
+}
+
+function changePage(newPage) {
+    currentPage = newPage;
+    filterSales(getCurrentPeriod(), newPage);
+}
+
+function exportReport(format) {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    window.location.href = `/admin/dashboard/export?startDate=${startDate}&endDate=${endDate}&format=${format}`;
+}
+
+// Initialize with today's data
+document.addEventListener('DOMContentLoaded', () => {
+    filterSales('today');
+});
+</script>
+<script>
+    // Frontend pagination controls example
+function renderPagination(pagination) {
+  const paginationEl = document.getElementById('pagination');
+  paginationEl.innerHTML = '';
+  
+  if (pagination.hasPrevPage) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.onclick = () => loadSales(pagination.prevPage);
+    paginationEl.appendChild(prevBtn);
+  }
+  
+  // Current page indicator
+  const pageInfo = document.createElement('span');
+  pageInfo.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages}`;
+  paginationEl.appendChild(pageInfo);
+  
+  if (pagination.hasNextPage) {
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next';
+    nextBtn.onclick = () => loadSales(pagination.nextPage);
+    paginationEl.appendChild(nextBtn);
+  }
+}
+
+// Function to load sales data with pagination
+async function loadSales(page = 1) {
+  try {
+    const response = await fetch(`/api/admin/recent-sales?page=${page}&limit=10`);
+    const data = await response.json();
+    
+    if (data.success) {
+      // Render sales data
+      renderSalesData(data.data);
+      // Render pagination controls
+      renderPagination(data.pagination);
+    } else {
+      console.error('Failed to load sales data:', data.message);
+    }
+  } catch (error) {
+    console.error('Error loading sales data:', error);
+  }
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+  loadSales(1);
+});
+</script>
+
+<%- include("../partials/admin/adminFooter.ejs") %>

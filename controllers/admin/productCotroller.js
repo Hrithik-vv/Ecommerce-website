@@ -4,9 +4,13 @@ const category = require("../../models/categorySchema");
 
 // Load and display all products
 const loadproduct = async (req, res) => {
-  const products = await Product.find({});
-
-  res.render("product", { products });
+  try {
+    const products = await Product.find({}).populate('category', 'name');
+    res.render("product", { products });
+  } catch (error) {
+    console.log("Error loading products:", error);
+    res.redirect("/pageerror");
+  }
 };
 
 const blockProduct = async (req, res) => {

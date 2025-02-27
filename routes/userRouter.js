@@ -101,7 +101,7 @@ router.get("/shop",productController.getProducts)
 // Checkout Routes
 router.post("/checkoutload", userAuth, cartController.loadCheckoutPage);
 router.post('/place-order',userAuth, cartController.processCheckout);
-router.post('/checkout',cartController.placeOrder)
+// router.post('/checkout',cartController.placeOrder)
 router.get("/product-details", cartController.orderView)
 router.get('/order-placed',cartController.orderPlaced)
 router.get ("/orderhis",cartController.orderHistory)
@@ -112,9 +112,10 @@ router.get("/wishlist", userAuth, wishlistController.loadWishlist);
 router.post("/addToWishlist", userAuth, wishlistController.addToWishlist)
 router.get("/removeFromWishlist",userAuth,wishlistController.removeProduct)
 
-//Razorpay Management
-router.post('/create-razorpay-order',userAuth, createOrder);
-router.post('/verify-payment',userAuth, processPayment);
+//Razorpay management
+router.post('/create-razorpay-order', userAuth, createOrder);
+router.post('/verify-payment', userAuth, processPayment);
+
 
 router.get('/order-placed',userAuth, (req, res) => {
   res.render('orderPlaced', {

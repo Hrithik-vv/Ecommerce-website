@@ -2,11 +2,14 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const walletSchema = new Schema({
+    
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        unique: true // Ensures only one wallet per user
     },
+    
     balance: {
         type: Number,
         default: 0

@@ -276,7 +276,7 @@
                                         <td>
                                             <a href="editCoupon?id=<%= coupon._id %>"
                                                 class="btn btn-primary btn-sm">Edit</a>
-                                            <a href="#" onclick="confirmDelete('<%= coupon._id %>')"
+                                            <a  onclick="confirmDelete('<%= coupon._id %>')"
                                                 class="btn btn-danger btn-sm">Delete</a>
                                         </td>
                                     </tr>
@@ -317,6 +317,7 @@
     </section>
 
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function validateForm() {
@@ -401,10 +402,16 @@
 
 
         function deleteCoupon(couponId) {
-            $.ajax({
-                url: `/admin/deletecoupon?id=${couponId}`,
-                method: "GET",
-                success: function () {
+            fetch(`/admin/coupon/delete`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: couponId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     Swal.fire({
                         icon: "success",
                         title: "Deleted!",
@@ -413,14 +420,20 @@
                     }).then(() => {
                         window.location.reload();
                     });
-                },
-                error: function () {
+                } else {
                     Swal.fire({
                         icon: "error",
                         title: "Error!",
-                        text: "Failed to delete the coupon. Please try again.",
+                        text: data.message || "Failed to delete the coupon. Please try again.",
                     });
-                },
+                }
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error!",
+                    text: "Failed to delete the coupon. Please try again.",
+                });
             });
         }
 
