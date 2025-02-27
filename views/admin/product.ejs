@@ -118,6 +118,7 @@
         letter-spacing: 0.5px;
         padding: 16px;
         border-bottom: 2px solid #e2e8f0;
+        text-align: center;
       }
 
       .table td {
@@ -125,6 +126,7 @@
         border-bottom: 1px solid #e2e8f0;
         color: #4a5568;
         font-size: 14px;
+        text-align: center;
       }
 
       .table tbody tr:hover {
@@ -205,9 +207,9 @@
                 <tr>
                     <th>Product name</th>
                     <th>Category</th>
-                    <th>Sale Price</th>
+                  
                     <th>Offer</th>
-                    <th>Quantity</th>
+       
                     <th>Action</th>
                     <th>Edit</th>
                 </tr>
@@ -216,10 +218,10 @@
                 <% products.forEach(product=> { %>
                     <tr>
                         <td><%= product.productName %></td>
-                        <td><%= product.category%></td>
-                        <td><%= product.salePrice %></td>
-                        <td><%= product.productOffer %></td>
-                        <td><%= product.quantity %></td>
+                        <td><%= product.category.name%></td>
+                      
+                        <td><%= product.offer %></td>
+                   
                         <td>
                             <% if (!product.isBlocked) { %>
                                 <a href="/admin/blockProduct?id=<%= product._id %>" class="action-btn block-btn">Block</a>

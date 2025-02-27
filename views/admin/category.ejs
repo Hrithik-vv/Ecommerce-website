@@ -339,6 +339,11 @@
                     id="descriptionId"></textarea>
                   <div id="description-error" class="error-message"></div>
                 </div>
+                <div class="mb-4">
+                  <label class="form-label">Offer (%)</label>
+                  <input type="number" name="offer" placeholder="Enter offer percentage" class="form-control" id="offerId" min="0" max="100" />
+                  <div id="offer-error" class="error-message"></div>
+                </div>
                 <div class="d-grid">
                   <button class="btn btn-primary" type="submit">
                     Create category
@@ -354,8 +359,7 @@
                       <th class="text-center"></th>
                       <th>Name</th>
                       <th>Description</th>
-                      <!-- <th>Offer Price</th>
-                    <th>Offer</th> -->
+                      <th>Offer</th>
                       <th>Status</th>
                       <th>List/Unlist</th>
                       <th class="text-start">Edit</th>
@@ -371,15 +375,9 @@
                         <td class="text-start">
                           <%=category.description%>
                         </td>
-
-                        <!-- <td class="text-start"> -->
-                        <!-- <button class="btn btn-info" style="width: 100px">
-                        <a href="#" class="text-white">Add Offer</a>
-                      </button> -->
-                        <!-- <button class="btn btn-info" style="width: 100px">
-                        <a href="#" class="text-white">Remove</a>
-                      </button> -->
-                        <!-- </td> -->
+                        <td class="text-start">
+                          <%=category.categoryOffer ? category.categoryOffer + '%' : 'No offer'%>
+                        </td>
                         <td class="text-start">
                           <%if(category.isListed){%>
                             <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
@@ -453,13 +451,14 @@
 
         const name = document.getElementsByName("name")[0].value.trim();
         const description = document.getElementById("descriptionId").value.trim();
+        const offer = document.getElementById("offerId").value.trim();
 
         fetch("/admin/addCategory", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name, description }),
+          body: JSON.stringify({ name, description, offer }),
         })
           .then((response) => {
             if (!response.ok) {
@@ -495,6 +494,7 @@
         clearErrorMessages();
         const name = document.getElementsByName("name")[0].value.trim();
         const description = document.getElementById("descriptionId").value.trim();
+        const offer = document.getElementById("offerId").value.trim();
         let isValid = true;
 
         if (name === "") {
@@ -509,6 +509,10 @@
         }
         if (description === "") {
           displayErrorMessage("description-error", "Please enter a description");
+          isValid = false;
+        }
+        if (offer !== "" && (isNaN(offer) || offer < 0 || offer > 100)) {
+          displayErrorMessage("offer-error", "Offer must be a number between 0 and 100");
           isValid = false;
         }
         return isValid;

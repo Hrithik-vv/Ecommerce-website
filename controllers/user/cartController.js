@@ -11,10 +11,16 @@ const addToCart = async (req, res) => {
     const userId = req.user._id;
     const { productId, variantId, quantity, price } = req.body;
     // Validate input
-    if (!productId || !variantId || !quantity || !price) {
+    const missingFields = [];
+    if (!productId) missingFields.push("productId");
+    if (!variantId) missingFields.push("variantId");
+    if (!quantity) missingFields.push("quantity");
+    if (!price) missingFields.push("price");
+
+    if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields",
+        message: `Missing required fields: ${missingFields.join(", ")}`,
       });
     }
 

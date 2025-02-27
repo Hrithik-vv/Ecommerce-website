@@ -31,7 +31,7 @@ const categoryInfo = async (req, res) => {
 
 // Add a new category
 const addCategory = async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, offer } = req.body; // Added offer to the destructured body
 
   try {
     const regex = new RegExp(`^${name}$`, "i");
@@ -40,7 +40,7 @@ const addCategory = async (req, res) => {
       return res.status(400).json({ error: "Category already exists" });
     }
 
-    const newCategory = new Category({ name, description });
+    const newCategory = new Category({ name, description, categoryOffer: offer }); // Included offer in the new category
     await newCategory.save();
 
     return res
@@ -114,20 +114,16 @@ const editCategory = async (req, res) => {
   try {
     const id = new a.Types.ObjectId(req.params.id);
 
-    const { categoryname, description } = req.body;
+    const { categoryname, description, offer } = req.body; // Added offer to destructuring
     const existingCategory = await Category.findOne({ name: categoryname });
 
-    if (existingCategory) {
-      return res
-        .status(400)
-        .json({ error: "Category exists, please choose another name" });
-    }
-
+  
     const updateCategory = await Category.findByIdAndUpdate(
       id,
       {
         name: categoryname,
         description: description,
+        categoryOffer: offer, // Added offer to the update
       },
       { new: true }
     );

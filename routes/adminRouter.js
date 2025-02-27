@@ -65,6 +65,9 @@ router.post('/update-order-status', updateOrderStatus);
 router.get("/coupon",adminAuth,couponController.loadCoupon);
 router.post("/createCoupon",adminAuth,couponController.createCoupon)
 router.get('/editCoupon' , adminAuth ,couponController.loadeditCoupon)
+router.post("/updateCoupon", adminAuth, couponController.updateCoupon);
+
+
 router.post('/coupon/delete',adminAuth,couponController.deleteCoupon)
 
 

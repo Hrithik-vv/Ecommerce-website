@@ -3,11 +3,13 @@ const {Schema} = mongoose;
 
 const categorySchema = new mongoose.Schema({
     name: {
-        type : String,
-        required : true,
-        unique : true,
-        isBlocked: { type: Boolean, default: false }
-
+        type: String,
+        required: true,
+        unique: true
+    },
+    isBlocked: { 
+        type: Boolean, 
+        default: false 
     },
     description :{
         type : String,
@@ -17,16 +19,16 @@ const categorySchema = new mongoose.Schema({
         type: Boolean,
         default:true
     },
-     categoryOffer:{
-        type : Number,
-        default:0
-     },
-     createAt: {
+    categoryOffer: {
+        type: Number,
+        default: 0
+    },
+    createAt: {
         type: Date,
-        default : Date.now
-     }
+        default: Date.now
+    }
 })
 
-const categoty = mongoose.model("Category",categorySchema);
+const category = mongoose.model("Category", categorySchema);
 
-module.exports =categoty;
+module.exports = category;
