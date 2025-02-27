@@ -73,7 +73,7 @@
                     Order ID: <%= order.orderId %>
                 </p>
 
-                <% if (order.status === 'Pending' || order.status === 'Shipped' || order.status === 'Processing') { %>
+                <% if (order.status === 'Pending' ) { %>
                     <div id="aaa" class="mt-4">
                         <button onclick="confirmCancelOrder('<%= order._id %>')" 
                                 class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">

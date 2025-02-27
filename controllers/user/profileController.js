@@ -356,7 +356,7 @@ if (existingAddress) {
 console.log("Address added successfully");
 
 
-    res.redirect("/checkout");
+    res.redirect("/userProfile");
   } catch (error) {
     console.log("Error adding address", error);
     res.redirect("/pageNotFound");

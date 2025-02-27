@@ -10,7 +10,7 @@ const orderConroller = require("../controllers/admin/orderController");
 const { userAuth, adminAuth } = require("../middlewares/auth");
 const  {updateOrderStatus }  = require('../controllers/admin/orderController');
 const couponController = require("../controllers/admin/couponController")
-
+const salesReportController = require('../controllers/admin/salesReportController');
 
 
 // Multer setup
@@ -71,7 +71,13 @@ router.post("/updateCoupon", adminAuth, couponController.updateCoupon);
 router.post('/coupon/delete',adminAuth,couponController.deleteCoupon)
 
 
+// Dashboard routes
+router.get('/dashboard', adminAuth, (req, res) => {
+  res.render('admin/dashboard');
+});
 
-
+// Sales report routes
+router.post('/sales-report/data', adminAuth, salesReportController.getSalesReport);
+router.get('/sales-report/export', adminAuth, salesReportController.exportSalesReport);
 
 module.exports = router;
