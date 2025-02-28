@@ -31,7 +31,6 @@ const addproduct = async (req, res) => {
       offer,
     } = req.body;
 
-    // Parse variants from JSON string
     const variants = JSON.parse(variantsJson);
 
     // Create product with dummy image paths first
@@ -267,7 +266,6 @@ async function deleteImageFromFolder(imagePath) {
   try {
     if (!imagePath) return;
     const fullPath = path.join(__dirname, "../public", imagePath);
-
     try {
       await fs.access(fullPath);
       await fs.unlink(fullPath);
@@ -312,13 +310,11 @@ const deleteProductImage = async (req, res) => {
     res.json({ success: true, message: "Image deleted successfully" });
   } catch (error) {
     console.error("Error in deleteProductImage:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error deleting image",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error deleting image",
+      error: error.message,
+    });
   }
 };
 

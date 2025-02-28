@@ -120,8 +120,8 @@ const signup = async (req, res) => {
     if (!emailSent) {
       return res.json("email-error");
     }
-    // Save OTP and user data
 
+    // Save OTP and user data
     const otpEntry = new OTP({
       sessionId: req.session.id,
       otp,
@@ -226,7 +226,7 @@ function resendOTP() {
   timer = 60;
   document.getElementById("otp").disabled = false;
   document.getElementById("timerValue").classList.remove("expired");
-  document.getElementById("timerValue").textContent = timer; // Reset displayed timer
+  document.getElementById("timerValue").textContent = timer; 
 
   startTimer();
 

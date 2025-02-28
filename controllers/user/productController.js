@@ -3,6 +3,7 @@ const Category = require("../../models/categorySchema");
 const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
 
+
 const productDetails = async (req, res) => {
   try {
     let id = req.query.id;
@@ -14,8 +15,7 @@ const productDetails = async (req, res) => {
       category: product.category,
       _id: { $ne: id },
       isBlocked: false,
-    }).limit(4); // Limit the number of related products
-
+    }).limit(4); 
     res.render("product-details", {
       product,
       relatedProducts,

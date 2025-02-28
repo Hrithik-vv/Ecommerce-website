@@ -1,11 +1,10 @@
 const Product = require("../../models/productSchema");
 const category = require("../../models/categorySchema");
 
-
 // Load and display all products
 const loadproduct = async (req, res) => {
   try {
-    const products = await Product.find({}).populate('category', 'name');
+    const products = await Product.find({}).populate("category", "name");
     res.render("product", { products });
   } catch (error) {
     console.log("Error loading products:", error);
