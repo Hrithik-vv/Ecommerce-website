@@ -8,9 +8,9 @@ const productController = require("../controllers/admin/productCotroller");
 const addproductConroller = require("../controllers/admin/addproductController");
 const orderConroller = require("../controllers/admin/orderController");
 const { userAuth, adminAuth } = require("../middlewares/auth");
-const  {updateOrderStatus }  = require('../controllers/admin/orderController');
-const couponController = require("../controllers/admin/couponController")
-const salesReportController = require('../controllers/admin/salesReportController');
+const { updateOrderStatus } = require("../controllers/admin/orderController");
+const couponController = require("../controllers/admin/couponController");
+const salesReportController = require("../controllers/admin/salesReportController");
 
 
 // Multer setup
@@ -57,27 +57,32 @@ router.post(
   addproductConroller.deleteProductImage
 );
 
-router.get("/ordermanage",orderConroller.adminOrderView)
-router.post('/update-order-status', updateOrderStatus);
-
+router.get("/ordermanage", orderConroller.adminOrderView);
+router.post("/update-order-status", updateOrderStatus);
 
 //Coupon Management
-router.get("/coupon",adminAuth,couponController.loadCoupon);
-router.post("/createCoupon",adminAuth,couponController.createCoupon)
-router.get('/editCoupon' , adminAuth ,couponController.loadeditCoupon)
+router.get("/coupon", adminAuth, couponController.loadCoupon);
+router.post("/createCoupon", adminAuth, couponController.createCoupon);
+router.get("/editCoupon", adminAuth, couponController.loadeditCoupon);
 router.post("/updateCoupon", adminAuth, couponController.updateCoupon);
 
-
-router.post('/coupon/delete',adminAuth,couponController.deleteCoupon)
-
+router.post("/coupon/delete", adminAuth, couponController.deleteCoupon);
 
 // Dashboard routes
-router.get('/dashboard', adminAuth, (req, res) => {
-  res.render('admin/dashboard');
+router.get("/dashboard", adminAuth, (req, res) => {
+  res.render("admin/dashboard");
 });
 
 // Sales report routes
-router.post('/sales-report/data', adminAuth, salesReportController.getSalesReport);
-router.get('/sales-report/export', adminAuth, salesReportController.exportSalesReport);
+router.post(
+  "/sales-report/data",
+  adminAuth,
+  salesReportController.getSalesReport
+);
+router.get(
+  "/sales-report/export",
+  adminAuth,
+  salesReportController.exportSalesReport
+);
 
 module.exports = router;

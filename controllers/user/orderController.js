@@ -13,22 +13,21 @@ require("dotenv").config();
 
 const orderView = async (req, res) => {
   try {
-    const { orderId } = req.query; // Changed from productId to orderId
+    const { orderId } = req.query; 
     console.log("Order ID:", orderId);
 
     // Find the order using the orderId
     const order = await Order.findById(orderId)
       .populate({
         path: "products.productId",
-        select: "productName image1 status salePrice", // Only select necessary fields for the product
+        select: "productName image1 status salePrice", 
       })
       .populate({
-        path: "shippingAddress", // Populate the shippingAddress field
-        select: "name city state pincode phone altPhone", // Select necessary fields from the address
+        path: "shippingAddress", 
+        select: "name city state pincode phone altPhone", 
       });
     res.send(order);
     return;
-    // If no order is found, send a 404 response
     if (!order) {
       return res.status(404).send("Order not found.");
     }
@@ -59,29 +58,29 @@ const orderPlaced = (req, res) => {
 
 const orderHistory = async (req, res) => {
   try {
-    let { productId } = req.query; // Extract productId from query params
+    let { productId } = req.query; 
 
     if (!productId) {
       req.session.message = { type: "error", text: "Product ID is required" };
       return res.redirect("/orderhistory");
     }
 
-    // Ensure productId is always an array (handles both single and multiple values)
+    // Ensure productId is always an array
     if (typeof productId === "string") {
-      productId = productId.split(","); // Convert comma-separated values to an array
+      productId = productId.split(",");
     }
 
     // Convert productId values to ObjectId
     const objectIds = productId
       .map((id) => {
         try {
-          return new mongoose.Types.ObjectId(id.trim()); // Convert each ID to ObjectId
+          return new mongoose.Types.ObjectId(id.trim()); 
         } catch (err) {
           console.error("Invalid ObjectId:", id);
-          return null; // Return null for invalid ObjectId
+          return null; 
         }
       })
-      .filter((id) => id !== null); // Remove invalid IDs
+      .filter((id) => id !== null); 
 
     if (objectIds.length === 0) {
       req.session.message = { type: "error", text: "Invalid Product ID(s)" };
@@ -122,7 +121,7 @@ const createOrder = async (req, res) => {
     }
 
     const options = {
-      amount: amount * 100, // amount in paise
+      amount: amount * 100,
       currency,
       receipt,
       payment_capture: 1,
@@ -201,7 +200,7 @@ const processPayment = async (req, res) => {
     // Make sure product quantities are valid numbers
     const validProducts = products.map(p => ({
       ...p,
-      quantity: parseInt(p.quantity) || 1 // Default to 1 if invalid
+      quantity: parseInt(p.quantity) || 1 
     }));
 
     // Fetch actual prices from DB

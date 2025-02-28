@@ -5,12 +5,11 @@ const User = require("../../models/userSchema");
 const adress = require("../../models/addressSchema");
 const Coupon = require("../../models/couponSchema");
 
-
+//Add to cart Controller
 const addToCart = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId, variantId, quantity, price } = req.body;
-    // Validate input
     const missingFields = [];
     if (!productId) missingFields.push("productId");
     if (!variantId) missingFields.push("variantId");
@@ -38,7 +37,6 @@ const addToCart = async (req, res) => {
     // Find or create cart
     let cart =
       (await Cart.findOne({ userId })) || new Cart({ userId, items: [] });
-
     // Find existing item with same variant - with null checks
     const itemIndex = cart.items.findIndex((item) => {
       return (
@@ -102,9 +100,7 @@ const viewCart = async (req, res) => {
     // Loop through cart items and query the product quantity directly
     const updatedCartItems = await Promise.all(
       cart.items.map(async (item) => {
-        // Query the Product model to grab the quantity and variant info
         const product = await Product.findById(item.productId);
-
         if (product) {
           // Find matching variant
           const variant = product.variants.find(
@@ -146,10 +142,10 @@ const viewCart = async (req, res) => {
 // Add this removeFromCart function
 const removeFromCart = async (req, res) => {
   try {
-    const userId = req.user._id; // Get the user ID from the session
-    const productId = req.params.productId; // Get the product ID from the request parameters
+    const userId = req.user._id; 
+    const productId = req.params.productId; 
 
-    const cart = await Cart.findOne({ userId }); // Find the user's cart
+    const cart = await Cart.findOne({ userId }); 
     if (!cart) {
       return res
         .status(404)
@@ -160,7 +156,7 @@ const removeFromCart = async (req, res) => {
     cart.items = cart.items.filter(
       (item) => item.productId.toString() !== productId
     );
-    await cart.save(); // Save the updated cart
+    await cart.save(); 
 
     // Redirect back to cart page
     res.redirect("/shopping-cart");
@@ -174,10 +170,11 @@ const removeFromCart = async (req, res) => {
 };
 const mongoose = require("mongoose");
 const address = require("../../models/addressSchema");
+
 // Add these new functions
 const updateQuantity = async (req, res) => {
   try {
-    const userId = req.user._id; // Get the user ID from the session
+    const userId = req.user._id; 
     let { productId, quantity } = req.body;
     const product = await Product.findById(productId);
 
@@ -196,7 +193,7 @@ const updateQuantity = async (req, res) => {
       {
         $set: {
           "items.$.quantity": qty,
-          "items.$.totalPrice": qty * product.salePrice, // Recalculate the total price
+          "items.$.totalPrice": qty * product.salePrice, 
         },
       },
       { new: true }
@@ -207,7 +204,7 @@ const updateQuantity = async (req, res) => {
       return res.redirect("/shopping-cart");
     }
 
-    res.redirect("/shopping-cart"); // Redirect back to cart
+    res.redirect("/shopping-cart"); 
   } catch (error) {
     console.error(error);
     req.flash("error", "Error updating quantity");
@@ -265,8 +262,8 @@ const processCheckout = async (req, res) => {
     if (couponCode) {
       const coupon = await Coupon.findOneAndUpdate(
         { name: new RegExp("^" + couponCode + "$", "i") },
-        { $addToSet: { usedBy: userId } }, // Add userId to the usedBy array
-        { new: true } // Return the updated document
+        { $addToSet: { usedBy: userId } },
+        { new: true }
       );
     }
 
@@ -303,14 +300,14 @@ const getCheckoutPage = async (req, res) => {
       isList: true,
       createdOn: { $lte: new Date() },
       expireOn: { $gte: new Date() },
-      usedBy: { $ne: userId }, // Exclude coupons already used by this user
+      usedBy: { $ne: userId }, 
     });
 
     res.render("checkout", {
       user: userData,
       addresses: addresses ? addresses.address : [],
       selectedAddress: req.session.selectedAddress,
-      coupons: coupons, // Pass available coupons to the view
+      coupons: coupons, 
       messages: {
         success: req.flash("success"),
         error: req.flash("error"),
@@ -343,10 +340,10 @@ const getCheckoutPage = async (req, res) => {
 //     }
 
 //     const shippingAddress = `
-//             ${address.name}, 
-//             ${address.landMark}, 
-//             ${address.city}, 
-//             ${address.state}-${address.pincode}, 
+//             ${address.name},
+//             ${address.landMark},
+//             ${address.city},
+//             ${address.state}-${address.pincode},
 //             Phone: ${address.phone}
 //         `
 //       .replace(/\s+/g, " ")
@@ -413,7 +410,7 @@ const getCheckoutPage = async (req, res) => {
 
 const orderView = async (req, res) => {
   try {
-    const orderId = req.query.orderId; // Changed from productId to orderId
+    const orderId = req.query.orderId; 
     console.log("Order ID:", orderId);
 
     // Find the order using the orderId
@@ -421,16 +418,14 @@ const orderView = async (req, res) => {
       orderId: orderId,
     }).populate({
       path: "products.productId",
-      select: "productName image1 status salePrice", // Only select necessary fields for the product
+      select: "productName image1 status salePrice", 
     });
-    // If no order is found, send a 404 response
     if (!order) {
       return res.status(404).send("Order not found.");
     }
 
-    // Get the specific product from the order's products array
-    const orderProduct = order.products[0]; // Assuming we want the first product in the order
-
+    // Get the specific product from the order products array
+    const orderProduct = order.products[0]; 
     if (!orderProduct) {
       return res.status(404).send("Product not found in the order.");
     }
@@ -465,29 +460,29 @@ const orderPlaced = (req, res) => {
 
 const orderHistory = async (req, res) => {
   try {
-    let { productId } = req.query; // Extract productId from query params
+    let { productId } = req.query; 
 
     if (!productId) {
       req.session.message = { type: "error", text: "Product ID is required" };
       return res.redirect("/orderhistory");
     }
 
-    // Ensure productId is always an array (handles both single and multiple values)
+    // Ensure productId is always an array 
     if (typeof productId === "string") {
-      productId = productId.split(","); // Convert comma-separated values to an array
+      productId = productId.split(","); 
     }
 
     // Convert productId values to ObjectId
     const objectIds = productId
       .map((id) => {
         try {
-          return new mongoose.Types.ObjectId(id.trim()); // Convert each ID to ObjectId
+          return new mongoose.Types.ObjectId(id.trim()); 
         } catch (err) {
           console.error("Invalid ObjectId:", id);
           return null; // Return null for invalid ObjectId
         }
       })
-      .filter((id) => id !== null); // Remove invalid IDs
+      .filter((id) => id !== null); 
 
     if (objectIds.length === 0) {
       req.session.message = { type: "error", text: "Invalid Product ID(s)" };

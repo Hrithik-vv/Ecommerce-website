@@ -348,7 +348,7 @@ if (existingAddress) {
   // If no existing document, create a new one
   const newAddress = new Address({
     userId: userData._id,
-    address: [newAddressData], // Store the new address in an array
+    address: [newAddressData], 
   });
   await newAddress.save();
 }
