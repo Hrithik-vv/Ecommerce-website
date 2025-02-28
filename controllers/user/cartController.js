@@ -211,201 +211,119 @@ const updateQuantity = async (req, res) => {
   }
 };
 
-//checkOut
-const processCheckout = async (req, res) => {
+const checkoutController = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { selectedAddressId, paymentMethod, couponCode } = req.body;
+    const userId = req.user._id || req.session.user._id;
+    
+    // If this is a POST request (form submission for checkout)
+    if (req.method === 'POST') {
+      const { selectedAddressId, paymentMethod, couponCode } = req.body;
 
-    // Validate cart
-    const cart = await Cart.findOne({ userId }).populate('items.productId');
-    if (!cart || cart.items.length === 0) {
-      req.flash('error', 'Your cart is empty');
-      return res.redirect('/shopping-cart');
-    }
+      // Validate cart
+      const cart = await Cart.findOne({ userId }).populate('items.productId');
+      if (!cart || cart.items.length === 0) {
+        req.flash('error', 'Your cart is empty');
+        return res.redirect('/shopping-cart');
+      }
 
-    // Validate address
-    if (!selectedAddressId) {
-      req.flash('error', 'Please select a delivery address');
-      return res.redirect('/checkout');
-    }
+      // Validate address
+      if (!selectedAddressId) {
+        req.flash('error', 'Please select a delivery address');
+        return res.redirect('/checkout');
+      }
 
-    // Calculate total amount
-    const totalAmount = cart.items.reduce(
-      (sum, item) => sum + item.totalPrice,
-      0
-    );
+      // Calculate total amount
+      const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
-    // Create order
-    const order = new Order({
-      couponId: couponCode,
-      userId: userId,
-      products: cart.items.map((item) => ({
-        productId: item.productId._id,
-        variantId: item.variantId,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice,
-        color: item.color,
-        size: item.size,
-      })),
-      totalAmount: totalAmount,
-      shippingAddress: selectedAddressId,
-      paymentMethod: "COD",
-      status: "Pending",
-      paymentStatus: "pending",
-    });
+      // Create order
+      const order = new Order({
+        couponId: couponCode,
+        userId: userId,
+        products: cart.items.map(item => ({
+          productId: item.productId._id,
+          variantId: item.variantId,
+          quantity: item.quantity,
+          totalPrice: item.totalPrice,
+          color: item.color,
+          size: item.size,
+        })),
+        totalAmount: totalAmount,
+        shippingAddress: selectedAddressId,
+        paymentMethod: "COD",
+        status: "Pending",
+        paymentStatus: "pending",
+      });
 
-    await order.save();
+      await order.save();
 
-    // Update coupon if provided
-    if (couponCode) {
-      const coupon = await Coupon.findOneAndUpdate(
-        { name: new RegExp("^" + couponCode + "$", "i") },
-        { $addToSet: { usedBy: userId } },
-        { new: true }
-      );
-    }
-
-    // Update product variant stock by decreasing the quantity
-    await Promise.all(
-      cart.items.map(async (item) => {
-        await Product.updateOne(
-          { _id: item.productId._id, "variants._id": item.variantId },
-          { $inc: { "variants.$.stock": -item.quantity } }
+      // Handle coupon if provided
+      if (couponCode) {
+        await Coupon.findOneAndUpdate(
+          { name: new RegExp("^" + couponCode + "$", "i") },
+          { $addToSet: { usedBy: userId } },
+          { new: true }
         );
-      })
-    );
+      }
 
-    // Clear cart after successful order creation
-    await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
+      // Update product stocks
+      await Promise.all(
+        cart.items.map(async (item) => {
+          await Product.updateOne(
+            { _id: item.productId._id, "variants._id": item.variantId },
+            { $inc: { "variants.$.stock": -item.quantity } }
+          );
+        })
+      );
 
-    // Redirect to order success page
-    req.flash("success", "Order placed successfully!");
-    res.redirect("/order-placed");
-  } catch (error) {
-    console.error("Checkout error:", error);
-    req.flash("error", "Error processing your order");
-    res.redirect("/checkout");
-  }
-};
+      // Clear cart
+      await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
-// address fetch
-const getCheckoutPage = async (req, res) => {
-  try {
-    const userId = req.session.user;
+      req.flash("success", "Order placed successfully!");
+      return res.redirect("/order-placed");
+    }
+    
+    // If this is a GET request (loading checkout page)
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    const addresses = await Address.findOne({ userId });
     const userData = await User.findById(userId);
-    const addresses = await Address.findOne({ userId: userId });
+    
+    // Calculate total amount
+    let totalAmount = 0;
+    if (cart && cart.items) {
+      totalAmount = cart.items.reduce((total, item) => {
+        return total + (item.productPrice * item.quantity);
+      }, 0);
+    }
+
+    // Get available coupons
     const coupons = await Coupon.find({
       isList: true,
       createdOn: { $lte: new Date() },
       expireOn: { $gte: new Date() },
-      usedBy: { $ne: userId }, 
+      usedBy: { $ne: userId },
     });
 
     res.render("checkout", {
       user: userData,
       addresses: addresses ? addresses.address : [],
+      cartItems: cart ? cart.items : [],
       selectedAddress: req.session.selectedAddress,
-      coupons: coupons, 
+      coupons: coupons,
+      totalAmount: totalAmount,
+      total: totalAmount,
       messages: {
         success: req.flash("success"),
         error: req.flash("error"),
-      },
+      }
     });
+
   } catch (error) {
     console.error("Checkout error:", error);
-    res.redirect("/pageNotFound");
+    req.flash("error", "Error processing checkout");
+    res.redirect("/shopping-cart");
   }
 };
 
-// const placeOrder = async (req, res) => {
-//   try {
-//     let { selectedAddressId, products } = req.body;
-
-//     const userId = req.user._id;
-//     products = JSON.parse(products);
-//     // Get user with addresses
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       req.session.message = { type: "error", text: "User not found" };
-//       return res.redirect("/checkout");
-//     }
-
-//     // Find selected address
-//     const address = adress.findById(selectedAddressId);
-//     if (!address) {
-//       req.session.message = { type: "error", text: "Address not found" };
-//       return res.redirect("/checkout");
-//     }
-
-//     const shippingAddress = `
-//             ${address.name},
-//             ${address.landMark},
-//             ${address.city},
-//             ${address.state}-${address.pincode},
-//             Phone: ${address.phone}
-//         `
-//       .replace(/\s+/g, " ")
-//       .trim();
-
-//     // Process products
-
-//     const productIds = products.map((p) => p.productId);
-//     const dbProducts = await Product.find({ _id: { $in: productIds } });
-
-//     if (dbProducts.length !== products.length) {
-//       req.session.message = { type: "error", text: "Some products not found" };
-//       return res.redirect("/checkout");
-//     }
-
-//     // Build order products array
-//     let totalAmount = 0;
-//     const orderProducts = products.map((requestProduct) => {
-//       const dbProduct = dbProducts.find(
-//         (p) => p._id.toString() === requestProduct.productId
-//       );
-
-//       const price = dbProduct.salePrice;
-
-//       const totalPrice = price * requestProduct.quantity;
-//       totalAmount += totalPrice;
-
-//       return {
-//         productId: dbProduct._id,
-//         quantity: requestProduct.quantity,
-//         price: price,
-//         totalPrice: totalPrice,
-//       };
-//     });
-
-//     // Create and save order
-//     const newOrder = new Order({
-//       userId: userId,
-//       products: orderProducts,
-//       totalAmount: totalAmount,
-//       shippingAddress: selectedAddressId,
-//       paymentStatus : "Pending",
-//       paymentMethod: "COD", // Update based on actual payment method
-//     });
-
-//     await newOrder.save();
-
-//     // Clear cart or handle post-order logic here
-
-//     req.session.message = {
-//       type: "success",
-//       text: `Order placed successfully! Order ID: ${newOrder.orderId}`,
-//     };
-//     res.render("order-placed", { productIds });
-//   } catch (error) {
-//     console.error("Order placement error:", error);
-//     req.session.message = {
-//       type: "error",
-//       text: "Failed to place order. Please try again.",
-//     };
-//     res.redirect("/checkout");
-//   }
-// };
 const orderView = async (req, res) => {
   try {
     const orderId = req.query.orderId; 
@@ -519,67 +437,12 @@ const orderHistory = async (req, res) => {
   }
 };
 
-const loadCheckoutPage = async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    
-    // Fetch cart with populated product details
-    const cart = await Cart.findOne({ userId }).populate('items.productId');
-    
-    // Fetch user's addresses
-    const userAddresses = await Address.findOne({ userId });
-    
-    // Calculate total amount
-    let totalAmount = 0;
-    if (cart && cart.items) {
-      totalAmount = cart.items.reduce((total, item) => {
-        return total + (item.productId.price * item.quantity);
-      }, 0);
-    }
-
-    // Fetch available coupons
-    const coupons = await Coupon.find({
-      isList: true,
-      createdOn: { $lte: new Date() },
-      expireOn: { $gte: new Date() },
-      usedBy: { $ne: userId },
-    });
-
-    res.render('checkout', {
-      addresses: userAddresses ? userAddresses.address : [],
-      cartItems: cart ? cart.items : [],
-      totalAmount: totalAmount,
-      total: totalAmount,
-      user: req.session.user,
-      coupons: coupons,
-      error: null,
-      success: null
-    });
-
-  } catch (error) {
-    console.error('Error in loadCheckoutPage:', error);
-    res.status(500).render('checkout', {
-      addresses: [],
-      cartItems: [],
-      totalAmount: 0,
-      total: 0,
-      user: req.session.user,
-      coupons: [],
-      error: 'Error loading checkout page',
-      success: null
-    });
-  }
-};
-
 module.exports = {
-  // placeOrder,
-  updateQuantity,
   addToCart,
   viewCart,
   removeFromCart,
-  loadCheckoutPage,
-  processCheckout,
-  getCheckoutPage,
+  updateQuantity,
+  checkoutController,
   orderView,
   orderPlaced,
   orderHistory,

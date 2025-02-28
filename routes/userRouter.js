@@ -118,10 +118,7 @@ router.post("/cart/add", userAuth, cartController.addToCart);
 router.get("/shop", productController.getProducts);
 
 // Checkout Routes
-router.get("/checkout", userAuth, cartController.loadCheckoutPage);
-router.post("/checkout", userAuth, cartController.processCheckout);
-router.get("/order-placed", userAuth, cartController.orderPlaced);
-router.get("/orderhis", cartController.orderHistory);
+router.all("/checkout", userAuth, cartController.checkoutController);
 
 //WishList Management
 router.get("/wishlist", userAuth, wishlistController.loadWishlist);
