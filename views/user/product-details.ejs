@@ -695,14 +695,6 @@
                                     <input type="number" name="quantity" value="1" min="1" max="" class="quantity-input" id="quantity-input">
                                     <button type="submit" class="add-to-cart-btn">Add to Cart</button>
                                 </form>
-
-                                <!-- Buy Now Form -->
-                                <form action="/checkoutload" method="POST">
-                                    <input type="hidden" name="productId" value="<%= product._id %>">
-                                    <input type="hidden" name="variantId" id="checkout-variant">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="primary-btn">Buy Now</button>
-                                </form>
                             </div>
 
                             <!-- Wishlist and Compare -->

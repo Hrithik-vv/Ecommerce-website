@@ -17,6 +17,12 @@ const {
 const auth = require("../middlewares/auth");
 const couponController = require("../controllers/admin/couponController");
 
+// Make sure all required functions are exported from cartController
+const {
+    loadCheckoutPage,
+    processCheckout,
+    // ... other functions
+} = require("../controllers/user/cartController");
 
 // Error and Home
 router.get("/pageNotFound", userController.pageNotFound);
@@ -112,11 +118,9 @@ router.post("/cart/add", userAuth, cartController.addToCart);
 router.get("/shop", productController.getProducts);
 
 // Checkout Routes
-router.post("/checkoutload", userAuth, cartController.loadCheckoutPage);
-router.post("/place-order", userAuth, cartController.processCheckout);
-// router.post('/checkout',cartController.placeOrder)
-router.get("/product-details", cartController.orderView);
-router.get("/order-placed", cartController.orderPlaced);
+router.get("/checkout", userAuth, cartController.loadCheckoutPage);
+router.post("/checkout", userAuth, cartController.processCheckout);
+router.get("/order-placed", userAuth, cartController.orderPlaced);
 router.get("/orderhis", cartController.orderHistory);
 
 //WishList Management
@@ -126,7 +130,7 @@ router.get("/removeFromWishlist", userAuth, wishlistController.removeProduct);
 
 //Razorpay management
 router.post("/create-razorpay-order", userAuth, createOrder);
-router.post("/verify-payment", userAuth, processPayment);
+// router.post("/verify-payment", userAuth, processPayment);
 
 router.get("/order-placed", userAuth, (req, res) => {
   res.render("orderPlaced", {
@@ -138,9 +142,10 @@ router.get("/order-placed", userAuth, (req, res) => {
 // Coupon routes
 router.post("/apply-coupon", couponController.applyCoupon);
 
+//order
 router.get("/order-history", userAuth, loadOrderHistory);
-
 router.post("/cancel-order/:orderId", userAuth, cancelOrder);
 router.post("/return-order/:orderId", userAuth, returnOrder);
+router.get("/order-view", userAuth, cartController.orderView);
 
 module.exports = router;

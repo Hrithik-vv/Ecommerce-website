@@ -305,7 +305,7 @@
                 <div class="col-lg-4">
                     <div class="cart-summary">
                         <h3 class="cart-total">Total: ₹<span id="cart-total"><%= cartItems.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2) %></span></h3>
-                        <form action="/checkoutload" method="POST" style="display: inline;">
+                        <form action="/checkout" method="POST" style="display: inline;">
                             <% cartItems.forEach((item, index) => { %>
                                 <input type="hidden" name="items[<%= index %>][productId]" value="<%= item.productId %>">
                                 <input type="hidden" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">

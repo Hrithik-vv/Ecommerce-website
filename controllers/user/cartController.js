@@ -2,8 +2,9 @@ const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
-const adress = require("../../models/addressSchema");
+const Address = require("../../models/addressSchema");
 const Coupon = require("../../models/couponSchema");
+const mongoose = require("mongoose");
 
 //Add to cart Controller
 const addToCart = async (req, res) => {
@@ -168,8 +169,6 @@ const removeFromCart = async (req, res) => {
     });
   }
 };
-const mongoose = require("mongoose");
-const address = require("../../models/addressSchema");
 
 // Add these new functions
 const updateQuantity = async (req, res) => {
@@ -215,20 +214,20 @@ const updateQuantity = async (req, res) => {
 //checkOut
 const processCheckout = async (req, res) => {
   try {
-    const userId = req.user._id; // Changed from req.session.user_id to req.user._id
+    const userId = req.user._id;
     const { selectedAddressId, paymentMethod, couponCode } = req.body;
 
-    // Get cart
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    // Validate cart
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
     if (!cart || cart.items.length === 0) {
-      req.flash("error", "Your cart is empty");
-      return res.redirect("/shopping-cart");
+      req.flash('error', 'Your cart is empty');
+      return res.redirect('/shopping-cart');
     }
 
     // Validate address
     if (!selectedAddressId) {
-      req.flash("error", "Please select a delivery address");
-      return res.redirect("/checkout");
+      req.flash('error', 'Please select a delivery address');
+      return res.redirect('/checkout');
     }
 
     // Calculate total amount
@@ -407,7 +406,6 @@ const getCheckoutPage = async (req, res) => {
 //     res.redirect("/checkout");
 //   }
 // };
-
 const orderView = async (req, res) => {
   try {
     const orderId = req.query.orderId; 
@@ -437,15 +435,23 @@ const orderView = async (req, res) => {
       status: orderProduct.productId.status,
     };
 
-    const a = await adress.findOne({
-      userId: order.userId,
-      "address._id": new mongoose.Types.ObjectId(order.shippingAddress),
+    const address = await Address.findOne({
+      userId: new mongoose.Types.ObjectId(order.userId)
     });
+    
+    if (!address) {
+      console.log('No address found for userId:', order.userId);
+      return res.status(404).send("Address not found.");
+    }
+
+    const neededAddress = address.address.find(addr => addr._id.toString() == order.shippingAddress);
+    
+   
 
     res.render("orderview", {
       product,
       order,
-      address: a.address[0],
+      address: neededAddress,
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -515,41 +521,21 @@ const orderHistory = async (req, res) => {
 
 const loadCheckoutPage = async (req, res) => {
   try {
-    const userId = req.user._id;
-
-    // Fetch cart data
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
-
-    if (!cart || cart.items.length === 0) {
-      req.flash("error", "Your cart is empty");
-      return res.redirect("/shopping-cart");
+    const userId = req.session.user._id;
+    
+    // Fetch cart with populated product details
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    
+    // Fetch user's addresses
+    const userAddresses = await Address.findOne({ userId });
+    
+    // Calculate total amount
+    let totalAmount = 0;
+    if (cart && cart.items) {
+      totalAmount = cart.items.reduce((total, item) => {
+        return total + (item.productId.price * item.quantity);
+      }, 0);
     }
-
-    // Add size and color to cart items from variants
-    const updatedCartItems = await Promise.all(
-      cart.items.map(async (item) => {
-        const product = await Product.findById(item.productId);
-        if (product) {
-          const variant = product.variants.find(
-            (v) => v._id.toString() === item.variantId?.toString()
-          );
-          if (variant) {
-            item.size = variant.size;
-            item.color = variant.color;
-          }
-        }
-        return item;
-      })
-    );
-
-    cart.items = updatedCartItems;
-
-    // Fetch user data and addresses
-    const user = await User.findById(userId).populate("addresses");
-    const userAddress = await adress.findOne({ userId: user._id });
-
-    // Calculate total
-    const total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
     // Fetch available coupons
     const coupons = await Coupon.find({
@@ -559,22 +545,29 @@ const loadCheckoutPage = async (req, res) => {
       usedBy: { $ne: userId },
     });
 
-    // Render checkout page with all necessary data
-    res.render("checkout", {
-      cartItems: cart.items,
-      total,
-      user,
-      addresses: userAddress,
-      coupons,
-      messages: {
-        success: req.flash("success"),
-        error: req.flash("error"),
-      },
+    res.render('checkout', {
+      addresses: userAddresses ? userAddresses.address : [],
+      cartItems: cart ? cart.items : [],
+      totalAmount: totalAmount,
+      total: totalAmount,
+      user: req.session.user,
+      coupons: coupons,
+      error: null,
+      success: null
     });
+
   } catch (error) {
-    console.error("Error loading checkout page:", error);
-    req.flash("error", "Error loading checkout page");
-    return res.redirect("/shopping-cart");
+    console.error('Error in loadCheckoutPage:', error);
+    res.status(500).render('checkout', {
+      addresses: [],
+      cartItems: [],
+      totalAmount: 0,
+      total: 0,
+      user: req.session.user,
+      coupons: [],
+      error: 'Error loading checkout page',
+      success: null
+    });
   }
 };
 
