@@ -1,10 +1,49 @@
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Order Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<style>
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background-color: #000000;
+        color: white;
+        font-size: 24px;
+    }
+
+    .dashboard-header a {
+        text-decoration: none;
+        color: #06090d;
+        background-color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .dashboard-header a:hover {
+        background-color: #f8f9fa;
+    }
+    .m-0{
+        font-family: 'Arial', sans-serif;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      margin: 0;
+    }
+   
+</style>
+
+<header class="dashboard-header d-flex justify-content-between align-items-center p-3 bg-primary text-white">
+    <h1 class="m-0">Oxyboo</h1>
+    <a href="/admin/dashboard" class="btn btn-light">Back to Dashboard</a>
+</header>
+
+
 
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
@@ -23,53 +62,68 @@
                     </tr>
                 </thead>
                 <tbody class="text-gray-700 text-sm">
-                    <% orders.forEach(order => { %>
-                        <% order.products.forEach((item, index) => { %>
+                    <% orders.forEach(order=> { %>
+                        <% order.products.forEach((item, index)=> { %>
                             <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <% if (index === 0) { %>
-                                    <td class="py-3 px-6 font-semibold text-gray-800" rowspan="<%= order.products.length %>">
+                                <% if (index===0) { %>
+                                    <td class="py-3 px-6 font-semibold text-gray-800"
+                                        rowspan="<%= order.products.length %>">
                                         <%= order._id %>
                                     </td>
-                                    
-                                <% } %>
 
-                               
+                                    <% } %>
 
-                                <td class="py-3 px-6">
-                                    <div class="flex items-center">
-                                        <img src="<%= item.productId.image1 %>" alt="<%= item.productId.productName %>" class="w-10 h-10 object-cover rounded mr-2">
-                                        <div>
-                                            <p class="font-medium"><%= item.productId.productName %></p>
-                                            <p class="text-xs text-gray-500">Quantity: <%= item.quantity %></p>
-                                        </div>
-                                    </div>
-                                </td>
 
-                                <% if (index === 0) { %>
-                                    <td class="py-3 px-6 font-semibold text-gray-800" rowspan="<%= order.products.length %>">
-                                        $<%= order.totalAmount %>
-                                    </td>
-                                    <td class="py-3 px-6" rowspan="<%= order.products.length %>">
-                                        <form action="/admin/update-order-status" method="POST">
-                                            <input type="hidden" name="orderId" value="<%= order._id %>">
-                                            <select name="newStatus" class="px-3 py-1 border rounded-md bg-gray-100" onchange="this.form.submit()">
-                                                <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                                <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                                <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                                <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                            </select>
-                                        </form>
-                                    </td>
-                                    <td class="py-3 px-6" rowspan="<%= order.products.length %>">
-                                        <a href="/admin/orderdetails/<%= order._id %>" class="text-blue-500">View</a>
-                                    </td>
-                                <% } %>
+
+                                        <td class="py-3 px-6">
+                                            <div class="flex items-center">
+                                                <img src="<%= item.productId.image1 %>"
+                                                    alt="<%= item.productId.productName %>"
+                                                    class="w-10 h-10 object-cover rounded mr-2">
+                                                <div>
+                                                    <p class="font-medium">
+                                                        <%= item.productId.productName %>
+                                                    </p>
+                                                    <p class="text-xs text-gray-500">Quantity: <%= item.quantity %>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <% if (index===0) { %>
+                                            <td class="py-3 px-6 font-semibold text-gray-800"
+                                                rowspan="<%= order.products.length %>">
+                                                $<%= order.totalAmount %>
+                                            </td>
+                                            <td class="py-3 px-6" rowspan="<%= order.products.length %>">
+                                                <form action="/admin/update-order-status" method="POST">
+                                                    <input type="hidden" name="orderId" value="<%= order._id %>">
+                                                    <select name="newStatus"
+                                                        class="px-3 py-1 border rounded-md bg-gray-100"
+                                                        onchange="this.form.submit()">
+                                                        <option value="Pending" <%=order.status==='Pending' ? 'selected'
+                                                            : '' %>>Pending</option>
+                                                        <option value="Shipped" <%=order.status==='Shipped' ? 'selected'
+                                                            : '' %>>Shipped</option>
+                                                        <option value="Delivered" <%=order.status==='Delivered'
+                                                            ? 'selected' : '' %>>Delivered</option>
+                                                        <option value="Cancelled" <%=order.status==='Cancelled'
+                                                            ? 'selected' : '' %>>Cancelled</option>
+                                                    </select>
+                                                </form>
+                                            </td>
+                                            <td class="py-3 px-6" rowspan="<%= order.products.length %>">
+                                                <a href="/admin/orderdetails/<%= order._id %>"
+                                                    class="text-blue-500">View</a>
+                                            </td>
+                                            <% } %>
                             </tr>
-                        <% }) %>
-                    <% }) %>
+                            <% }) %>
+                                <% }) %>
                 </tbody>
             </table>
         </div>
     </div>
 </body>
+
 </html>

@@ -122,6 +122,9 @@ app.use(async (req, res, next) => {
   next();
 });
 
+app.use((req, res) => {
+  res.render("page-404");	
+});
 
 
 module.exports = app;

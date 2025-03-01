@@ -385,9 +385,9 @@
     </div>
 
     <div class="pagination-wrapper">
-        <div class="pagination-info">
+        <!-- <div class="pagination-info">
             Showing <span id="currentRange">1-10</span> of <span id="totalItems">0</span> orders
-        </div>
+        </div> -->
         <div class="pagination-controls">
             <button id="firstPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToPage(1)" title="First Page">
                 <i class="fas fa-angle-double-left"></i>
@@ -680,95 +680,341 @@ function exportReport(format) {
             return;
         }
         
-        if (format === "pdf") {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            // Add report title
-            doc.setFontSize(16);
-            doc.text("Sales Report", 14, 15);
-            
-            // Add date range subtitle
-            doc.setFontSize(12);
-            doc.text(`From: ${startDate} To: ${endDate}`, 14, 25);
-
-            // Add summary statistics
-            doc.setFontSize(10);
-            const totalOrders = document.getElementById('totalOrders').textContent;
-            const totalRevenue = document.getElementById('totalRevenue').textContent;
-            const avgOrderValue = document.getElementById('avgOrderValue').textContent;
-            const productsSold = document.getElementById('productsSold').textContent;
-            
-            doc.text(`Total Orders: ${totalOrders}`, 14, 35);
-            doc.text(`Total Revenue: ${totalRevenue}`, 14, 40);
-            doc.text(`Average Order Value: ${avgOrderValue}`, 14, 45);
-            doc.text(`Products Sold: ${productsSold}`, 14, 50);
-
-            // Table Data
-            const table = document.querySelector(".table");
-            if (!table) {
-                alert("No data available to export!");
-                return;
-            }
-
-            // Extract table data
-            const headers = [...table.querySelectorAll("thead tr th")].map(th => th.innerText);
-            const rows = [...table.querySelectorAll("tbody tr")].map(tr => 
-                [...tr.querySelectorAll("td")].map(td => td.innerText)
-            );
-
-            // Add table to PDF
-            doc.autoTable({
-                head: [headers],
-                body: rows,
-                startY: 60
-            });
-
-            // Save the PDF
-            doc.save(`Sales_Report_${startDate}_to_${endDate}.pdf`);
-
-        } else if (format === "excel") {
-            const table = document.querySelector(".table");
-            if (!table) {
-                alert("No data available to export!");
-                return;
-            }
-
-            // Create worksheet from table
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.table_to_sheet(table);
-
-            // Add title and date range
-            XLSX.utils.sheet_add_aoa(ws, [
-                [`Sales Report: ${startDate} to ${endDate}`],
-                [''],
-                [`Total Orders: ${document.getElementById('totalOrders').textContent}`],
-                [`Total Revenue: ${document.getElementById('totalRevenue').textContent}`],
-                [`Average Order Value: ${document.getElementById('avgOrderValue').textContent}`],
-                [`Products Sold: ${document.getElementById('productsSold').textContent}`],
-                ['']
-            ], { origin: 'A1' });
-
-            // Adjust column widths
-            const columnWidths = [
-                { wch: 15 }, // Order ID
-                { wch: 12 }, // Date
-                { wch: 20 }, // Customer
-                { wch: 10 }, // Products
-                { wch: 12 }, // Amount
-                { wch: 15 }, // Payment
-                { wch: 12 }  // Status
-            ];
-            ws['!cols'] = columnWidths;
-
-            XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
-
-            // Download the Excel file
-            XLSX.writeFile(wb, `Sales_Report_${startDate}_to_${endDate}.xlsx`);
-        }
+        // First fetch the complete data for the export
+        fetchDataForExport(format, startDate, endDate);
     } catch (error) {
         console.error('Error exporting report:', error);
         alert('Error exporting report: ' + error.message);
+    }
+}
+
+async function fetchDataForExport(format, startDate, endDate) {
+    try {
+        // Show loading indicator
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.id = 'exportLoadingIndicator';
+        loadingIndicator.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Generating export...';
+        loadingIndicator.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); padding: 20px; border-radius: 8px; z-index: 9999; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);';
+        document.body.appendChild(loadingIndicator);
+        
+        // Determine which period is currently selected
+        let periodType = getCurrentPeriod();
+        
+        // Convert dates to Date objects for processing
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+        
+        // Format dates for display
+        const formattedStartDate = startDateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        const formattedEndDate = endDateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        
+        // Fetch all data for the given period (without pagination)
+        const response = await fetch('/admin/sales-report/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                startDate: startDateObj.toISOString(),
+                endDate: endDateObj.toISOString(),
+                page: 1,
+                limit: 1000 // Request a larger limit to get more data for the export
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to fetch data');
+        }
+        
+        // Remove loading indicator
+        document.body.removeChild(loadingIndicator);
+        
+        // Generate the appropriate export format
+        if (format === "pdf") {
+            generatePDF(result.data, {
+                startDate: formattedStartDate,
+                endDate: formattedEndDate,
+                rawStartDate: startDate,
+                rawEndDate: endDate,
+                periodType: periodType
+            });
+        } else if (format === "excel") {
+            generateExcel(result.data, {
+                startDate: formattedStartDate,
+                endDate: formattedEndDate,
+                rawStartDate: startDate,
+                rawEndDate: endDate,
+                periodType: periodType
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching data for export:', error);
+        
+        // Remove loading indicator if it exists
+        const loadingIndicator = document.getElementById('exportLoadingIndicator');
+        if (loadingIndicator) {
+            document.body.removeChild(loadingIndicator);
+        }
+        
+        alert('Error generating export: ' + error.message);
+    }
+}
+
+function generatePDF(data, reportInfo) {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Set up document properties
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 14;
+        const lineHeight = 7;
+        let currentY = margin;
+        
+        // Currency symbol - using "Rs." as a reliable text alternative to the rupee symbol
+        const currencySymbol = "Rs.";
+        
+        // Add company logo/header
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text("COMPANY NAME", pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight + 3;
+        
+        // Add report title
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Sales Report", pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight + 3;
+        
+        // Add report generation timestamp
+        const now = new Date();
+        const generatedTimestamp = now.toLocaleDateString('en-US', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.text(`Generated on: ${generatedTimestamp}`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight;
+        
+        // Add period type information
+        let periodTypeText = "Custom Period";
+        switch(reportInfo.periodType) {
+            case 'today':
+                periodTypeText = "Daily Report";
+                break;
+            case 'week':
+                periodTypeText = "Weekly Report";
+                break;
+            case 'month':
+                periodTypeText = "Monthly Report";
+                break;
+            case 'year':
+                periodTypeText = "Yearly Report";
+                break;
+        }
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text(periodTypeText, pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight;
+        
+        // Add date range
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Period: ${reportInfo.startDate} to ${reportInfo.endDate}`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight * 2;
+        
+        // Add horizontal line
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, currentY - 3, pageWidth - margin, currentY - 3);
+        
+        // Add summary statistics
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Summary", margin, currentY);
+        currentY += lineHeight;
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        // Create a 2x2 grid for summary data
+        const colWidth = (pageWidth - (margin * 2)) / 2;
+        
+        // Row 1
+        doc.text(`Total Orders: ${data.totalOrders}`, margin, currentY);
+        doc.text(`Total Revenue: ${currencySymbol}${data.totalRevenue.toFixed(2)}`, margin + colWidth, currentY);
+        currentY += lineHeight;
+        
+        // Row 2
+        doc.text(`Average Order Value: ${currencySymbol}${data.averageOrderValue.toFixed(2)}`, margin, currentY);
+        doc.text(`Products Sold: ${data.productsSold}`, margin + colWidth, currentY);
+        currentY += lineHeight * 2;
+        
+        // Add table title
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Order Details", margin, currentY);
+        currentY += lineHeight;
+        
+        // Prepare table data
+        const headers = [
+            { header: 'Order ID', dataKey: 'orderId' },
+            { header: 'Date', dataKey: 'date' },
+            { header: 'Customer', dataKey: 'customerName' },
+            { header: 'Products', dataKey: 'products' },
+            { header: 'Amount', dataKey: 'totalAmount' },
+            { header: 'Payment', dataKey: 'paymentMethod' },
+            { header: 'Status', dataKey: 'status' }
+        ];
+        
+        const tableRows = data.orders.map(order => {
+            return {
+                orderId: order.orderId,
+                date: new Date(order.date).toLocaleDateString(),
+                customerName: order.customerName,
+                products: order.products,
+                totalAmount: `${currencySymbol}${order.totalAmount.toFixed(2)}`,
+                paymentMethod: order.paymentMethod,
+                status: order.status
+            };
+        });
+        
+        // Add table
+        doc.autoTable({
+            startY: currentY,
+            head: [headers.map(h => h.header)],
+            body: tableRows.map(row => headers.map(h => row[h.dataKey])),
+            theme: 'grid',
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            headStyles: {
+                fillColor: [52, 73, 94],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [240, 240, 240]
+            },
+            margin: { top: currentY, left: margin, right: margin }
+        });
+        
+        // Add footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'italic');
+            doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+            doc.text('Confidential - For internal use only', pageWidth / 2, doc.internal.pageSize.getHeight() - 6, { align: 'center' });
+        }
+        
+        // Save the PDF
+        doc.save(`Sales_Report_${reportInfo.rawStartDate}_to_${reportInfo.rawEndDate}.pdf`);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+    }
+}
+
+function generateExcel(data, reportInfo) {
+    try {
+        // Currency symbol - using "Rs." as a reliable text alternative to the rupee symbol
+        const currencySymbol = "Rs.";
+        
+        // Create workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet([]);
+        
+        // Add title and metadata
+        XLSX.utils.sheet_add_aoa(ws, [
+            [{v: 'SALES REPORT', t: 's'}],
+            [{v: `Period: ${reportInfo.periodType.toUpperCase()}`, t: 's'}],
+            [{v: `Date Range: ${reportInfo.startDate} to ${reportInfo.endDate}`, t: 's'}],
+            [{v: `Generated on: ${new Date().toLocaleString()}`, t: 's'}],
+            [''] // Empty row
+        ], { origin: 'A1' });
+        
+        // Add summary section
+        XLSX.utils.sheet_add_aoa(ws, [
+            [{v: 'SUMMARY', t: 's'}],
+            [{v: `Total Orders: ${data.totalOrders}`, t: 's'}],
+            [{v: `Total Revenue: ${currencySymbol}${data.totalRevenue.toFixed(2)}`, t: 's'}],
+            [{v: `Average Order Value: ${currencySymbol}${data.averageOrderValue.toFixed(2)}`, t: 's'}],
+            [{v: `Products Sold: ${data.productsSold}`, t: 's'}],
+            [''] // Empty row
+        ], { origin: 'A6' });
+        
+        // Add orders table
+        const tableHeaders = [
+            'Order ID', 'Date', 'Customer', 'Products', 'Amount', 'Payment Method', 'Status'
+        ];
+        
+        const tableRows = data.orders.map(order => [
+            order.orderId,
+            new Date(order.date).toLocaleDateString(),
+            order.customerName,
+            order.products,
+            `${currencySymbol}${order.totalAmount.toFixed(2)}`,
+            order.paymentMethod,
+            order.status
+        ]);
+        
+        // Add table title
+        XLSX.utils.sheet_add_aoa(ws, [
+            [{v: 'ORDER DETAILS', t: 's'}]
+        ], { origin: 'A12' });
+        
+        // Add table headers and data
+        XLSX.utils.sheet_add_aoa(ws, [tableHeaders, ...tableRows], { origin: 'A13' });
+        
+        // Set column widths
+        const columnWidths = [
+            { wch: 15 }, // Order ID
+            { wch: 12 }, // Date
+            { wch: 20 }, // Customer
+            { wch: 30 }, // Products
+            { wch: 12 }, // Amount
+            { wch: 15 }, // Payment Method
+            { wch: 12 }  // Status
+        ];
+        ws['!cols'] = columnWidths;
+        
+        // Add styles (Excel doesn't support full styling via js-xlsx, but we can define a range for the headers)
+        ws['!rows'] = [
+            { hpt: 30 }, // Title row height
+            { hpt: 20 }, // Period row height
+            { hpt: 20 }, // Date range row height
+            { hpt: 20 }, // Generation date row height
+            { hpt: 10 }, // Empty row
+            { hpt: 25 }, // Summary title row height
+            { hpt: 18 }, // Total orders row height
+            { hpt: 18 }, // Total revenue row height
+            { hpt: 18 }, // Avg order value row height
+            { hpt: 18 }, // Products sold row height
+            { hpt: 10 }, // Empty row
+            { hpt: 25 }, // Table title row height
+            { hpt: 22 }  // Table header row height
+        ];
+        
+        // Append the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+        
+        // Download the Excel file
+        XLSX.writeFile(wb, `Sales_Report_${reportInfo.rawStartDate}_to_${reportInfo.rawEndDate}.xlsx`);
+    } catch (error) {
+        console.error('Error generating Excel:', error);
+        alert('Error generating Excel: ' + error.message);
     }
 }
 
