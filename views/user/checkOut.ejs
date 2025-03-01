@@ -677,30 +677,64 @@
 
     <!-- Razorpay script -->
     <script>
-    async function initiatePayment() {
-        try {
-            const selectedAddress = document.querySelector('input[name="address"]:checked').value;
-            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            const totalAmount = parseFloat(document.getElementById('totalAmountInput').value);
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... existing code ...
 
+        // Handle form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const selectedAddress = document.querySelector('.selected-address');
+            if (!selectedAddress) {
+                e.preventDefault();
+                alert('Please select an address or add a new one');
+                return;
+            }
+
+            // Check if Razorpay is selected
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
             if (paymentMethod === 'razorpay') {
-                // Create order on server
-                const response = await fetch('/create-order', {
+                e.preventDefault(); // Prevent form submission
+                initiateRazorpayPayment();
+            }
+            // For COD, let the form submit normally
+        });
+
+        async function initiateRazorpayPayment() {
+            try {
+                const selectedAddressId = document.getElementById('selectedAddressId').value;
+                const couponCode = document.getElementById('couponCodeInput').value;
+                const totalAmount = parseFloat(document.getElementById('totalAmount').textContent.replace('₹', ''));
+
+                console.log('Payment details:', {
+                    totalAmount,
+                    selectedAddressId,
+                    couponCode
+                });
+
+                // First, create an order on your server
+                const response = await fetch('/create-razorpay-order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         totalAmount,
-                        addressId: selectedAddress,
-                        paymentMethod: 'razorpay'
+                        selectedAddressId,
+                        couponCode
                     })
                 });
 
+                // Check if response is ok
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error response:', errorText);
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
                 const data = await response.json();
+                console.log('Order created successfully:', data);
                 
                 if (!data.success) {
-                    throw new Error(data.message);
+                    throw new Error(data.message || 'Failed to create order');
                 }
 
                 // Initialize Razorpay
@@ -708,13 +742,24 @@
                     key: data.key_id,
                     amount: data.order.amount,
                     currency: data.order.currency,
-                    name: 'Your Store Name',
-                    description: 'Purchase Description',
+                    name: 'Oxyboo',
+                    description: 'Purchase from Oxyboo',
                     order_id: data.order.id,
-                    handler: async function (response) {
+                    handler: async function(response) {
                         try {
-                            // Verify payment
-                            const verifyResponse = await fetch('/verify-payment', {
+                            console.log('Razorpay payment successful:', response);
+                            
+                            // Get the products data
+                            const products = Array.from(document.querySelectorAll('.checkout_total_products li')).map(li => ({
+                                productId: li.dataset.productId,
+                                variantId: li.dataset.variantId,
+                                quantity: parseInt(li.dataset.quantity),
+                                color: li.querySelector('input[name="color"]').value,
+                                size: li.querySelector('input[name="size"]').value
+                            }));
+                            
+                            // Verify payment on server
+                            const verifyResponse = await fetch('/process-payment', {  // Changed to process-payment
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -723,22 +768,31 @@
                                     razorpay_payment_id: response.razorpay_payment_id,
                                     razorpay_order_id: response.razorpay_order_id,
                                     razorpay_signature: response.razorpay_signature,
-                                    addressId: selectedAddress,
-                                    cartItems: <%= JSON.stringify(cartItems) %>,
+                                    selectedAddressId: selectedAddressId,
+                                    couponCode: couponCode,
+                                    products: products,
                                     totalAmount: totalAmount
                                 })
                             });
 
+                            if (!verifyResponse.ok) {
+                                const errorText = await verifyResponse.text();
+                                console.error('Verification error response:', errorText);
+                                throw new Error(`Verification error: ${verifyResponse.status}`);
+                            }
+
                             const verifyData = await verifyResponse.json();
+                            console.log('Payment verification response:', verifyData);
                             
                             if (verifyData.success) {
-                                window.location.href = `/order-success/${verifyData.orderId}`;
+                                // Redirect to order confirmation page
+                                window.location.href = `/order-placed?orderId=${verifyData.orderId}`;
                             } else {
-                                alert('Payment verification failed');
+                                alert('Payment verification failed: ' + verifyData.message);
                             }
                         } catch (error) {
-                            console.error('Error:', error);
-                            alert('Error processing payment');
+                            console.error('Error during payment verification:', error);
+                            alert('Error processing payment verification: ' + error.message);
                         }
                     },
                     prefill: {
@@ -747,25 +801,24 @@
                         contact: '<%= user.phone %>'
                     },
                     theme: {
-                        color: '#3399cc'
+                        color: '#000000'
                     }
                 };
 
                 const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(response) {
+                    console.error('Payment failed:', response.error);
+                    alert(`Payment failed: ${response.error.code} - ${response.error.description}`);
+                });
+                
                 rzp.open();
                 
-            } else {
-                // Handle other payment methods
-                // Your existing code for other payment methods
+            } catch (error) {
+                console.error('Error initiating payment:', error);
+                alert('Error initiating payment: ' + error.message);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error initiating payment');
         }
-    }
-
-    // Add event listener to your checkout button
-    document.getElementsByClassName('site-btn').addEventListener('click', initiatePayment);
+    });
     </script>
 
     <!-- Add this hidden input field in your HTML -->

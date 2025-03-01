@@ -235,7 +235,17 @@ const checkoutController = async (req, res) => {
       // Calculate total amount
       const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
-      // Create order
+      // If payment method is Razorpay, just return success with order details
+      if (paymentMethod === 'razorpay') {
+        return res.json({
+          success: true,
+          totalAmount,
+          addressId: selectedAddressId,
+          couponCode
+        });
+      }
+
+      // For COD, continue with order creation
       const order = new Order({
         couponId: couponCode,
         userId: userId,

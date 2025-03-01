@@ -16,6 +16,7 @@ const {
 } = require("../controllers/user/orderController");
 const auth = require("../middlewares/auth");
 const couponController = require("../controllers/admin/couponController");
+const orderController = require('../controllers/user/orderController');
 
 // Make sure all required functions are exported from cartController
 const {
@@ -144,5 +145,8 @@ router.get("/order-history", userAuth, loadOrderHistory);
 router.post("/cancel-order/:orderId", userAuth, cancelOrder);
 router.post("/return-order/:orderId", userAuth, returnOrder);
 router.get("/order-view", userAuth, cartController.orderView);
+
+// Add this route to your userRouter.js file
+router.post('/process-payment', userAuth, orderController.processPayment);
 
 module.exports = router;
