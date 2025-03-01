@@ -214,8 +214,6 @@ const updateQuantity = async (req, res) => {
 const checkoutController = async (req, res) => {
   try {
     const userId = req.user._id || req.session.user._id;
-    
-    // If this is a POST request (form submission for checkout)
     if (req.method === 'POST') {
       const { selectedAddressId, paymentMethod, couponCode } = req.body;
 
@@ -231,11 +229,8 @@ const checkoutController = async (req, res) => {
         req.flash('error', 'Please select a delivery address');
         return res.redirect('/checkout');
       }
-
-      // Calculate total amount
       const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-
-      // If payment method is Razorpay, just return success with order details
+      
       if (paymentMethod === 'razorpay') {
         return res.json({
           success: true,
@@ -292,7 +287,6 @@ const checkoutController = async (req, res) => {
       return res.redirect("/order-placed");
     }
     
-    // If this is a GET request (loading checkout page)
     const cart = await Cart.findOne({ userId }).populate('items.productId');
     const addresses = await Address.findOne({ userId });
     const userData = await User.findById(userId);
@@ -350,7 +344,6 @@ const orderView = async (req, res) => {
       return res.status(404).send("Order not found.");
     }
 
-    // Get the specific product from the order products array
     const orderProduct = order.products[0]; 
     if (!orderProduct) {
       return res.status(404).send("Product not found in the order.");
@@ -413,7 +406,7 @@ const orderHistory = async (req, res) => {
           return new mongoose.Types.ObjectId(id.trim()); 
         } catch (err) {
           console.error("Invalid ObjectId:", id);
-          return null; // Return null for invalid ObjectId
+          return null; 
         }
       })
       .filter((id) => id !== null); 

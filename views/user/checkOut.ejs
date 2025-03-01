@@ -24,6 +24,35 @@
     <link rel="stylesheet" href="css/style.css" type="text/css">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
+        .checkout-header {
+            background-color: #000;
+            padding: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+
+        .wishlist-breadcrumb {
+            display: flex;
+            margin-left: 200px;
+            gap: 0.5rem;
+            color: rgba(38, 31, 31, 0.8);
+            margin-top: 0.5rem;
+        }
+
+        .wishlist-breadcrumb a {
+            color: rgb(0, 0, 0);
+            text-decoration:none;
+            
+        }
+
         .checkout__order__products {
             display: flex;
             justify-content: space-between;
@@ -90,7 +119,7 @@
 
         .address-option:hover {
             border-color: #000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .address-option.selected-address {
@@ -239,161 +268,172 @@
         }
     </style>
 </head>
+<header class="checkout-header">
+    <div class="logo">Oxyboo</div>
+</header>
+
+
+<!-- breadcrumb -->
+<div class="wishlist-breadcrumb">
+    <a href="/">Home</a>
+    <span>›</span>
+    <a href="/shop">Shop</a>
+    <span>›</span>
+    <a href="/shopping-cart">Cart</a>
+    <span>›</span>
+    <span>Checkout</span>
+</div>
 
 <body>
     <!-- Checkout Section -->
     <section class="checkout spad">
         <div class="container">
-            <% if (error) { %>
-                <div class="alert alert-danger">
-                    <%= error %>
-                </div>
-                <% } %>
-                    <% if (success) { %>
-                        <div class="alert alert-success">
-                            <%= success %>
-                        </div>
-                        <% } %>
-                            <div class="checkout__form">
-                                <form method="post" action="/checkout">
-                                    <div class="row">
-                                        <div class="col-lg-8 col-md-6">
-                                            <div class="coupon-application mt-3">
-                                                <div class="d-flex align-items-center w-100">
-                                                    <input type="text" id="couponCode" placeholder="Enter coupon code"
-                                                        class="form-control" readonly>
-                                                    <button type="button" id="removeCoupon" class="btn btn-danger ml-2"
-                                                        style="display: none;">Remove</button>
+
+            <div class="checkout__form">
+                <form method="post" action="/checkout">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-6">
+                            <div class="coupon-application mt-3">
+                                <div class="d-flex align-items-center w-100">
+                                    <input type="text" id="couponCode" placeholder="Enter coupon code"
+                                        class="form-control" readonly>
+                                    <button type="button" id="removeCoupon" class="btn btn-danger ml-2"
+                                        style="display: none;">Remove</button>
+                                </div>
+                                <div id="couponMessage" class="mt-2"></div>
+                            </div>
+                            <div class="available-coupons mt-3">
+                                <h6>Available Coupons</h6>
+                                <div class="coupon-list">
+                                    <% if (typeof coupons !=='undefined' && coupons.length> 0) { %>
+
+                                        <% coupons.forEach(coupon=> { %>
+                                            <div class="coupon-item" data-code="<%= coupon.name %>">
+                                                <div class="coupon-code">
+                                                    <%= coupon.name %>
                                                 </div>
-                                                <div id="couponMessage" class="mt-2"></div>
-                                            </div>
-                                            <div class="available-coupons mt-3">
-                                                <h6>Available Coupons</h6>
-                                                <div class="coupon-list">
-                                                    <% if (typeof coupons !=='undefined' && coupons.length> 0) { %>
-
-                                                        <% coupons.forEach(coupon=> { %>
-                                                            <div class="coupon-item" data-code="<%= coupon.name %>">
-                                                                <div class="coupon-code">
-                                                                    <%= coupon.name %>
-                                                                </div>
-                                                                <div class="coupon-details">
-                                                                    <span class="discount">Save ₹<%= coupon.offerPrice
-                                                                            %></span>
-                                                                    <span class="min-purchase">Min. Purchase: ₹<%=
-                                                                            coupon.minimumPrice %></span>
-                                                                    <span class="expiry">Valid till: <%= new
-                                                                            Date(coupon.expireOn).toLocaleDateString()
-                                                                            %></span>
-                                                                </div>
-                                                            </div>
-                                                            <% }) %>
-
-                                                                <% } else { %>
-                                                                    <p class="no-coupons">No coupons available at the
-                                                                        moment</p>
-                                                                    <% } %>
+                                                <div class="coupon-details">
+                                                    <span class="discount">Save ₹<%= coupon.offerPrice %></span>
+                                                    <span class="min-purchase">Min. Purchase: ₹<%= coupon.minimumPrice
+                                                            %></span>
+                                                    <span class="expiry">Valid till: <%= new
+                                                            Date(coupon.expireOn).toLocaleDateString() %></span>
                                                 </div>
                                             </div>
-                                            <h6 class="checkout__title">Billing Details</h6>
-                                            <% if (addresses && addresses.length > 0) { %>
-                                                <div class="existing-addresses">
-                                                    <h6>Select Delivery Address</h6>
-                                                    <div class="accordion" id="addressAccordion">
-                                                        <% addresses.forEach((addr, index) => { %>
-                                                            <div class="address-option" data-id="<%= addr._id %>" data-index="<%= index %>">
-                                                                <div class="address-details">
-                                                                    <div class="address-header">
-                                                                        <strong><%= addr.name %></strong>
-                                                                        <span class="address-type"><%= addr.addressType %></span>
-                                                                    </div>
-                                                                    <p class="address-content">
-                                                                        <%= addr.landMark %><br>
-                                                                        <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %><br>
-                                                                        Phone: <%= addr.phone %><br>
-                                                                        Alt Phone: <%= addr.altPhone %>
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        <% }) %>
+                                            <% }) %>
+
+                                                <% } else { %>
+                                                    <p class="no-coupons">No coupons available at the
+                                                        moment</p>
+                                                    <% } %>
+                                </div>
+                            </div>
+                            <h6 class="checkout__title">Billing Details</h6>
+                            <% if (addresses && addresses.length> 0) { %>
+                                <div class="existing-addresses">
+                                    <h6>Select Delivery Address</h6>
+                                    <div class="accordion" id="addressAccordion">
+                                        <% addresses.forEach((addr, index)=> { %>
+                                            <div class="address-option" data-id="<%= addr._id %>"
+                                                data-index="<%= index %>">
+                                                <div class="address-details">
+                                                    <div class="address-header">
+                                                        <strong>
+                                                            <%= addr.name %>
+                                                        </strong>
+                                                        <span class="address-type">
+                                                            <%= addr.addressType %>
+                                                        </span>
                                                     </div>
-                                    <button type="button" class="site-btn mt-4" data-toggle="modal" data-target="#addAddressModal">
+                                                    <p class="address-content">
+                                                        <%= addr.landMark %><br>
+                                                            <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %>
+                                                                        <br>
+                                                                        Phone: <%= addr.phone %><br>
+                                                                            Alt Phone: <%= addr.altPhone %>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <% }) %>
+                                    </div>
+                                    <button type="button" class="site-btn mt-4" data-toggle="modal"
+                                        data-target="#addAddressModal">
                                         Add New Address
                                     </button>
                                     <input type="hidden" id="selectedAddressId" name="selectedAddressId">
                                 </div>
-                            <% } else { %>
-                                <div class="no-addresses">
-                                    <p>No addresses found. Please add a new address.</p>
-                                    <button type="button" class="site-btn" data-toggle="modal" data-target="#addAddressModal">
-                                        Add New Address
-                                    </button>
-                                </div>
-                            <% } %>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6">
-                                            <div class="checkout__order">
-                                                <h4 class="order__title">Your Order</h4>
-                                                <div class="checkout__order__products">Product <span>Total</span></div>
-                                                <ul class="checkout_total_products">
-                                                    <% cartItems.forEach((item, index)=> { %>
-                                                        <li data-product-id="<%= item.productId._id %>"
-                                                            data-variant-id="<%= item.variantId %>"
-                                                            data-quantity="<%= item.quantity %>">
-                                                            <div class="product-details">
-
-                                                                <span class="product-number">
-                                                                    <%= index + 1 %>.
-                                                                </span>
-                                                                <div>
-                                                                    <%= item.productId.productName %>
-
-                                                                        <div class="variant-details">
-                                                                            <input type="text" name="color"
-                                                                                value="<%= item.color %>" hidden>
-                                                                            <input type="text" name="size"
-                                                                                value="<%= item.size %>" hidden>
-                                                                            Color: <%= item.color %> | Size: <%=
-                                                                                    item.size %>
-                                                                        </div>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="product-price">
-                                                                <span class="quantity">Qty: <%= item.quantity %></span>
-                                                                ₹<%= item.totalPrice.toFixed(2) %>
-                                                            </div>
-                                                        </li>
-                                                        <% }) %>
-                                                </ul>
-                                                <ul class="checkout__total__all">
-                                                    <li>Subtotal <span>₹<%= total.toFixed(2) %></span></li>
-                                                    <li class="coupon-discount" style="display: none;">
-                                                        Discount <span id="discountAmount">₹0.00</span>
-                                                    </li>
-                                                    <li>Total <span id="totalAmount">₹<%= total.toFixed(2) %></span>
-                                                    </li>
-                                                </ul>
-                                                <input type="hidden" name="couponCode" id="couponCodeInput">
-                                                <div class="payment-options">
-                                                    <label>
-                                                        <input type="radio" name="payment" value="cod" required>
-                                                        Cash on Delivery
-                                                    </label>
-                                                    <label>
-                                                        <input type="radio" name="payment" value="razorpay" required>
-                                                        Razorpay
-                                                    </label>
-                                                </div>
-
-                                                <button type="submit" class="site-btn">PLACE ORDER</button>
-                                            </div>
-                                        </div>
+                                <% } else { %>
+                                    <div class="no-addresses">
+                                        <p>No addresses found. Please add a new address.</p>
+                                        <button type="button" class="site-btn" data-toggle="modal"
+                                            data-target="#addAddressModal">
+                                            Add New Address
+                                        </button>
                                     </div>
-                                    <input type="hidden" name="products" id="productsData">
+                                    <% } %>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="checkout__order">
+                                <h4 class="order__title">Your Order</h4>
+                                <div class="checkout__order__products">Product <span>Total</span></div>
+                                <ul class="checkout_total_products">
+                                    <% cartItems.forEach((item, index)=> { %>
+                                        <li data-product-id="<%= item.productId._id %>"
+                                            data-variant-id="<%= item.variantId %>"
+                                            data-quantity="<%= item.quantity %>">
+                                            <div class="product-details">
 
-                                </form>
+                                                <span class="product-number">
+                                                    <%= index + 1 %>.
+                                                </span>
+                                                <div>
+                                                    <%= item.productId.productName %>
+
+                                                        <div class="variant-details">
+                                                            <input type="text" name="color" value="<%= item.color %>"
+                                                                hidden>
+                                                            <input type="text" name="size" value="<%= item.size %>"
+                                                                hidden>
+                                                            Color: <%= item.color %> | Size: <%= item.size %>
+                                                        </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="product-price">
+                                                <span class="quantity">Qty: <%= item.quantity %></span>
+                                                ₹<%= item.totalPrice.toFixed(2) %>
+                                            </div>
+                                        </li>
+                                        <% }) %>
+                                </ul>
+                                <ul class="checkout__total__all">
+                                    <li>Subtotal <span>₹<%= total.toFixed(2) %></span></li>
+                                    <li class="coupon-discount" style="display: none;">
+                                        Discount <span id="discountAmount">₹0.00</span>
+                                    </li>
+                                    <li>Total <span id="totalAmount">₹<%= total.toFixed(2) %></span>
+                                    </li>
+                                </ul>
+                                <input type="hidden" name="couponCode" id="couponCodeInput">
+                                <div class="payment-options">
+                                    <label>
+                                        <input type="radio" name="payment" value="cod" required>
+                                        Cash on Delivery
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="payment" value="razorpay" required>
+                                        Razorpay
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="site-btn">PLACE ORDER</button>
                             </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="products" id="productsData">
+
+                </form>
+            </div>
         </div>
     </section>
     <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel"
@@ -677,151 +717,152 @@
 
     <!-- Razorpay script -->
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // ... existing code ...
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... existing code ...
 
-        // Handle form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const selectedAddress = document.querySelector('.selected-address');
-            if (!selectedAddress) {
-                e.preventDefault();
-                alert('Please select an address or add a new one');
-                return;
-            }
+            // Handle form submission
+            document.querySelector('form').addEventListener('submit', function (e) {
+                const selectedAddress = document.querySelector('.selected-address');
+                if (!selectedAddress) {
+                    e.preventDefault();
+                    alert('Please select an address or add a new one');
+                    return;
+                }
 
-            // Check if Razorpay is selected
-            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            if (paymentMethod === 'razorpay') {
-                e.preventDefault(); // Prevent form submission
-                initiateRazorpayPayment();
-            }
-            // For COD, let the form submit normally
-        });
+                // Check if Razorpay is selected
+                const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+                if (paymentMethod === 'razorpay') {
+                    e.preventDefault(); // Prevent form submission
+                    initiateRazorpayPayment();
+                }
+                // For COD, let the form submit normally
+            });
 
-        async function initiateRazorpayPayment() {
-            try {
-                const selectedAddressId = document.getElementById('selectedAddressId').value;
-                const couponCode = document.getElementById('couponCodeInput').value;
-                const totalAmount = parseFloat(document.getElementById('totalAmount').textContent.replace('₹', ''));
+            async function initiateRazorpayPayment() {
+                try {
+                    const selectedAddressId = document.getElementById('selectedAddressId').value;
+                    const couponCode = document.getElementById('couponCodeInput').value;
+                    const totalAmount = parseFloat(document.getElementById('totalAmount').textContent.replace('₹', ''));
 
-                console.log('Payment details:', {
-                    totalAmount,
-                    selectedAddressId,
-                    couponCode
-                });
-
-                // First, create an order on your server
-                const response = await fetch('/create-razorpay-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
+                    console.log('Payment details:', {
                         totalAmount,
                         selectedAddressId,
                         couponCode
-                    })
-                });
+                    });
 
-                // Check if response is ok
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Server error response:', errorText);
-                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
-                }
+                    // First, create an order on your server
+                    const response = await fetch('/create-razorpay-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            totalAmount,
+                            selectedAddressId,
+                            couponCode
+                        })
+                    });
 
-                const data = await response.json();
-                console.log('Order created successfully:', data);
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to create order');
-                }
-
-                // Initialize Razorpay
-                const options = {
-                    key: data.key_id,
-                    amount: data.order.amount,
-                    currency: data.order.currency,
-                    name: 'Oxyboo',
-                    description: 'Purchase from Oxyboo',
-                    order_id: data.order.id,
-                    handler: async function(response) {
-                        try {
-                            console.log('Razorpay payment successful:', response);
-                            
-                            // Get the products data
-                            const products = Array.from(document.querySelectorAll('.checkout_total_products li')).map(li => ({
-                                productId: li.dataset.productId,
-                                variantId: li.dataset.variantId,
-                                quantity: parseInt(li.dataset.quantity),
-                                color: li.querySelector('input[name="color"]').value,
-                                size: li.querySelector('input[name="size"]').value
-                            }));
-                            
-                            // Verify payment on server
-                            const verifyResponse = await fetch('/process-payment', {  // Changed to process-payment
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_signature: response.razorpay_signature,
-                                    selectedAddressId: selectedAddressId,
-                                    couponCode: couponCode,
-                                    products: products,
-                                    totalAmount: totalAmount
-                                })
-                            });
-
-                            if (!verifyResponse.ok) {
-                                const errorText = await verifyResponse.text();
-                                console.error('Verification error response:', errorText);
-                                throw new Error(`Verification error: ${verifyResponse.status}`);
-                            }
-
-                            const verifyData = await verifyResponse.json();
-                            console.log('Payment verification response:', verifyData);
-                            
-                            if (verifyData.success) {
-                                // Redirect to order confirmation page
-                                window.location.href = `/order-placed?orderId=${verifyData.orderId}`;
-                            } else {
-                                alert('Payment verification failed: ' + verifyData.message);
-                            }
-                        } catch (error) {
-                            console.error('Error during payment verification:', error);
-                            alert('Error processing payment verification: ' + error.message);
-                        }
-                    },
-                    prefill: {
-                        name: '<%= user.name %>',
-                        email: '<%= user.email %>',
-                        contact: '<%= user.phone %>'
-                    },
-                    theme: {
-                        color: '#000000'
+                    // Check if response is ok
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Server error response:', errorText);
+                        throw new Error(`Server error: ${response.status} ${response.statusText}`);
                     }
-                };
 
-                const rzp = new Razorpay(options);
-                rzp.on('payment.failed', function(response) {
-                    console.error('Payment failed:', response.error);
-                    alert(`Payment failed: ${response.error.code} - ${response.error.description}`);
-                });
-                
-                rzp.open();
-                
-            } catch (error) {
-                console.error('Error initiating payment:', error);
-                alert('Error initiating payment: ' + error.message);
+                    const data = await response.json();
+                    console.log('Order created successfully:', data);
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Failed to create order');
+                    }
+
+                    // Initialize Razorpay
+                    const options = {
+                        key: data.key_id,
+                        amount: data.order.amount,
+                        currency: data.order.currency,
+                        name: 'Oxyboo',
+                        description: 'Purchase from Oxyboo',
+                        order_id: data.order.id,
+                        handler: async function (response) {
+                            try {
+                                console.log('Razorpay payment successful:', response);
+
+                                // Get the products data
+                                const products = Array.from(document.querySelectorAll('.checkout_total_products li')).map(li => ({
+                                    productId: li.dataset.productId,
+                                    variantId: li.dataset.variantId,
+                                    quantity: parseInt(li.dataset.quantity),
+                                    color: li.querySelector('input[name="color"]').value,
+                                    size: li.querySelector('input[name="size"]').value
+                                }));
+
+                                // Verify payment on server
+                                const verifyResponse = await fetch('/process-payment', {  // Changed to process-payment
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_signature: response.razorpay_signature,
+                                        selectedAddressId: selectedAddressId,
+                                        couponCode: couponCode,
+                                        products: products,
+                                        totalAmount: totalAmount
+                                    })
+                                });
+
+                                if (!verifyResponse.ok) {
+                                    const errorText = await verifyResponse.text();
+                                    console.error('Verification error response:', errorText);
+                                    throw new Error(`Verification error: ${verifyResponse.status}`);
+                                }
+
+                                const verifyData = await verifyResponse.json();
+                                console.log('Payment verification response:', verifyData);
+
+                                if (verifyData.success) {
+                                    // Redirect to order confirmation page
+                                    window.location.href = `/order-placed?orderId=${verifyData.orderId}`;
+                                } else {
+                                    alert('Payment verification failed: ' + verifyData.message);
+                                }
+                            } catch (error) {
+                                console.error('Error during payment verification:', error);
+                                alert('Error processing payment verification: ' + error.message);
+                            }
+                        },
+                        prefill: {
+                            name: '<%= user.name %>',
+                            email: '<%= user.email %>',
+                            contact: '<%= user.phone %>'
+                        },
+                        theme: {
+                            color: '#000000'
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.on('payment.failed', function (response) {
+                        console.error('Payment failed:', response.error);
+                        alert(`Payment failed: ${response.error.code} - ${response.error.description}`);
+                    });
+
+                    rzp.open();
+
+                } catch (error) {
+                    console.error('Error initiating payment:', error);
+                    alert('Error initiating payment: ' + error.message);
+                }
             }
-        }
-    });
+        });
     </script>
 
     <!-- Add this hidden input field in your HTML -->
     <input type="hidden" id="totalAmountInput" value="<%= totalAmount %>">
 </body>
+
 </html>

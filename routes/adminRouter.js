@@ -69,11 +69,13 @@ router.post("/updateCoupon", adminAuth, couponController.updateCoupon);
 router.post("/coupon/delete", adminAuth, couponController.deleteCoupon);
 
 // Dashboard routes
-router.get("/dashboard", adminAuth, (req, res) => {
-  res.render("admin/dashboard");
+router.get("/", adminAuth, (req, res) => {
+  res.redirect("/admin/dashboard");
 });
+router.get("/dashboard", adminAuth, salesReportController.renderDashboard);
 
 // Sales report routes
+router.get("/sales-report", adminAuth, salesReportController.renderSalesReport);
 router.post(
   "/sales-report/data",
   adminAuth,

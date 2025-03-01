@@ -1,0 +1,788 @@
+<%- include("../partials/admin/adminHeader.ejs") %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.27/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+/* Classic Dashboard Styles */
+.content-main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #f8f9fa;
+    margin-left: 330px;
+    margin-top: 80px;
+    min-height: calc(100vh - 80px);
+    position: relative;
+    z-index: 1;
+}
+
+/* Header Styles */
+.content-header {
+    margin-bottom: 2rem;
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 2px solid #e9ecef;
+    background: #f8f9fa;
+    position: relative;
+    z-index: 2;
+}
+
+.content-title {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Filter Section */
+.filter-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    background-color: #34495e;
+    border-color: #34495e;
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+    transform: translateY(-2px);
+}
+
+/* Summary Cards */
+.summary-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.summary-card .icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.summary-card .title {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.summary-card .value {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Orders Table */
+.orders-table {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 2rem;
+}
+
+.table {
+    margin: 0;
+}
+
+.table thead th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.table tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #34495e;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Export Buttons */
+.export-buttons {
+    margin-bottom: 1rem;
+}
+
+.btn-export {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    color: #2c3e50;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    color: #2c3e50;
+}
+
+/* Date Inputs */
+.form-control {
+    border: 1px solid #e9ecef;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #34495e;
+    box-shadow: 0 0 0 0.2rem rgba(52, 73, 94, 0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-main {
+        margin-left: 0;
+        padding: 15px;
+        margin-top: 60px;
+    }
+
+    .content-title {
+        font-size: 2rem;
+    }
+
+    .summary-card {
+        margin-bottom: 15px;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+    }
+}
+
+/* Status Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.badge-success {
+    background: #27ae60;
+    color: #fff;
+}
+
+.badge-warning {
+    background: #f1c40f;
+    color: #2c3e50;
+}
+
+.badge-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.summary-card, .orders-table {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.pagination-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination-info {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 0.5rem;
+}
+
+.page-numbers .btn {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-secondary {
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #212529;
+    transform: translateY(-2px);
+}
+
+.btn-outline-secondary:disabled {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-primary {
+    background-color: #34495e;
+    border-color: #34495e;
+}
+
+.btn-primary:hover {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+@media (max-width: 576px) {
+    .pagination-wrapper {
+        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .pagination-info {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Sales Dashboard</h2>
+    </div>
+
+    <!-- Date Filter Section -->
+    <div class="filter-section">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <button class="btn btn-primary" onclick="filterSales('today')">Today</button>
+            <button class="btn btn-primary" onclick="filterSales('week')">This Week</button>
+            <button class="btn btn-primary" onclick="filterSales('month')">This Month</button>
+            <button class="btn btn-primary" onclick="filterSales('year')">This Year</button>
+            <div class="d-flex gap-2 mt-2 mt-md-0">
+                <input type="date" id="startDate" class="form-control">
+                <input type="date" id="endDate" class="form-control">
+                <button class="btn btn-primary" onclick="filterSales('custom')">Apply Range</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-shopping-cart icon text-primary"></i>
+                <div class="title">Total Orders</div>
+                <div class="value" id="totalOrders">0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-rupee-sign icon text-success"></i>
+                <div class="title">Total Revenue</div>
+                <div class="value" id="totalRevenue">₹0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-chart-line icon text-info"></i>
+                <div class="title">Average Order</div>
+                <div class="value" id="avgOrderValue">₹0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-box icon text-warning"></i>
+                <div class="title">Products Sold</div>
+                <div class="value" id="productsSold">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="orders-table">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Recent Orders</h5>
+                <div class="export-buttons">
+                    <button class="btn btn-export" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    
+                    <button class="btn btn-export" onclick="exportReport('excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Products</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <!-- Table content will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination-wrapper">
+        <div class="pagination-info">
+            Showing <span id="currentRange">1-10</span> of <span id="totalItems">0</span> orders
+        </div>
+        <div class="pagination-controls">
+            <button id="firstPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToPage(1)" title="First Page">
+                <i class="fas fa-angle-double-left"></i>
+            </button>
+            <button id="prevPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToPrevPage()" title="Previous Page">
+                <i class="fas fa-angle-left"></i>
+            </button>
+            <div id="pageNumbers" class="page-numbers"></div>
+            <button id="nextPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToNextPage()" title="Next Page">
+                <i class="fas fa-angle-right"></i>
+            </button>
+            <button id="lastPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToLastPage()" title="Last Page">
+                <i class="fas fa-angle-double-right"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<script>
+let currentPage = 1;
+let totalPages = 1;
+const itemsPerPage = 10;
+const maxVisiblePages = 5;
+
+function getCurrentPeriod() {
+    // Check which period is currently selected based on the dates
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (startDate && endDate) {
+        return 'custom';
+    }
+    
+    // Default to 'today' if no specific period is detected
+    return 'today';
+}
+
+async function filterSales(period, page = 1) {
+    try {
+        console.log('Filter period:', period, 'Page:', page);
+        let startDate, endDate;
+        const today = new Date();
+        
+        switch(period) {
+            case 'today':
+                // Today (midnight to 11:59:59 PM)
+                startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+                endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+                break;
+                
+            case 'week':
+                // Last 7 days
+                startDate = new Date(today);
+                startDate.setDate(today.getDate() - 6); // Get last 7 days including today
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+                
+            case 'month':
+                // Current month (1st to today)
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+                
+            case 'year':
+                // Current year (Jan 1st to today)
+                startDate = new Date(today.getFullYear(), 0, 1, 0, 0, 0);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+                
+            case 'custom':
+                // Handle custom date range with proper time
+                const startInput = document.getElementById('startDate').value;
+                const endInput = document.getElementById('endDate').value;
+                
+                if (!startInput || !endInput) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+                
+                startDate = new Date(startInput);
+                startDate.setHours(0, 0, 0, 0);
+                
+                endDate = new Date(endInput);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+        }
+        
+        // Format dates to ensure they're displayed correctly in the UI
+        if (period !== 'custom') {
+            // Update date inputs to reflect the period
+            document.getElementById('startDate').value = formatDateForInput(startDate);
+            document.getElementById('endDate').value = formatDateForInput(endDate);
+        }
+
+        console.log('Request payload:', {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            page,
+            limit: itemsPerPage
+        });
+
+        const response = await fetch('/admin/sales-report/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                page: page,
+                limit: itemsPerPage
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Received response:', result);
+
+        if (result.success) {
+            updateDashboard(result.data);
+            updatePagination(result.data.pagination);
+        } else {
+            throw new Error(result.message || 'Failed to fetch data');
+        }
+    } catch (error) {
+        console.error('Error in filterSales:', error);
+        alert('Error fetching sales data: ' + error.message);
+    }
+}
+
+function formatDateForInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function updateDashboard(data) {
+    try {
+        // Update summary cards
+        document.getElementById('totalOrders').textContent = data.totalOrders;
+        document.getElementById('totalRevenue').textContent = '₹' + data.totalRevenue.toFixed(2);
+        document.getElementById('avgOrderValue').textContent = '₹' + data.averageOrderValue.toFixed(2);
+        document.getElementById('productsSold').textContent = data.productsSold;
+
+        // Update table
+        const tableBody = document.getElementById('salesTableBody');
+        tableBody.innerHTML = data.orders.map(order => `
+            <tr>
+                <td>${order.orderId}</td>
+                <td>${new Date(order.date).toLocaleDateString()}</td>
+                <td>${order.customerName}</td>
+                <td>${order.products}</td>
+                <td>₹${order.totalAmount.toFixed(2)}</td>
+                <td>${order.paymentMethod}</td>
+                <td>${order.status}</td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error updating dashboard:', error);
+        alert('Error updating dashboard display');
+    }
+}
+
+function updatePagination(pagination) {
+    // Update global variables
+    currentPage = pagination.currentPage;
+    totalPages = pagination.totalPages;
+    
+    // Get button elements
+    const firstPageBtn = document.getElementById('firstPageBtn');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const lastPageBtn = document.getElementById('lastPageBtn');
+    
+    // Enable/disable prev/next buttons
+    const isFirstPage = currentPage <= 1;
+    const isLastPage = currentPage >= totalPages;
+    
+    firstPageBtn.disabled = isFirstPage;
+    prevPageBtn.disabled = isFirstPage;
+    nextPageBtn.disabled = isLastPage;
+    lastPageBtn.disabled = isLastPage;
+    
+    // Add visual indication for disabled buttons
+    firstPageBtn.classList.toggle('disabled', isFirstPage);
+    prevPageBtn.classList.toggle('disabled', isFirstPage);
+    nextPageBtn.classList.toggle('disabled', isLastPage);
+    lastPageBtn.classList.toggle('disabled', isLastPage);
+    
+    // Update info text
+    const startItem = pagination.totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+    const endItem = Math.min(currentPage * itemsPerPage, pagination.totalCount);
+    document.getElementById('currentRange').textContent = `${startItem}-${endItem}`;
+    document.getElementById('totalItems').textContent = pagination.totalCount;
+    
+    // Generate page numbers
+    const pageNumbersContainer = document.getElementById('pageNumbers');
+    pageNumbersContainer.innerHTML = '';
+    
+    // If no pages, don't show pagination
+    if (totalPages <= 0) {
+        return;
+    }
+    
+    // Determine range of pages to show
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = startPage + maxVisiblePages - 1;
+    
+    if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Add ellipsis at beginning if needed
+    if (startPage > 1) {
+        const ellipsisStart = document.createElement('span');
+        ellipsisStart.className = 'btn btn-sm btn-outline-secondary disabled';
+        ellipsisStart.innerHTML = '...';
+        ellipsisStart.style.pointerEvents = 'none';
+        pageNumbersContainer.appendChild(ellipsisStart);
+    }
+    
+    // Add page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-secondary'}`;
+        pageBtn.textContent = i;
+        
+        // Use a closure to capture the correct page number
+        pageBtn.addEventListener('click', function() {
+            goToPage(i);
+        });
+        
+        pageNumbersContainer.appendChild(pageBtn);
+    }
+    
+    // Add ellipsis at end if needed
+    if (endPage < totalPages) {
+        const ellipsisEnd = document.createElement('span');
+        ellipsisEnd.className = 'btn btn-sm btn-outline-secondary disabled';
+        ellipsisEnd.innerHTML = '...';
+        ellipsisEnd.style.pointerEvents = 'none';
+        pageNumbersContainer.appendChild(ellipsisEnd);
+    }
+}
+
+function goToPage(page) {
+    console.log('Going to page:', page);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page; // Update current page before calling filterSales
+        filterSales(getCurrentPeriod(), page);
+    }
+}
+
+function goToPrevPage() {
+    console.log('Going to previous page from:', currentPage);
+    if (currentPage > 1) {
+        goToPage(currentPage - 1);
+    }
+}
+
+function goToNextPage() {
+    console.log('Going to next page from:', currentPage);
+    if (currentPage < totalPages) {
+        goToPage(currentPage + 1);
+    }
+}
+
+function goToLastPage() {
+    console.log('Going to last page:', totalPages);
+    goToPage(totalPages);
+}
+
+function exportReport(format) {
+    try {
+        // Get the date range for the report
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (!startDate || !endDate) {
+            alert('Please select a date range first');
+            return;
+        }
+        
+        if (format === "pdf") {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add report title
+            doc.setFontSize(16);
+            doc.text("Sales Report", 14, 15);
+            
+            // Add date range subtitle
+            doc.setFontSize(12);
+            doc.text(`From: ${startDate} To: ${endDate}`, 14, 25);
+
+            // Add summary statistics
+            doc.setFontSize(10);
+            const totalOrders = document.getElementById('totalOrders').textContent;
+            const totalRevenue = document.getElementById('totalRevenue').textContent;
+            const avgOrderValue = document.getElementById('avgOrderValue').textContent;
+            const productsSold = document.getElementById('productsSold').textContent;
+            
+            doc.text(`Total Orders: ${totalOrders}`, 14, 35);
+            doc.text(`Total Revenue: ${totalRevenue}`, 14, 40);
+            doc.text(`Average Order Value: ${avgOrderValue}`, 14, 45);
+            doc.text(`Products Sold: ${productsSold}`, 14, 50);
+
+            // Table Data
+            const table = document.querySelector(".table");
+            if (!table) {
+                alert("No data available to export!");
+                return;
+            }
+
+            // Extract table data
+            const headers = [...table.querySelectorAll("thead tr th")].map(th => th.innerText);
+            const rows = [...table.querySelectorAll("tbody tr")].map(tr => 
+                [...tr.querySelectorAll("td")].map(td => td.innerText)
+            );
+
+            // Add table to PDF
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: 60
+            });
+
+            // Save the PDF
+            doc.save(`Sales_Report_${startDate}_to_${endDate}.pdf`);
+
+        } else if (format === "excel") {
+            const table = document.querySelector(".table");
+            if (!table) {
+                alert("No data available to export!");
+                return;
+            }
+
+            // Create worksheet from table
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(table);
+
+            // Add title and date range
+            XLSX.utils.sheet_add_aoa(ws, [
+                [`Sales Report: ${startDate} to ${endDate}`],
+                [''],
+                [`Total Orders: ${document.getElementById('totalOrders').textContent}`],
+                [`Total Revenue: ${document.getElementById('totalRevenue').textContent}`],
+                [`Average Order Value: ${document.getElementById('avgOrderValue').textContent}`],
+                [`Products Sold: ${document.getElementById('productsSold').textContent}`],
+                ['']
+            ], { origin: 'A1' });
+
+            // Adjust column widths
+            const columnWidths = [
+                { wch: 15 }, // Order ID
+                { wch: 12 }, // Date
+                { wch: 20 }, // Customer
+                { wch: 10 }, // Products
+                { wch: 12 }, // Amount
+                { wch: 15 }, // Payment
+                { wch: 12 }  // Status
+            ];
+            ws['!cols'] = columnWidths;
+
+            XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+
+            // Download the Excel file
+            XLSX.writeFile(wb, `Sales_Report_${startDate}_to_${endDate}.xlsx`);
+        }
+    } catch (error) {
+        console.error('Error exporting report:', error);
+        alert('Error exporting report: ' + error.message);
+    }
+}
+
+// Initialize with today's data
+document.addEventListener('DOMContentLoaded', () => {
+    // Set default dates for today
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    document.getElementById('startDate').value = formattedDate;
+    document.getElementById('endDate').value = formattedDate;
+    
+    // Initialize the report
+    filterSales('today');
+});
+</script>
+
+<%- include("../partials/admin/adminFooter.ejs") %>
