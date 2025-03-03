@@ -278,8 +278,11 @@
                                             <td>
                                                 <div class="quantity-controls">
                                                     <button type="button" class="qty-minus" onclick="updateQuantity(this, -1)">-</button>
-                                                    <input  class="qty-input" name="quantity" value="<%= item.quantity %>" min="1" onchange="updateTotal()">
-                                                    <button type="button" class="qty-plus" onclick="updateQuantity(this, 1,<%=item.productStock %>)">+</button>
+                                                    <input class="qty-input" name="quantity" value="<%= item.quantity %>" min="1" 
+                                                           data-product-id="<%= item.productId._id %>" 
+                                                           data-price="<%= item.productPrice %>"
+                                                           onchange="updateQuantityInCart(this)">
+                                                    <button type="button" class="qty-plus" onclick="updateQuantity(this, 1, <%= item.productStock %>)">+</button>
                                                 </div>
                                             </td>
                                             <td>₹<span class="item-total"><%= item.totalPrice %></span></td>
@@ -335,107 +338,98 @@
         return true;
     }
 
-    function updateQuantity(button, change,max) {
-        console.log(max);
-        console.log(typeof max);
-        
-        
+    async function updateQuantityInCart(input) {
+        const productId = input.dataset.productId;
+        const quantity = parseInt(input.value);
+        const price = parseFloat(input.dataset.price);
+
+        if (isNaN(quantity) || quantity < 1) {
+            input.value = 1;
+            return;
+        }
+
+        try {
+            const response = await fetch('/cart/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId,
+                    quantity
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update the item total
+                const row = input.closest('tr');
+                const itemTotal = row.querySelector('.item-total');
+                itemTotal.textContent = data.itemTotal;
+                
+                // Update the cart total
+                document.getElementById('cart-total').textContent = data.cartTotal;
+            } else {
+                alert('Failed to update quantity');
+            }
+        } catch (error) {
+            console.error('Error updating quantity:', error);
+            alert('Error updating quantity');
+        }
+    }
+
+    function updateQuantity(button, change, max) {
         const row = button.closest('tr');
         const input = row.querySelector('.qty-input');
-        const hiddenInput = row.querySelector('.qty-input-hidden');
         let newVal = parseInt(input.value) + change;
+        
         if (newVal < 1) newVal = 1;
-        if(newVal > 5) { return; }
-        if(max){
-            if(newVal > max) { return }
-        } // Limit to 5 items
+        if (max && newVal > max) newVal = max;
+        
         input.value = newVal;
-        hiddenInput.value = newVal;
-        updateTotal();
+        updateQuantityInCart(input);
     }
 
-    function updateTotal() {
-        let total = 0;
+    // Update the checkout form to include all necessary data
+    document.querySelector('form[action="/checkout"]').addEventListener('submit', function(e) {
+        const cartItems = [];
         document.querySelectorAll('.shopping__cart__table tbody tr').forEach(row => {
+            const productId = row.querySelector('.qty-input').dataset.productId;
             const quantity = parseInt(row.querySelector('.qty-input').value);
-            const price = parseFloat(row.querySelector('td:nth-child(2)').textContent.replace('₹', ''));
-            const itemTotal = quantity * price;
-            row.querySelector('.item-total').textContent = itemTotal.toFixed(2);
+            const price = parseFloat(row.querySelector('.qty-input').dataset.price);
             
-            
-            total += itemTotal;
+            cartItems.push({
+                productId,
+                quantity,
+                price,
+                totalPrice: quantity * price
+            });
         });
-        document.getElementById('cart-total').textContent = total.toFixed(2);
-    }
 
-    // Calculate total on page load
-    window.onload = updateTotal;
-    // Update quantity and send request
-const updateQuantityInCart = async (productId, quantity) => {
-  try {
-    const response = await fetch('/cart/update', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        productId,  // pass the productId directly as ObjectId
-        quantity,   // new quantity
-      }),
+        // Add cart items data to form
+        const itemsInput = document.createElement('input');
+        itemsInput.type = 'hidden';
+        itemsInput.name = 'cartItems';
+        itemsInput.value = JSON.stringify(cartItems);
+        this.appendChild(itemsInput);
     });
 
-    if (response.ok) {
-      // Optionally handle success (e.g., refresh cart or update UI)
-      location.reload();  // Reload the page to reflect updated cart
-    } else {
-      alert('Failed to update quantity');
+    function confirmRemove(productId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This item will be removed from your cart",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `/remove-from-cart/${productId}`;
+            }
+        });
     }
-  } catch (error) {
-    console.error('Error updating quantity:', error);
-  }
-};
-
-// Event listener to call the update function
-
-const e = async (productId, quantity) => {
-  try {
-    const response = await fetch('/cart/update', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        productId,  // pass the productId directly as ObjectId
-        quantity,   // new quantity
-      }),
-    });
-
-    if (response.ok) {
-      // Optionally handle success (e.g., refresh cart or update UI)
-      location.reload();  // Reload the page to reflect updated cart
-    } else {
-      alert('Failed to update quantity');
-    }
-  } catch (error) {
-    console.error('Error updating quantity:', error);
-  }
-};
-
-function confirmRemove(productId) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "This item will be removed from your cart",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, remove it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = `/remove-from-cart/${productId}`;
-        }
-    });
-}
 
 </script>
 

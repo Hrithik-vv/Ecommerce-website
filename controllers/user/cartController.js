@@ -173,41 +173,46 @@ const removeFromCart = async (req, res) => {
 // Add these new functions
 const updateQuantity = async (req, res) => {
   try {
-    const userId = req.user._id; 
-    let { productId, quantity } = req.body;
-    const product = await Product.findById(productId);
-
+    const userId = req.user._id;
+    const { productId, quantity } = req.body;
+    
     // Ensure the quantity is an integer
     const qty = parseInt(quantity, 10);
     if (isNaN(qty) || qty <= 0) {
-      req.flash("error", "Invalid quantity");
-      return res.redirect("/shopping-cart");
+      return res.status(400).json({ success: false, message: "Invalid quantity" });
     }
-    // Update cart - use correct ObjectId format
-    const cart = await Cart.findOneAndUpdate(
-      {
-        userId: new mongoose.Types.ObjectId(userId),
-        "items.productId": new mongoose.Types.ObjectId(productId),
-      },
-      {
-        $set: {
-          "items.$.quantity": qty,
-          "items.$.totalPrice": qty * product.salePrice, 
-        },
-      },
-      { new: true }
-    );
 
+    // Find the cart and product
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
     if (!cart) {
-      req.flash("error", "Cart or product not found");
-      return res.redirect("/shopping-cart");
+      return res.status(404).json({ success: false, message: "Cart not found" });
     }
 
-    res.redirect("/shopping-cart"); 
+    // Find the item in cart
+    const item = cart.items.find(item => item.productId._id.toString() === productId);
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Product not found in cart" });
+    }
+
+    // Update quantity and total price
+    item.quantity = qty;
+    item.totalPrice = qty * item.productPrice;
+
+    // Save the updated cart
+    await cart.save();
+
+    // Calculate new cart total
+    const cartTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
+
+    res.json({
+      success: true,
+      message: "Quantity updated successfully",
+      cartTotal: cartTotal.toFixed(2),
+      itemTotal: item.totalPrice.toFixed(2)
+    });
   } catch (error) {
-    console.error(error);
-    req.flash("error", "Error updating quantity");
-    res.redirect("/shopping-cart");
+    console.error("Error updating quantity:", error);
+    res.status(500).json({ success: false, message: "Error updating quantity" });
   }
 };
 
@@ -215,7 +220,7 @@ const checkoutController = async (req, res) => {
   try {
     const userId = req.user._id || req.session.user._id;
     if (req.method === 'POST') {
-      const { selectedAddressId, paymentMethod, couponCode } = req.body;
+      const { selectedAddressId, paymentMethod, couponCode, cartItems } = req.body;
 
       // Validate cart
       const cart = await Cart.findOne({ userId }).populate('items.productId');
@@ -229,6 +234,8 @@ const checkoutController = async (req, res) => {
         req.flash('error', 'Please select a delivery address');
         return res.redirect('/checkout');
       }
+
+      // Calculate total amount from cart items
       const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
       
       if (paymentMethod === 'razorpay') {
@@ -236,7 +243,8 @@ const checkoutController = async (req, res) => {
           success: true,
           totalAmount,
           addressId: selectedAddressId,
-          couponCode
+          couponCode,
+          cartItems: cart.items
         });
       }
 
@@ -287,15 +295,16 @@ const checkoutController = async (req, res) => {
       return res.redirect("/order-placed");
     }
     
+    // GET request - show checkout page
     const cart = await Cart.findOne({ userId }).populate('items.productId');
     const addresses = await Address.findOne({ userId });
     const userData = await User.findById(userId);
     
-    // Calculate total amount
+    // Calculate total amount from cart items
     let totalAmount = 0;
     if (cart && cart.items) {
       totalAmount = cart.items.reduce((total, item) => {
-        return total + (item.productPrice * item.quantity);
+        return total + item.totalPrice;
       }, 0);
     }
 
