@@ -1,8 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Order Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <style>
     .dashboard-header {
@@ -36,14 +39,62 @@
       margin: 0;
     }
    
+    /* Pagination styles */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+        gap: 0.5rem;
+    }
+    
+    .pagination a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        color: #4b5563;
+        text-decoration: none;
+        min-width: 2.5rem;
+        background-color: white;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .pagination a:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .pagination .active {
+        background-color: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+    
+    .pagination .disabled {
+        color: #d1d5db;
+        pointer-events: none;
+        border-color: #e5e7eb;
+    }
+    
+    /* Image placeholder style */
+    .image-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        color: #9ca3af;
+    }
 </style>
 
 <header class="dashboard-header d-flex justify-content-between align-items-center p-3 bg-primary text-white">
     <h1 class="m-0">Oxyboo</h1>
     <a href="/admin/dashboard" class="btn btn-light">Back to Dashboard</a>
 </header>
-
-
 
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
@@ -63,66 +114,139 @@
                 </thead>
                 <tbody class="text-gray-700 text-sm">
                     <% orders.forEach(order=> { %>
-                        <% order.products.forEach((item, index)=> { %>
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                <% if (index===0) { %>
-                                    <td class="py-3 px-6 font-semibold text-gray-800"
-                                        rowspan="<%= order.products.length %>">
-                                        <%= order._id %>
-                                    </td>
-
+                        <% if (order.products && order.products.length > 0) { %>
+                            <% order.products.forEach((item, index)=> { %>
+                                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                    <% if (index===0) { %>
+                                        <td class="py-3 px-6 font-semibold text-gray-800"
+                                            rowspan="<%= order.products.length %>">
+                                            <%= order._id %>
+                                        </td>
+                                        <% if (order.userId && order.userId.name) { %>
+                                            <td class="py-3 px-6" rowspan="<%= order.products.length %>">
+                                                <%= order.userId.name %>
+                                            </td>
+                                        <% } else { %>
+                                            <td class="py-3 px-6" rowspan="<%= order.products.length %>">
+                                                Guest User
+                                            </td>
+                                        <% } %>
                                     <% } %>
 
-
-
-                                        <td class="py-3 px-6">
-                                            <div class="flex items-center">
+                                    <td class="py-3 px-6">
+                                        <div class="flex items-center">
+                                            <% if (item.productId && item.productId.image1) { %>
                                                 <img src="<%= item.productId.image1 %>"
                                                     alt="<%= item.productId.productName %>"
-                                                    class="w-10 h-10 object-cover rounded mr-2">
-                                                <div>
-                                                    <p class="font-medium">
-                                                        <%= item.productId.productName %>
-                                                    </p>
-                                                    <p class="text-xs text-gray-500">Quantity: <%= item.quantity %>
-                                                    </p>
+                                                    class="w-10 h-10 object-cover rounded mr-2"
+                                                    onerror="this.onerror=null; this.innerHTML='<div class=\'image-placeholder\'><i class=\'fas fa-image\'></i></div>'; this.src='/images/placeholder.png'">
+                                            <% } else { %>
+                                                <div class="image-placeholder mr-2">
+                                                    <i class="fas fa-image"></i>
                                                 </div>
-                                            </div>
-                                        </td>
-
-                                        <% if (index===0) { %>
-                                            <td class="py-3 px-6 font-semibold text-gray-800"
-                                                rowspan="<%= order.products.length %>">
-                                                $<%= order.totalAmount %>
-                                            </td>
-                                            <td class="py-3 px-6" rowspan="<%= order.products.length %>">
-                                                <form action="/admin/update-order-status" method="POST">
-                                                    <input type="hidden" name="orderId" value="<%= order._id %>">
-                                                    <select name="newStatus"
-                                                        class="px-3 py-1 border rounded-md bg-gray-100"
-                                                        onchange="this.form.submit()">
-                                                        <option value="Pending" <%=order.status==='Pending' ? 'selected'
-                                                            : '' %>>Pending</option>
-                                                        <option value="Shipped" <%=order.status==='Shipped' ? 'selected'
-                                                            : '' %>>Shipped</option>
-                                                        <option value="Delivered" <%=order.status==='Delivered'
-                                                            ? 'selected' : '' %>>Delivered</option>
-                                                        <option value="Cancelled" <%=order.status==='Cancelled'
-                                                            ? 'selected' : '' %>>Cancelled</option>
-                                                    </select>
-                                                </form>
-                                            </td>
-                                            <td class="py-3 px-6" rowspan="<%= order.products.length %>">
-                                                <a href="/admin/orderdetails/<%= order._id %>"
-                                                    class="text-blue-500">View</a>
-                                            </td>
                                             <% } %>
-                            </tr>
+                                            <div>
+                                                <p class="font-medium">
+                                                    <%= item.productId ? item.productId.productName : 'Product Unavailable' %>
+                                                </p>
+                                                <p class="text-xs text-gray-500">Quantity: <%= item.quantity %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <% if (index===0) { %>
+                                        <td class="py-3 px-6 font-semibold text-gray-800"
+                                            rowspan="<%= order.products.length %>">
+                                            ₹<%= order.totalAmount.toFixed(2) %>
+                                        </td>
+                                        <td class="py-3 px-6" rowspan="<%= order.products.length %>">
+                                            <form action="/admin/update-order-status" method="POST">
+                                                <input type="hidden" name="orderId" value="<%= order._id %>">
+                                                <select name="newStatus"
+                                                    class="px-3 py-1 border rounded-md bg-gray-100"
+                                                    onchange="this.form.submit()">
+                                                    <option value="Pending" <%=order.status==='Pending' ? 'selected'
+                                                        : '' %>>Pending</option>
+                                                    <option value="Shipped" <%=order.status==='Shipped' ? 'selected'
+                                                        : '' %>>Shipped</option>
+                                                    <option value="Delivered" <%=order.status==='Delivered'
+                                                        ? 'selected' : '' %>>Delivered</option>
+                                                    <option value="Cancelled" <%=order.status==='Cancelled'
+                                                        ? 'selected' : '' %>>Cancelled</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                        <td class="py-3 px-6" rowspan="<%= order.products.length %>">
+                                            <a href="/admin/orderdetails/<%= order._id %>"
+                                                class="text-blue-500 hover:underline">View</a>
+                                        </td>
+                                    <% } %>
+                                </tr>
                             <% }) %>
-                                <% }) %>
+                        <% } %>
+                    <% }) %>
+
+                    <% if (orders.length === 0) { %>
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-gray-500">
+                                No orders found
+                            </td>
+                        </tr>
+                    <% } %>
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <% if (pagination && pagination.totalPages > 0) { %>
+            <div class="pagination mt-6">
+                <a href="/admin/ordermanage?page=1" class="<%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="/admin/ordermanage?page=<%= pagination.previousPage %>" class="<%= !pagination.hasPreviousPage ? 'disabled' : '' %>">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                
+                <% 
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(pagination.totalPages, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                if (startPage > 1) { %>
+                    <span class="disabled">...</span>
+                <% } 
+                
+                for (let i = startPage; i <= endPage; i++) { %>
+                    <a href="/admin/ordermanage?page=<%= i %>" class="<%= pagination.currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } 
+                
+                if (endPage < pagination.totalPages) { %>
+                    <span class="disabled">...</span>
+                <% } %>
+                
+                <a href="/admin/ordermanage?page=<%= pagination.nextPage %>" class="<%= !pagination.hasNextPage ? 'disabled' : '' %>">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="/admin/ordermanage?page=<%= pagination.totalPages %>" class="<%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+            
+            <div class="text-center text-sm text-gray-500 mt-2">
+                <% if (pagination.totalOrders > 0) { %>
+                    Showing <%= (pagination.currentPage - 1) * pagination.limit + 1 %>-<%= Math.min(pagination.currentPage * pagination.limit, pagination.totalOrders) %> of <%= pagination.totalOrders %> orders
+                <% } else { %>
+                    No orders to display
+                <% } %>
+            </div>
+        <% } %>
     </div>
 </body>
 

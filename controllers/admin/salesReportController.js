@@ -133,7 +133,7 @@ const salesReportController = {
                 orderId: order.orderId || order._id,
                 date: order.createdAt,
                 customerName: order.userId ? order.userId.name : 'Guest User',
-                products: order.products.length,
+                products: order.products.reduce((sum, product) => sum + product.quantity, 0),
                 totalAmount: order.totalAmount,
                 paymentMethod: order.paymentMethod,
                 status: order.status
@@ -172,9 +172,19 @@ const salesReportController = {
         try {
             let { startDate, endDate, page = 1, limit = 10 } = req.body;
             
+            console.log('Raw date inputs:', { startDate, endDate });
+            
             // Ensure we have valid dates
             startDate = new Date(startDate);
             endDate = new Date(endDate);
+            
+            // Validate dates
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid date format provided'
+                });
+            }
             
             // Set time to start and end of day
             startDate.setHours(0, 0, 0, 0);
@@ -185,7 +195,14 @@ const salesReportController = {
             limit = Number(limit);
             const skip = (page - 1) * limit;
 
-            console.log('Querying orders between:', { startDate, endDate, page, limit }); // Debug log
+            console.log('Querying orders between:', { 
+                startDate: startDate.toISOString(), 
+                endDate: endDate.toISOString(), 
+                startDateFormatted: startDate.toLocaleString(),
+                endDateFormatted: endDate.toLocaleString(),
+                page, 
+                limit 
+            });
 
             // Query orders within date range
             const orders = await Order.find({
@@ -200,6 +217,8 @@ const salesReportController = {
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
+
+            console.log(`Found ${orders.length} orders for the selected date range`);
 
             // Get total count for pagination
             const totalCount = await Order.countDocuments({
@@ -224,18 +243,29 @@ const salesReportController = {
                 status: { $ne: 'Cancelled' }
             });
             
-            const totalOrders = allOrders.length;
-            const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
-            const productsSold = allOrders.reduce((sum, order) => 
-                sum + order.products.reduce((pSum, product) => pSum + product.quantity, 0), 0);
-            const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            // Default values in case calculation fails
+            let totalOrders = 0;
+            let totalRevenue = 0;
+            let productsSold = 0;
+            let averageOrderValue = 0;
+            
+            try {
+                totalOrders = allOrders.length;
+                totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+                productsSold = allOrders.reduce((sum, order) => 
+                    sum + order.products.reduce((pSum, product) => pSum + product.quantity, 0), 0);
+                averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            } catch (calcError) {
+                console.error('Error calculating summary statistics:', calcError);
+                // Continue with default values
+            }
 
             // Format orders for response
             const formattedOrders = orders.map(order => ({
                 orderId: order.orderId || order._id,
                 date: order.createdAt,
                 customerName: order.userId ? order.userId.name : 'Guest User',
-                products: order.products.length,
+                products: order.products.reduce((sum, product) => sum + product.quantity, 0), 
                 totalAmount: order.totalAmount,
                 paymentMethod: order.paymentMethod,
                 status: order.status

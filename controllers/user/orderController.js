@@ -443,6 +443,50 @@ const returnOrder = async (req, res) => {
   }
 };
 
+const returnProduct = async (req, res) => {
+    try {
+        const { orderId, productId, returnReason, returnComments } = req.body;
+
+        // Find the order
+        const order = await Order.findOne({ orderId: orderId });
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Find the specific product in the order
+        const productToReturn = order.products.find(
+            product => product.productId.toString() === productId
+        );
+
+        if (!productToReturn) {
+            return res.status(404).json({ success: false, message: 'Product not found in order' });
+        }
+
+        // Check if product is already returned
+        if (productToReturn.isReturned) {
+            return res.status(400).json({ success: false, message: 'Product is already returned' });
+        }
+
+        // Update the product status in the order
+        productToReturn.isReturned = true;
+        productToReturn.returnReason = returnReason;
+        productToReturn.returnComments = returnComments;
+        productToReturn.returnRequestDate = new Date();
+        productToReturn.returnStatus = 'Pending';
+
+        // Save the updated order
+        await order.save();
+
+        // Redirect back to order history with success message
+        req.flash('success', 'Return request submitted successfully');
+        res.redirect('/order-history');
+    } catch (error) {
+        console.error('Error processing return request:', error);
+        req.flash('error', 'Failed to process return request');
+        res.redirect('/order-history');
+    }
+};
+
 module.exports = {
   cancelOrder,
   returnOrder,
@@ -453,4 +497,5 @@ module.exports = {
   createOrder,
   verifyPayment,
   processPayment,
+  returnProduct
 };

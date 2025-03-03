@@ -471,11 +471,30 @@ async function filterSales(period, page = 1) {
                     return;
                 }
                 
+                // Create dates using the input values
                 startDate = new Date(startInput);
-                startDate.setHours(0, 0, 0, 0);
-                
                 endDate = new Date(endInput);
+                
+                // Check if dates are valid
+                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                    alert('Please enter valid dates');
+                    return;
+                }
+                
+                // Check if end date is not before start date
+                if (endDate < startDate) {
+                    alert('End date cannot be before start date');
+                    return;
+                }
+                
+                // Set proper time for start and end dates
+                startDate.setHours(0, 0, 0, 0);
                 endDate.setHours(23, 59, 59, 999);
+                
+                // Show visual feedback that filter is applied
+                const customRangeBtn = document.querySelector('button[onclick="filterSales(\'custom\')"]');
+                customRangeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Filtering...';
+                
                 break;
         }
         
@@ -513,9 +532,76 @@ async function filterSales(period, page = 1) {
         const result = await response.json();
         console.log('Received response:', result);
 
+        // Reset button text if it was a custom filter
+        if (period === 'custom') {
+            const customRangeBtn = document.querySelector('button[onclick="filterSales(\'custom\')"]');
+            customRangeBtn.innerHTML = 'Apply Range';
+        }
+
         if (result.success) {
+            // Validate data structure before using it
+            if (!result.data) {
+                console.error('Response is missing data property:', result);
+                alert('Error: Server returned a success response but with invalid data structure');
+                return;
+            }
+            
+            // Check for required properties in data
+            const requiredProps = ['totalOrders', 'totalRevenue', 'productsSold', 'averageOrderValue', 'orders', 'pagination'];
+            const missingProps = requiredProps.filter(prop => result.data[prop] === undefined);
+            
+            if (missingProps.length > 0) {
+                console.error('Response data is missing required properties:', missingProps, result.data);
+                alert(`Error: Server response is missing required data: ${missingProps.join(', ')}`);
+                return;
+            }
+            
             updateDashboard(result.data);
             updatePagination(result.data.pagination);
+            
+            // Add a visual indicator showing the currently active filter
+            const allFilterButtons = document.querySelectorAll('.filter-section .btn-primary');
+            allFilterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '';
+            });
+            
+            const activeButton = document.querySelector(`button[onclick="filterSales('${period}')"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = '#2c3e50';
+            }
+            
+            // Show date range in a more visible way for custom ranges
+            if (period === 'custom') {
+                const formattedStartDate = new Date(startDate).toLocaleDateString();
+                const formattedEndDate = new Date(endDate).toLocaleDateString();
+                
+                // Add or update a date range indicator
+                let dateRangeIndicator = document.getElementById('dateRangeIndicator');
+                const filterSection = document.querySelector('.filter-section');
+                
+                if (!filterSection) {
+                    console.warn('Filter section element not found');
+                    return;
+                }
+                
+                if (!dateRangeIndicator) {
+                    dateRangeIndicator = document.createElement('div');
+                    dateRangeIndicator.id = 'dateRangeIndicator';
+                    dateRangeIndicator.className = 'alert alert-info mt-2 text-center';
+                    filterSection.appendChild(dateRangeIndicator);
+                }
+                dateRangeIndicator.textContent = `Showing data from ${formattedStartDate} to ${formattedEndDate}`;
+                dateRangeIndicator.style.display = 'block';
+            } else {
+                // Hide the indicator for non-custom ranges
+                const dateRangeIndicator = document.getElementById('dateRangeIndicator');
+                if (dateRangeIndicator) {
+                    dateRangeIndicator.style.display = 'none';
+                }
+            }
+            
         } else {
             throw new Error(result.message || 'Failed to fetch data');
         }
@@ -534,111 +620,147 @@ function formatDateForInput(date) {
 
 function updateDashboard(data) {
     try {
-        // Update summary cards
-        document.getElementById('totalOrders').textContent = data.totalOrders;
-        document.getElementById('totalRevenue').textContent = '₹' + data.totalRevenue.toFixed(2);
-        document.getElementById('avgOrderValue').textContent = '₹' + data.averageOrderValue.toFixed(2);
-        document.getElementById('productsSold').textContent = data.productsSold;
-
-        // Update table
+        // Update summary cards - add null checks for each element
+        const totalOrdersElement = document.getElementById('totalOrders');
+        const totalRevenueElement = document.getElementById('totalRevenue');
+        const avgOrderValueElement = document.getElementById('avgOrderValue');
+        const productsSoldElement = document.getElementById('productsSold');
         const tableBody = document.getElementById('salesTableBody');
-        tableBody.innerHTML = data.orders.map(order => `
-            <tr>
-                <td>${order.orderId}</td>
-                <td>${new Date(order.date).toLocaleDateString()}</td>
-                <td>${order.customerName}</td>
-                <td>${order.products}</td>
-                <td>₹${order.totalAmount.toFixed(2)}</td>
-                <td>${order.paymentMethod}</td>
-                <td>${order.status}</td>
-            </tr>
-        `).join('');
+        
+        // Log which elements were not found to help debugging
+        if (!totalOrdersElement) console.warn('Element with ID "totalOrders" not found');
+        if (!totalRevenueElement) console.warn('Element with ID "totalRevenue" not found');
+        if (!avgOrderValueElement) console.warn('Element with ID "avgOrderValue" not found');
+        if (!productsSoldElement) console.warn('Element with ID "productsSold" not found');
+        if (!tableBody) console.warn('Element with ID "salesTableBody" not found');
+        
+        // Only update elements that exist
+        if (totalOrdersElement) totalOrdersElement.textContent = data.totalOrders;
+        if (totalRevenueElement) totalRevenueElement.textContent = '₹' + data.totalRevenue.toFixed(2);
+        if (avgOrderValueElement) avgOrderValueElement.textContent = '₹' + data.averageOrderValue.toFixed(2);
+        if (productsSoldElement) productsSoldElement.textContent = data.productsSold;
+
+        // Update table if the table body exists
+        if (tableBody) {
+            tableBody.innerHTML = data.orders.map(order => `
+                <tr>
+                    <td>${order.orderId}</td>
+                    <td>${new Date(order.date).toLocaleDateString()}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.products}</td>
+                    <td>₹${order.totalAmount.toFixed(2)}</td>
+                    <td>${order.paymentMethod}</td>
+                    <td>${order.status}</td>
+                </tr>
+            `).join('');
+        }
     } catch (error) {
         console.error('Error updating dashboard:', error);
-        alert('Error updating dashboard display');
+        alert('Error updating dashboard display: ' + error.message);
     }
 }
 
 function updatePagination(pagination) {
-    // Update global variables
-    currentPage = pagination.currentPage;
-    totalPages = pagination.totalPages;
-    
-    // Get button elements
-    const firstPageBtn = document.getElementById('firstPageBtn');
-    const prevPageBtn = document.getElementById('prevPageBtn');
-    const nextPageBtn = document.getElementById('nextPageBtn');
-    const lastPageBtn = document.getElementById('lastPageBtn');
-    
-    // Enable/disable prev/next buttons
-    const isFirstPage = currentPage <= 1;
-    const isLastPage = currentPage >= totalPages;
-    
-    firstPageBtn.disabled = isFirstPage;
-    prevPageBtn.disabled = isFirstPage;
-    nextPageBtn.disabled = isLastPage;
-    lastPageBtn.disabled = isLastPage;
-    
-    // Add visual indication for disabled buttons
-    firstPageBtn.classList.toggle('disabled', isFirstPage);
-    prevPageBtn.classList.toggle('disabled', isFirstPage);
-    nextPageBtn.classList.toggle('disabled', isLastPage);
-    lastPageBtn.classList.toggle('disabled', isLastPage);
-    
-    // Update info text
-    const startItem = pagination.totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
-    const endItem = Math.min(currentPage * itemsPerPage, pagination.totalCount);
-    document.getElementById('currentRange').textContent = `${startItem}-${endItem}`;
-    document.getElementById('totalItems').textContent = pagination.totalCount;
-    
-    // Generate page numbers
-    const pageNumbersContainer = document.getElementById('pageNumbers');
-    pageNumbersContainer.innerHTML = '';
-    
-    // If no pages, don't show pagination
-    if (totalPages <= 0) {
-        return;
-    }
-    
-    // Determine range of pages to show
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = startPage + maxVisiblePages - 1;
-    
-    if (endPage > totalPages) {
-        endPage = totalPages;
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-    
-    // Add ellipsis at beginning if needed
-    if (startPage > 1) {
-        const ellipsisStart = document.createElement('span');
-        ellipsisStart.className = 'btn btn-sm btn-outline-secondary disabled';
-        ellipsisStart.innerHTML = '...';
-        ellipsisStart.style.pointerEvents = 'none';
-        pageNumbersContainer.appendChild(ellipsisStart);
-    }
-    
-    // Add page numbers
-    for (let i = startPage; i <= endPage; i++) {
-        const pageBtn = document.createElement('button');
-        pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-secondary'}`;
-        pageBtn.textContent = i;
+    try {
+        // Update global variables
+        currentPage = pagination.currentPage;
+        totalPages = pagination.totalPages;
         
-        // Use a closure to capture the correct page number
-        pageBtn.addEventListener('click', function() {
-            goToPage(i);
-        });
+        // Get button elements
+        const firstPageBtn = document.getElementById('firstPageBtn');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const lastPageBtn = document.getElementById('lastPageBtn');
+        const pageNumbersContainer = document.getElementById('pageNumbers');
         
-        pageNumbersContainer.appendChild(pageBtn);
-    }
-    
-    // Add ellipsis at end if needed
-    if (endPage < totalPages) {
-        const ellipsisEnd = document.createElement('span');
-        ellipsisEnd.className = 'btn btn-sm btn-outline-secondary disabled';
-        ellipsisEnd.innerHTML = '...';
-        ellipsisEnd.style.pointerEvents = 'none';
-        pageNumbersContainer.appendChild(ellipsisEnd);
+        // Check if pagination elements exist
+        if (!firstPageBtn || !prevPageBtn || !nextPageBtn || !lastPageBtn || !pageNumbersContainer) {
+            console.warn('Some pagination elements were not found:', {
+                firstPageBtn: !!firstPageBtn,
+                prevPageBtn: !!prevPageBtn,
+                nextPageBtn: !!nextPageBtn,
+                lastPageBtn: !!lastPageBtn,
+                pageNumbersContainer: !!pageNumbersContainer
+            });
+            return; // Exit early if elements are missing
+        }
+        
+        // Enable/disable prev/next buttons
+        const isFirstPage = currentPage <= 1;
+        const isLastPage = currentPage >= totalPages;
+        
+        firstPageBtn.disabled = isFirstPage;
+        prevPageBtn.disabled = isFirstPage;
+        nextPageBtn.disabled = isLastPage;
+        lastPageBtn.disabled = isLastPage;
+        
+        // Add visual indication for disabled buttons
+        firstPageBtn.classList.toggle('disabled', isFirstPage);
+        prevPageBtn.classList.toggle('disabled', isFirstPage);
+        nextPageBtn.classList.toggle('disabled', isLastPage);
+        lastPageBtn.classList.toggle('disabled', isLastPage);
+        
+        // Update info text
+        const currentRangeElement = document.getElementById('currentRange');
+        const totalItemsElement = document.getElementById('totalItems');
+        
+        if (currentRangeElement && totalItemsElement) {
+            const startItem = pagination.totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+            const endItem = Math.min(currentPage * itemsPerPage, pagination.totalCount);
+            currentRangeElement.textContent = `${startItem}-${endItem}`;
+            totalItemsElement.textContent = pagination.totalCount;
+        }
+        
+        // Generate page numbers
+        pageNumbersContainer.innerHTML = '';
+        
+        // If no pages, don't show pagination
+        if (totalPages <= 0) {
+            return;
+        }
+        
+        // Determine range of pages to show
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = startPage + maxVisiblePages - 1;
+        
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        // Add ellipsis at beginning if needed
+        if (startPage > 1) {
+            const ellipsisStart = document.createElement('span');
+            ellipsisStart.className = 'btn btn-sm btn-outline-secondary disabled';
+            ellipsisStart.innerHTML = '...';
+            ellipsisStart.style.pointerEvents = 'none';
+            pageNumbersContainer.appendChild(ellipsisStart);
+        }
+        
+        // Add page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-secondary'}`;
+            pageBtn.textContent = i;
+            
+            // Use a closure to capture the correct page number
+            pageBtn.addEventListener('click', function() {
+                goToPage(i);
+            });
+            
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+        
+        // Add ellipsis at end if needed
+        if (endPage < totalPages) {
+            const ellipsisEnd = document.createElement('span');
+            ellipsisEnd.className = 'btn btn-sm btn-outline-secondary disabled';
+            ellipsisEnd.innerHTML = '...';
+            ellipsisEnd.style.pointerEvents = 'none';
+            pageNumbersContainer.appendChild(ellipsisEnd);
+        }
+    } catch (error) {
+        console.error('Error updating pagination:', error);
     }
 }
 
@@ -1023,8 +1145,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set default dates for today
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
-    document.getElementById('startDate').value = formattedDate;
-    document.getElementById('endDate').value = formattedDate;
+    
+    // Set up date inputs with constraints
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    // Set max date to today for both inputs
+    startDateInput.max = formattedDate;
+    endDateInput.max = formattedDate;
+    
+    // Set initial values
+    startDateInput.value = formattedDate;
+    endDateInput.value = formattedDate;
+    
+    // Add event listeners for date validation
+    startDateInput.addEventListener('change', function() {
+        // End date can't be before start date
+        endDateInput.min = this.value;
+        
+        // If end date is now invalid (before start date), update it
+        if (endDateInput.value < this.value) {
+            endDateInput.value = this.value;
+        }
+    });
+    
+    endDateInput.addEventListener('change', function() {
+        // Start date can't be after end date
+        startDateInput.max = this.value;
+        
+        // If start date is now invalid (after end date), update it
+        if (startDateInput.value > this.value) {
+            startDateInput.value = this.value;
+        }
+    });
     
     // Initialize the report
     filterSales('today');
