@@ -446,25 +446,42 @@ const returnOrder = async (req, res) => {
 const returnProduct = async (req, res) => {
     try {
         const { orderId, productId, returnReason, returnComments } = req.body;
+        console.log('Return request received:', { orderId, productId, returnReason, returnComments });
 
         // Find the order
-        const order = await Order.findOne({ orderId: orderId });
+        const order = await Order.findById(orderId);
+        console.log('Order lookup result:', order ? 'Found' : 'Not Found');
+        
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            console.log('Order not found with ID:', orderId);
+            req.flash('error', 'Order not found');
+            return res.redirect('/order-history');
         }
 
         // Find the specific product in the order
         const productToReturn = order.products.find(
-            product => product.productId.toString() === productId
+            product => {
+                console.log('Comparing product IDs:', {
+                    productId: productId,
+                    currentProduct: product.productId.toString()
+                });
+                return product.productId.toString() === productId;
+            }
         );
 
+        console.log('Product lookup result:', productToReturn ? 'Found' : 'Not Found');
+
         if (!productToReturn) {
-            return res.status(404).json({ success: false, message: 'Product not found in order' });
+            console.log('Product not found in order. Product ID:', productId);
+            req.flash('error', 'Product not found in order');
+            return res.redirect('/order-history');
         }
 
         // Check if product is already returned
         if (productToReturn.isReturned) {
-            return res.status(400).json({ success: false, message: 'Product is already returned' });
+            console.log('Product already returned:', productId);
+            req.flash('error', 'Product is already returned');
+            return res.redirect('/order-history');
         }
 
         // Update the product status in the order
@@ -474,8 +491,10 @@ const returnProduct = async (req, res) => {
         productToReturn.returnRequestDate = new Date();
         productToReturn.returnStatus = 'Pending';
 
+        console.log('Saving order with return request...');
         // Save the updated order
         await order.save();
+        console.log('Order saved successfully');
 
         // Redirect back to order history with success message
         req.flash('success', 'Return request submitted successfully');

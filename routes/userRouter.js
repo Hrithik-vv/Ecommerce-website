@@ -150,6 +150,14 @@ router.get("/order-view", userAuth, cartController.orderView);
 router.post('/process-payment', userAuth, orderController.processPayment);
 
 // Return product route
-router.post('/return-product', userAuth, orderController.returnProduct);
+router.post('/return-product', userAuth, async (req, res) => {
+    try {
+        await orderController.returnProduct(req, res);
+    } catch (error) {
+        console.error('Error in return product route:', error);
+        req.flash('error', 'An error occurred while processing your return request');
+        res.redirect('/order-history');
+    }
+});
 
 module.exports = router;

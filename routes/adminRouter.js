@@ -11,6 +11,7 @@ const { userAuth, adminAuth } = require("../middlewares/auth");
 const { updateOrderStatus } = require("../controllers/admin/orderController");
 const couponController = require("../controllers/admin/couponController");
 const salesReportController = require("../controllers/admin/salesReportController");
+const returnController = require('../controllers/admin/returnController');
 
 
 // Multer setup
@@ -86,5 +87,9 @@ router.get(
   adminAuth,
   salesReportController.exportSalesReport
 );
+
+// Return Management
+router.get('/return-management', adminAuth, returnController.returnManagement);
+router.post('/handle-return', adminAuth, returnController.handleReturn);
 
 module.exports = router;

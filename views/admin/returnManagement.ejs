@@ -1,5 +1,29 @@
 <%- include('../partials/admin/adminHeader.ejs') %>
-
+<style>
+    .content-main{
+        margin-left: 300px;
+    }
+    .img-xs {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .badge {
+        padding: 0.5em 1em;
+    }
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .table td {
+        vertical-align: middle;
+    }
+</style>
 <section class="content-main">
     <div class="content-header">
         <div>
@@ -39,44 +63,54 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% returns.forEach(return => { %>
+                        <% returnItems.forEach(item => { %>
                             <tr>
-                                <td><%= return.order.orderId %></td>
-                                <td>
+                                <td><%= item.order.orderId %></td>
+                                <td class="py-3 px-6">
                                     <div class="d-flex align-items-center">
-                                        <img src="<%= return.product.image1 %>" 
-                                             alt="<%= return.product.productName %>"
-                                             class="img-xs me-2"
-                                             style="width: 40px; height: 40px; object-fit: cover;">
-                                        <div>
-                                            <p class="mb-0"><%= return.product.productName %></p>
-                                            <small class="text-muted">Qty: <%= return.quantity %></small>
+                                        <% if (item.product && item.product.image1) { %>
+                                            <div style="width: 60px; height: 60px;">
+                                                <img src="/uploads/<%= item.product.image1 %>"
+                                                     alt="<%= item.product.productName %>"
+                                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
+                                                     onerror="this.onerror=null; this.src='/images/placeholder.png'">
+                                            </div>
+                                        <% } else { %>
+                                            <div style="width: 60px; height: 60px; background-color: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-image" style="color: #9ca3af; font-size: 1.5rem;"></i>
+                                            </div>
+                                        <% } %>
+                                        <div class="ms-3">
+                                            <p class="mb-0 fw-medium">
+                                                <%= item.product ? item.product.productName : 'Product Unavailable' %>
+                                            </p>
+                                            <small class="text-muted">Quantity: <%= item.quantity %></small>
                                         </div>
                                     </div>
                                 </td>
-                                <td><%= return.customer.name %></td>
+                                <td><%= item.customer.name %></td>
                                 <td>
-                                    <p class="mb-0"><%= return.returnReason %></p>
-                                    <small class="text-muted"><%= return.returnComments %></small>
+                                    <p class="mb-0"><%= item.returnReason %></p>
+                                    <small class="text-muted"><%= item.returnComments %></small>
                                 </td>
-                                <td><%= new Date(return.returnRequestDate).toLocaleDateString() %></td>
+                                <td><%= new Date(item.returnRequestDate).toLocaleDateString() %></td>
                                 <td>
                                     <span class="badge rounded-pill 
-                                        <%= return.returnStatus === 'Pending' ? 'bg-warning' : 
-                                            return.returnStatus === 'Approved' ? 'bg-success' : 
-                                            return.returnStatus === 'Rejected' ? 'bg-danger' : 'bg-secondary' %>">
-                                        <%= return.returnStatus %>
+                                        <%= item.returnStatus === 'Pending' ? 'bg-warning' : 
+                                            item.returnStatus === 'Approved' ? 'bg-success' : 
+                                            item.returnStatus === 'Rejected' ? 'bg-danger' : 'bg-secondary' %>">
+                                        <%= item.returnStatus %>
                                     </span>
                                 </td>
                                 <td>
-                                    <% if (return.returnStatus === 'Pending') { %>
+                                    <% if (item.returnStatus === 'Pending') { %>
                                         <div class="btn-group">
                                             <button class="btn btn-success btn-sm" 
-                                                    onclick="handleReturn('<%= return.order._id %>', '<%= return.product._id %>', 'Approved')">
+                                                    onclick="handleReturn('<%= item.order._id %>', '<%= item.product._id %>', 'Approved')">
                                                 Approve
                                             </button>
                                             <button class="btn btn-danger btn-sm" 
-                                                    onclick="handleReturn('<%= return.order._id %>', '<%= return.product._id %>', 'Rejected')">
+                                                    onclick="handleReturn('<%= item.order._id %>', '<%= item.product._id %>', 'Rejected')">
                                                 Reject
                                             </button>
                                         </div>
@@ -136,27 +170,6 @@
     }
 </script>
 
-<style>
-    .img-xs {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-    .badge {
-        padding: 0.5em 1em;
-    }
-    .btn-group {
-        display: flex;
-        gap: 0.5rem;
-    }
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
-    }
-    .table td {
-        vertical-align: middle;
-    }
-</style>
+
 
 <%- include('../partials/admin/adminFooter.ejs') %> 
