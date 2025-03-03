@@ -136,6 +136,45 @@
                 padding: 0.5rem 0;
             }
         }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        .modal-header {
+            background-color: #f8f9fa;
+            border-radius: 15px 15px 0 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+        }
+        .form-select, .form-control {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .form-select:focus, .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            border: none;
+            color: #000;
+        }
+        .btn-warning:hover {
+            background-color: #ffca2c;
+            color: #000;
+        }
+        .status-badge {
+            padding: 0.5em 1em;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .product-image {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 
@@ -229,24 +268,124 @@
                         <!-- Order Summary -->
                         <div class="col-md-3 text-center">
                             <span class="order-id d-block">Order #<%= order.orderId %></span>
-                            <span class="status-badge badge <%= order.status === 'Pending' ? 'bg-warning' : 'bg-success' %>">
+                            <span class="status-badge badge <%= order.status === 'Pending' ? 'bg-warning' : 
+                                order.status === 'Delivered' ? 'bg-success' : 
+                                order.status === 'Return Request' ? 'bg-info' : 'bg-secondary' %>">
                                 <%= order.status %>
                             </span>
+                            <% if (product.returnStatus) { %>
+                                <span class="badge bg-info mt-2">Return <%= product.returnStatus %></span>
+                            <% } %>
                         </div>
 
                         <!-- View Button -->
-                        <div class="col-md-2 text-center">
+                        <div class="col-md-2 text-center d-flex flex-column gap-2">
                             <a href="/order-view?orderId=<%= order.orderId %>" class="btn btn-primary view-btn">
                                 View Details
                             </a>
+                            <% if (order.status === 'Delivered' && !product.isReturned) { %>
+                                <button class="btn btn-warning view-btn" data-bs-toggle="modal" 
+                                    data-bs-target="#returnModal<%= order._id %>_<%= product.productId._id %>">
+                                    Return
+                                </button>
+                            <% } %>
                         </div>
                     </div>
                 </div>
-                <% }) %>
-                    <% }) %>
+
+                <!-- Return Modal -->
+                <div class="modal fade" id="returnModal<%= order._id %>_<%= product.productId._id %>" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Return Request</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="/return-product" method="POST">
+                                <div class="modal-body">
+                                    <input type="hidden" name="orderId" value="<%= order._id %>">
+                                    <input type="hidden" name="productId" value="<%= product.productId._id %>">
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Product Details:</h6>
+                                        <div class="d-flex align-items-center">
+                                            <img src="<%= product.productId.image1 %>" alt="<%= product.productId.productName %>" 
+                                                class="product-image me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <div>
+                                                <p class="mb-1 fw-bold"><%= product.productId.productName %></p>
+                                                <p class="mb-0 text-muted">Quantity: <%= product.quantity %></p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="returnReason<%= order._id %>_<%= product.productId._id %>" class="form-label">Return Reason</label>
+                                        <select class="form-select" id="returnReason<%= order._id %>_<%= product.productId._id %>" 
+                                            name="returnReason" required>
+                                            <option value="">Select a reason</option>
+                                            <option value="Wrong Size">Wrong Size</option>
+                                            <option value="Damaged Product">Damaged Product</option>
+                                            <option value="Not as Described">Not as Described</option>
+                                            <option value="Quality Issues">Quality Issues</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="returnComments<%= order._id %>_<%= product.productId._id %>" class="form-label">Additional Comments</label>
+                                        <textarea class="form-control" id="returnComments<%= order._id %>_<%= product.productId._id %>" 
+                                            name="returnComments" rows="3" placeholder="Please provide additional details about your return request"></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Submit Return Request</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% }) %>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+       
+
+        function showToast(type, message) {
+            const toastContainer = document.createElement('div');
+            toastContainer.style.position = 'fixed';
+            toastContainer.style.top = '20px';
+            toastContainer.style.right = '20px';
+            toastContainer.style.zIndex = '1050';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            toast.addEventListener('hidden.bs.toast', () => {
+                toastContainer.remove();
+            });
+        }
+    </script>
 </body>
 
 </html>

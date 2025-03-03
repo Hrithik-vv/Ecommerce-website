@@ -24,7 +24,26 @@ const orderSchema = new Schema({
         quantity: { type: Number, required: true },
         totalPrice: { type: Number, required: true },
         color: { type: String },
-        size: { type: String }
+        size: { type: String },
+        isReturned: {
+            type: Boolean,
+            default: false
+        },
+        returnReason: {
+            type: String,
+            enum: ['Wrong Size', 'Damaged Product', 'Not as Described', 'Quality Issues', 'Other']
+        },
+        returnComments: {
+            type: String
+        },
+        returnStatus: {
+            type: String,
+            enum: ['Pending', 'Approved', 'Rejected'],
+            default: null
+        },
+        returnRequestDate: {
+            type: Date
+        }
     }],
     totalAmount: { type: Number, required: true },
     shippingAddress: { type: Schema.Types.ObjectId, ref: 'Address', required: true },

@@ -1,0 +1,162 @@
+<%- include('../partials/admin/adminHeader.ejs') %>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Return Management</h2>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5>Return Requests</h5>
+                </div>
+                <div class="col-md-6">
+                    <select class="form-select float-end" id="statusFilter" onchange="filterByStatus(this.value)">
+                        <option value="all">All Requests</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Product</th>
+                            <th>Customer</th>
+                            <th>Return Reason</th>
+                            <th>Request Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% returns.forEach(return => { %>
+                            <tr>
+                                <td><%= return.order.orderId %></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="<%= return.product.image1 %>" 
+                                             alt="<%= return.product.productName %>"
+                                             class="img-xs me-2"
+                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                        <div>
+                                            <p class="mb-0"><%= return.product.productName %></p>
+                                            <small class="text-muted">Qty: <%= return.quantity %></small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><%= return.customer.name %></td>
+                                <td>
+                                    <p class="mb-0"><%= return.returnReason %></p>
+                                    <small class="text-muted"><%= return.returnComments %></small>
+                                </td>
+                                <td><%= new Date(return.returnRequestDate).toLocaleDateString() %></td>
+                                <td>
+                                    <span class="badge rounded-pill 
+                                        <%= return.returnStatus === 'Pending' ? 'bg-warning' : 
+                                            return.returnStatus === 'Approved' ? 'bg-success' : 
+                                            return.returnStatus === 'Rejected' ? 'bg-danger' : 'bg-secondary' %>">
+                                        <%= return.returnStatus %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <% if (return.returnStatus === 'Pending') { %>
+                                        <div class="btn-group">
+                                            <button class="btn btn-success btn-sm" 
+                                                    onclick="handleReturn('<%= return.order._id %>', '<%= return.product._id %>', 'Approved')">
+                                                Approve
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" 
+                                                    onclick="handleReturn('<%= return.order._id %>', '<%= return.product._id %>', 'Rejected')">
+                                                Reject
+                                            </button>
+                                        </div>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function handleReturn(orderId, productId, action) {
+        if (!confirm(`Are you sure you want to ${action.toLowerCase()} this return request?`)) {
+            return;
+        }
+
+        fetch('/admin/handle-return', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                orderId,
+                productId,
+                action
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Refresh the page to show updated status
+                location.reload();
+            } else {
+                alert('Failed to process return request');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing the request');
+        });
+    }
+
+    function filterByStatus(status) {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(6)');
+            if (status === 'all' || statusCell.textContent.trim() === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+
+<style>
+    .img-xs {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .badge {
+        padding: 0.5em 1em;
+    }
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+
+<%- include('../partials/admin/adminFooter.ejs') %> 

@@ -149,4 +149,7 @@ router.get("/order-view", userAuth, cartController.orderView);
 // Add this route to your userRouter.js file
 router.post('/process-payment', userAuth, orderController.processPayment);
 
+// Return product route
+router.post('/return-product', userAuth, orderController.returnProduct);
+
 module.exports = router;
