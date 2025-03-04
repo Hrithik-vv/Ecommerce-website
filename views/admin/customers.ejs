@@ -203,9 +203,11 @@
 </div>
 
 <header class="card-header">
-    <form action="/admin/users/" method="get" class="d-inline">
+    <form action="/admin/users" method="get" class="d-inline">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search customers..." id="search-input" name="search" value="<%= search %>" />
+            <input type="text" class="form-control" placeholder="Search customers..." id="search-input" name="search" 
+                   value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                   oninput="filterCustomers()" />
             <button class="btn" type="submit">Search</button>
         </div>
     </form>
@@ -279,3 +281,49 @@
         <% } %>
     </ul>
 </nav>
+
+<script>
+    function filterCustomers() {
+        const searchInput = document.getElementById('search-input');
+        const searchTerm = searchInput.value.toLowerCase();
+        const tableRows = document.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+
+        tableRows.forEach(row => {
+            if (row.cells.length === 1 && row.cells[0].classList.contains('no-results')) {
+                return;
+            }
+
+            const name = row.cells[0].textContent.toLowerCase();
+            const email = row.cells[1].textContent.toLowerCase();
+            
+            if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        const tbody = document.querySelector('tbody');
+        let noResultsRow = tbody.querySelector('.no-results-row');
+        
+        if (visibleCount === 0) {
+            if (!noResultsRow) {
+                noResultsRow = document.createElement('tr');
+                noResultsRow.className = 'no-results-row';
+                noResultsRow.innerHTML = '<td colspan="3" class="no-results">No customers found.</td>';
+                tbody.appendChild(noResultsRow);
+            }
+            noResultsRow.style.display = '';
+        } else if (noResultsRow) {
+            noResultsRow.style.display = 'none';
+        }
+    }
+
+    // Initialize search on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        filterCustomers();
+    });
+</script>

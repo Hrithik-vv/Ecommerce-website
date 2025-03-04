@@ -193,9 +193,12 @@
     </div>
 
     <header class="card-header">
-        <form action="" method="get" class="d-inline">
+        <form action="/admin/products" method="get" class="d-inline">
             <div class="input-group">
-                <input oninput="filterProducts()" id="search-input" type="text" class="form-control" placeholder="Search products or brands" name="search" />
+                <input type="text" class="form-control" placeholder="Search products..." 
+                       id="search-input" name="search" 
+                       value="<%= typeof search !== 'undefined' ? search : '' %>"
+                       oninput="filterProducts()" />
                 <button class="search-btn" type="submit">Search</button>
             </div>
         </form>
@@ -251,10 +254,43 @@
     let currentPage = 1;
     const rowsPerPage = 8;
     let filteredRows = [];
+    let allRows = [];
     
     function initializePagination() {
         const tableBody = document.getElementById('table-body');
-        filteredRows = Array.from(tableBody.getElementsByTagName('tr'));
+        allRows = Array.from(tableBody.getElementsByTagName('tr'));
+        filteredRows = [...allRows];
+        updatePagination();
+        showPage(1);
+    }
+
+    function filterProducts() {
+        const query = document.getElementById("search-input").value.toLowerCase();
+        const tableBody = document.getElementById('table-body');
+        
+        filteredRows = allRows.filter(row => {
+            const productName = row.cells[0].textContent.toLowerCase();
+            const category = row.cells[1].textContent.toLowerCase();
+            const offer = row.cells[2].textContent.toLowerCase();
+            
+            return productName.includes(query) || 
+                   category.includes(query) || 
+                   offer.includes(query);
+        });
+        
+        // Show no results message if needed
+        if (filteredRows.length === 0) {
+            const noResultsRow = document.createElement('tr');
+            noResultsRow.innerHTML = '<td colspan="5" class="text-center">No products found</td>';
+            tableBody.innerHTML = '';
+            tableBody.appendChild(noResultsRow);
+        } else {
+            // Reset table body and show filtered results
+            tableBody.innerHTML = '';
+            filteredRows.forEach(row => tableBody.appendChild(row));
+        }
+        
+        currentPage = 1;
         updatePagination();
         showPage(1);
     }
@@ -264,12 +300,8 @@
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
         
-        filteredRows.forEach(row => {
-            row.style.display = 'none';
-        });
-        
-        filteredRows.slice(start, end).forEach(row => {
-            row.style.display = '';
+        filteredRows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? '' : 'none';
         });
         
         currentPage = page;
@@ -278,14 +310,14 @@
 
     function updatePagination() {
         const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
-        document.getElementById('total-pages').textContent = totalPages;
+        document.getElementById('total-pages').textContent = totalPages || 1;
         document.getElementById('current-page').textContent = currentPage;
     }
 
     function updatePaginationButtons() {
         const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
         document.getElementById('prev-button').disabled = currentPage === 1;
-        document.getElementById('next-button').disabled = currentPage === totalPages;
+        document.getElementById('next-button').disabled = currentPage === totalPages || totalPages === 0;
         document.getElementById('current-page').textContent = currentPage;
     }
 
@@ -302,23 +334,14 @@
         }
     }
 
-    function filterProducts() {
-        const query = document.getElementById("search-input").value.toLowerCase();
-        const tableBody = document.getElementById('table-body');
-        const rows = Array.from(tableBody.getElementsByTagName('tr'));
-        
-        filteredRows = rows.filter(row => {
-            const productName = row.cells[0].textContent.toLowerCase();
-            const productCategory = row.cells[1].textContent.toLowerCase();
-            return productName.includes(query) || productCategory.includes(query);
-        });
-        
-        currentPage = 1;
-        updatePagination();
-        showPage(1);
-    }
-
-    document.addEventListener('DOMContentLoaded', initializePagination);
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        initializePagination();
+        // Trigger initial search if there's a value in the search input
+        if (document.getElementById("search-input").value) {
+            filterProducts();
+        }
+    });
 </script>
 
 </body>

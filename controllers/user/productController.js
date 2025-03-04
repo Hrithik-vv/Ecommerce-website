@@ -2,6 +2,7 @@ const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
+const mongoose = require("mongoose");
 
 
 const productDetails = async (req, res) => {
@@ -28,25 +29,39 @@ const productDetails = async (req, res) => {
 //filtter
 const getProducts = async (req, res) => {
   try {
-    console.log("Sort Option:", req.query.sort);
-    let sortOption = req.query.sort || "popularity";
+    const { sort, minPrice, maxPrice, category, search } = req.query;
+    let query = { isBlocked: false };
     let sortQuery = {};
 
-    switch (sortOption) {
-      case "popularity":
-        sortQuery = { popularity: -1 };
-        break;
+    // Handle search filtering
+    if (search) {
+      query.productName = { $regex: search, $options: 'i' };
+    }
+
+    // Handle price filtering
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      query['variants.0.price'] = {
+        $gte: parseFloat(minPrice),
+        $lte: parseFloat(maxPrice)
+      };
+    }
+
+    // Handle category filtering
+    if (category && category !== 'all') {
+      try {
+        query.category = new mongoose.Types.ObjectId(category);
+      } catch (err) {
+        console.log('Invalid category ID:', err);
+      }
+    }
+
+    // Handle sorting
+    switch (sort) {
       case "priceLowHigh":
-        sortQuery = { salePrice: 1 };
+        sortQuery = { "variants.0.price": 1 };
         break;
       case "priceHighLow":
-        sortQuery = { salePrice: -1 };
-        break;
-      case "rating":
-        sortQuery = { rating: -1 };
-        break;
-      case "newArrivals":
-        sortQuery = { createdAt: -1 };
+        sortQuery = { "variants.0.price": -1 };
         break;
       case "aToZ":
         sortQuery = { productName: 1 };
@@ -54,18 +69,58 @@ const getProducts = async (req, res) => {
       case "zToA":
         sortQuery = { productName: -1 };
         break;
+      case "newArrivals":
+        sortQuery = { createdAt: -1 };
+        break;
       default:
-        sortQuery = { popularity: -1 };
+        sortQuery = { createdAt: -1 };
     }
-    console.log("🔹 Sorting by:", sortQuery);
 
-    const products = await Product.find().sort(sortQuery);
-    console.log("🔹 Total products fetched:", products.length);
+    console.log('Applied Query:', query);
+    console.log('Applied Sort:', sortQuery);
 
-    res.render("shop", { products });
+    // Fetch products with filters and sorting
+    const products = await Product.find(query)
+      .populate('category')
+      .sort(sortQuery)
+      .lean(); // Using lean() for better performance
+
+    // Get categories for sidebar
+    const categories = await Category.find({ isBlocked: false }).lean();
+
+    // Create filters object with current values
+    const filters = {
+      minPrice: minPrice || '',
+      maxPrice: maxPrice || '',
+      selectedCategory: category || 'all',
+      selectedSort: sort || 'newArrivals',
+      search: search || ''
+    };
+
+    console.log('Applied Filters:', filters);
+    console.log('Found Products:', products.length);
+
+    res.render("shop", {
+      products,
+      category: categories,
+      filters,
+      user: req.session.user || null
+    });
+
   } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).send("Server Error");
+    console.error("Error in getProducts:", error);
+    res.render("shop", {
+      products: [],
+      category: [],
+      filters: {
+        minPrice: '',
+        maxPrice: '',
+        selectedCategory: 'all',
+        selectedSort: 'newArrivals',
+        search: ''
+      },
+      user: req.session.user || null
+    });
   }
 };
 

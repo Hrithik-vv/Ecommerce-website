@@ -1,522 +1,509 @@
-
 <%- include("../partials/admin/adminHeader") %>
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Order Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head> -->
-<style>
-    /* Global Styles */
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f5f7fa;
-        color: #333;
-    }
-    .container {
-    display: flex;
-    min-height: 100vh;
-}
 
-.sidebar {
-    width: 200px;
-    background: #ffffff;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-}
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
 
-.content-main {
-    max-width: 1200px;
-    margin: 80px auto 0 300px; /* Shift content to the right */
-    padding: 20px;
-    background: #f8f9fa;
-    min-height: calc(100vh - 80px);
-    position: relative;
-    z-index: 1;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    flex: 1;
-}
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-    /* Content Main Styles - Adjusted to be a bit more to the left
-    .content-main {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        background: #f8f9fa;
-        margin-left: 200px;
-        margin-top: 80px;
-        min-height: calc(100vh - 80px);
-        position: relative;
-        z-index: 1;
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    } */
+        .sidebar {
+            width: 200px;
+            background: #ffffff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
 
-    /* Content Header Styles */
-    .content-header {
-        margin-bottom: 2rem;
-        text-align: center;
-        padding: 20px 0;
-        border-bottom: 2px solid #f1f4f9;
-        position: relative;
-        z-index: 2;
-    }
-
-    .content-title {
-        color: #2c3e50;
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* Card Styles */
-    .card {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
-    .card-body {
-        padding: 1.5rem;
-    }
-
-    /* Table Styles */
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-bottom: 0;
-    }
-
-    .table thead {
-        background-color: #f9fafb;
-    }
-
-    .table th {
-        padding: 1rem;
-        font-weight: 600;
-        color: #4b5563;
-        border-bottom: 2px solid #e5e7eb;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-    }
-
-    .table td {
-        padding: 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid #edf2f7;
-    }
-
-    .table tr:hover {
-        background-color: #f9fafb;
-    }
-
-    .table .border-bottom {
-        border-bottom: 1px solid #edf2f7;
-    }
-
-    /* Form Control Styles */
-    .form-select {
-        padding: 0.5rem;
-        border-radius: 0.375rem;
-        border: 1px solid #d1d5db;
-        width: 100%;
-        font-size: 0.875rem;
-        color: #4b5563;
-        background-color: #fff;
-        transition: all 0.2s;
-    }
-
-    .form-select:focus {
-        outline: none;
-        border-color: #4f46e5;
-        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
-    }
-
-    /* Button Styles */
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        border-radius: 0.375rem;
-        border: 1px solid transparent;
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-        transition: all 0.2s;
-        cursor: pointer;
-    }
-
-    .btn-sm {
-        padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
-    }
-
-    .btn-primary {
-        background-color: #4f46e5;
-        color: #fff;
-        border-color: #4f46e5;
-    }
-
-    .btn-primary:hover {
-        background-color: #4338ca;
-    }
-
-    .btn-outline-primary {
-        color: #4f46e5;
-        border-color: #4f46e5;
-        background-color: transparent;
-    }
-
-    .btn-outline-primary:hover {
-        background-color: #4f46e5;
-        color: #fff;
-    }
-
-    .btn-outline-secondary {
-        color: #6b7280;
-        border-color: #d1d5db;
-        background-color: transparent;
-    }
-
-    .btn-outline-secondary:hover {
-        background-color: #f3f4f6;
-    }
-
-    .btn-outline-secondary.disabled,
-    .btn-outline-secondary[disabled] {
-        color: #d1d5db;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 1.5rem;
-        background: linear-gradient(135deg, #1e293b, #0f172a);
-        color: white;
-        font-size: 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .dashboard-header a {
-        text-decoration: none;
-        color: #0f172a;
-        background-color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-
-    .dashboard-header a:hover {
-        background-color: #f1f5f9;
-        transform: translateY(-2px);
-    }
-
-    .m-0 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 2rem;
-        font-weight: 700;
-        color: #ffffff;
-        text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.1);
-        margin: 0;
-    }
-
-    /* Pagination styles */
-    .pagination-wrapper {
-        margin-top: 2rem;
-    }
-
-    .pagination-controls {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    /* Image styles */
-    .img-thumbnail {
-        border-radius: 8px;
-        border: 1px solid #edf2f7;
-        transition: transform 0.2s;
-    }
-
-    .img-thumbnail:hover {
-        transform: scale(1.05);
-    }
-
-    /* Product info styles */
-    .product-info h6 {
-        font-weight: 600;
-        font-size: 0.875rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .text-muted {
-        color: #6b7280;
-        font-size: 0.75rem;
-    }
-
-    /* Status badges */
-    .badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        border-radius: 9999px;
-    }
-
-    /* Image placeholder style */
-    .image-placeholder {
-        width: 60px;
-        height: 60px;
-        background-color: #f3f4f6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        color: #9ca3af;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 1024px) {
         .content-main {
-            margin-left: 0;
-            margin-top: 0;
-            border-radius: 0;
+            max-width: 1200px;
+            margin: 80px auto 0 300px;
+            /* Shift content to the right */
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: calc(100vh - 80px);
+            position: relative;
+            z-index: 1;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex: 1;
         }
-    }
 
-    @media (max-width: 768px) {
+        /* Content Header Styles */
+        .content-header {
+            margin-bottom: 2rem;
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #f1f4f9;
+            position: relative;
+            z-index: 2;
+        }
+
         .content-title {
-            font-size: 1.5rem;
+            color: #2c3e50;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .table th, .table td {
-            padding: 0.75rem;
+        /* Card Styles */
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
-    }
 
-    @media (max-width: 640px) {
-        .pagination-controls {
-            gap: 0.25rem;
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background-color: #f9fafb;
+        }
+
+        .table th {
+            padding: 1rem;
+            font-weight: 600;
+            color: #4b5563;
+            border-bottom: 2px solid #e5e7eb;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .table .border-bottom {
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        /* Form Control Styles */
+        .form-select {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            width: 100%;
+            font-size: 0.875rem;
+            color: #4b5563;
+            background-color: #fff;
+            transition: all 0.2s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            border: 1px solid transparent;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
         }
 
         .btn-sm {
-            padding: 0.2rem 0.5rem;
-            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
         }
-    }
 
-    /* Utility classes */
-    .d-flex {
-        display: flex;
-    }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: #fff;
+            border-color: #4f46e5;
+        }
 
-    .align-items-center {
-        align-items: center;
-    }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
 
-    .me-3 {
-        margin-right: 0.75rem;
-    }
+        .btn-outline-primary {
+            color: #4f46e5;
+            border-color: #4f46e5;
+            background-color: transparent;
+        }
 
-    .mb-0 {
-        margin-bottom: 0;
-    }
+        .btn-outline-primary:hover {
+            background-color: #4f46e5;
+            color: #fff;
+        }
 
-    .align-middle {
-        vertical-align: middle;
-    }
+        .btn-outline-secondary {
+            color: #6b7280;
+            border-color: #d1d5db;
+            background-color: transparent;
+        }
 
-    .text-center {
-        text-align: center;
-    }
+        .btn-outline-secondary:hover {
+            background-color: #f3f4f6;
+        }
 
-    .py-4 {
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-    }
+        .btn-outline-secondary.disabled,
+        .btn-outline-secondary[disabled] {
+            color: #d1d5db;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
 
-    .mt-2 {
-        margin-top: 0.5rem;
-    }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-    .d-inline {
-        display: inline;
-    }
-</style>
+        .dashboard-header a {
+            text-decoration: none;
+            color: #0f172a;
+            background-color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
 
+        .dashboard-header a:hover {
+            background-color: #f1f5f9;
+            transform: translateY(-2px);
+        }
 
+        .m-0 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.1);
+            margin: 0;
+        }
 
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Order Management</h2>
+        /* Pagination styles */
+        .pagination-wrapper {
+            margin-top: 2rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* Image styles */
+        .img-thumbnail {
+            border-radius: 8px;
+            border: 1px solid #edf2f7;
+            transition: transform 0.2s;
+        }
+
+        .img-thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        /* Product info styles */
+        .product-info h6 {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .text-muted {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 9999px;
+        }
+
+        /* Image placeholder style */
+        .image-placeholder {
+            width: 60px;
+            height: 60px;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #9ca3af;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-main {
+                margin-left: 0;
+                margin-top: 0;
+                border-radius: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-title {
+                font-size: 1.5rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .pagination-controls {
+                gap: 0.25rem;
+            }
+
+            .btn-sm {
+                padding: 0.2rem 0.5rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Utility classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .me-3 {
+            margin-right: 0.75rem;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .align-middle {
+            vertical-align: middle;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .py-4 {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .d-inline {
+            display: inline;
+        }
+    </style>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Order Management</h2>
+            </div>
         </div>
-    </div>
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Products</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% orders.forEach(order => { %>
-                            <% if (order.products && order.products.length > 0) { %>
-                                <% order.products.forEach((item, index) => { %>
-                                    <tr class="border-bottom">
-                                        <% if (index === 0) { %>
-                                            <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                <span class="font-medium text-gray-800"><%= order._id %></span>
-                                            </td>
-                                            <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                <span class="font-medium"><%= order.userId && order.userId.name ? order.userId.name : 'Guest User' %></span>
-                                            </td>
-                                        <% } %>
-                                        <td class="align-middle">
-                                            <div class="d-flex align-items-center">
-                                                <% if (item.productId && item.productId.image1) { %>
-                                                    <img src="<%= item.productId.image1 %>" 
-                                                         alt="<%= item.productId.productName %>"
-                                                         class="img-thumbnail me-3"
-                                                         style="width: 60px; height: 60px; object-fit: cover;"
-                                                         onerror="this.src='/images/placeholder.png'">
-                                                <% } else { %>
-                                                    <div class="image-placeholder me-3">
-                                                        <i class="fas fa-image"></i>
-                                                    </div>
-                                                <% } %>
-                                                <div class="product-info">
-                                                    <h6 class="mb-0"><%= item.productId ? item.productId.productName : 'Product Unavailable' %></h6>
-                                                    <small class="text-muted">Quantity: <%= item.quantity %></small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <% if (index === 0) { %>
-                                            <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                <span class="font-medium">₹<%= order.totalAmount.toFixed(2) %></span>
-                                            </td>
-                                            <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                <form action="/admin/update-order-status" method="POST" class="d-inline">
-                                                    <input type="hidden" name="orderId" value="<%= order._id %>">
-                                                    <select name="newStatus" class="form-select form-select-sm" onchange="this.form.submit()">
-                                                        <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                                        <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                                        <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                                        <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                                    </select>
-                                                </form>
-                                            </td>
-                                            <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                <a href="/admin/orderdetails/<%= order._id %>" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i> View
-                                                </a>
-                                            </td>
-                                        <% } %>
-                                    </tr>
-                                <% }) %>
-                            <% } %>
-                        <% }) %>
-
-                        <% if (orders.length === 0) { %>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
                             <tr>
-                                <td colspan="6" class="text-center py-4">
-                                    <div class="text-muted">No orders found</div>
-                                </td>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Total</th>
+                                <th>Status</th>
                             </tr>
-                        <% } %>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <% orders.forEach(order=> { %>
+                                <% if (order.products && order.products.length> 0) { %>
+                                    <% order.products.forEach((item, index)=> { %>
+                                        <tr class="border-bottom">
+                                            <% if (index===0) { %>
+                                                <td class="align-middle" rowspan="<%= order.products.length %>">
+                                                    <span class="font-medium text-gray-800">
+                                                        <%= order._id %>
+                                                    </span>
+                                                </td>
+                                                <td class="align-middle" rowspan="<%= order.products.length %>">
+                                                    <span class="font-medium">
+                                                        <%= order.userId && order.userId.name ? order.userId.name
+                                                            : 'Guest User' %>
+                                                    </span>
+                                                </td>
+                                                <% } %>
+                                                    <td class="align-middle">
+                                                        <div class="d-flex align-items-center">
+                                                            <% if (item.productId && item.productId.image1) { %>
+                                                                <img src="<%= item.productId.image1 %>"
+                                                                    alt="<%= item.productId.productName %>"
+                                                                    class="img-thumbnail me-3"
+                                                                    style="width: 60px; height: 60px; object-fit: cover;"
+                                                                    onerror="this.src='/images/placeholder.png'">
+                                                                <% } else { %>
+                                                                    <div class="image-placeholder me-3">
+                                                                        <i class="fas fa-image"></i>
+                                                                    </div>
+                                                                    <% } %>
+                                                                        <div class="product-info">
+                                                                            <h6 class="mb-0">
+                                                                                <%= item.productId ?
+                                                                                    item.productId.productName
+                                                                                    : 'Product Unavailable' %>
+                                                                            </h6>
+                                                                            <small class="text-muted">Quantity: <%=
+                                                                                    item.quantity %></small>
+                                                                        </div>
+                                                        </div>
+                                                    </td>
+                                                    <% if (index===0) { %>
+                                                        <td class="align-middle" rowspan="<%= order.products.length %>">
+                                                            <span class="font-medium">₹<%= order.totalAmount.toFixed(2)
+                                                                    %></span>
+                                                        </td>
+                                                        <td class="align-middle" rowspan="<%= order.products.length %>">
+                                                            <form action="/admin/update-order-status" method="POST"
+                                                                class="d-inline">
+                                                                <input type="hidden" name="orderId"
+                                                                    value="<%= order._id %>">
+                                                                <select name="newStatus"
+                                                                    class="form-select form-select-sm"
+                                                                    onchange="this.form.submit()">
+                                                                    <option value="Pending" <%=order.status==='Pending'
+                                                                        ? 'selected' : '' %>>Pending</option>
+                                                                    <option value="Shipped" <%=order.status==='Shipped'
+                                                                        ? 'selected' : '' %>>Shipped</option>
+                                                                    <option value="Delivered"
+                                                                        <%=order.status==='Delivered' ? 'selected' : ''
+                                                                        %>>Delivered</option>
+                                                                    <option value="Cancelled"
+                                                                        <%=order.status==='Cancelled' ? 'selected' : ''
+                                                                        %>>Cancelled</option>
+                                                                </select>
+                                                            </form>
+                                                        </td>
+
+                                                        <% } %>
+                                        </tr>
+                                        <% }) %>
+                                            <% } %>
+                                                <% }) %>
+
+                                                    <% if (orders.length===0) { %>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center py-4">
+                                                                <div class="text-muted">No orders found</div>
+                                                            </td>
+                                                        </tr>
+                                                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Pagination -->
-    <% if (pagination && pagination.totalPages > 0) { %>
-        <div class="pagination-wrapper">
-            <div class="pagination-controls">
-                <button class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/admin/ordermanage?page=1'" 
-                        <%= pagination.currentPage === 1 ? 'disabled' : '' %>>
-                    <i class="fas fa-angle-double-left"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/admin/ordermanage?page=<%= pagination.previousPage %>'"
-                        <%= !pagination.hasPreviousPage ? 'disabled' : '' %>>
-                    <i class="fas fa-angle-left"></i>
-                </button>
-                
-                <% 
-                const maxVisiblePages = 5;
-                let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisiblePages / 2));
-                let endPage = Math.min(pagination.totalPages, startPage + maxVisiblePages - 1);
-                
-                if (endPage - startPage + 1 < maxVisiblePages) {
-                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                }
-                
-                if (startPage > 1) { %>
-                    <span class="btn btn-sm btn-outline-secondary disabled">...</span>
-                <% } 
-                
-                for (let i = startPage; i <= endPage; i++) { %>
-                    <button class="btn btn-sm <%= pagination.currentPage === i ? 'btn-primary' : 'btn-outline-secondary' %>"
-                            onclick="window.location.href='/admin/ordermanage?page=<%= i %>'">
-                        <%= i %>
+        <!-- Pagination -->
+        <% if (pagination && pagination.totalPages> 0) { %>
+            <div class="pagination-wrapper">
+                <div class="pagination-controls">
+                    <button class="btn btn-sm btn-outline-secondary"
+                        onclick="window.location.href='/admin/ordermanage?page=1'" <%=pagination.currentPage===1
+                        ? 'disabled' : '' %>>
+                        <i class="fas fa-angle-double-left"></i>
                     </button>
-                <% } 
-                
-                if (endPage < pagination.totalPages) { %>
-                    <span class="btn btn-sm btn-outline-secondary disabled">...</span>
-                <% } %>
-                
-                <button class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/admin/ordermanage?page=<%= pagination.nextPage %>'"
-                        <%= !pagination.hasNextPage ? 'disabled' : '' %>>
-                    <i class="fas fa-angle-right"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/admin/ordermanage?page=<%= pagination.totalPages %>'"
-                        <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>>
-                    <i class="fas fa-angle-double-right"></i>
-                </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                        onclick="window.location.href='/admin/ordermanage?page=<%= pagination.previousPage %>'"
+                        <%=!pagination.hasPreviousPage ? 'disabled' : '' %>>
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+
+                    <% const maxVisiblePages=5; let startPage=Math.max(1, pagination.currentPage -
+                        Math.floor(maxVisiblePages / 2)); let endPage=Math.min(pagination.totalPages, startPage +
+                        maxVisiblePages - 1); if (endPage - startPage + 1 < maxVisiblePages) { startPage=Math.max(1,
+                        endPage - maxVisiblePages + 1); } if (startPage> 1) { %>
+                        <span class="btn btn-sm btn-outline-secondary disabled">...</span>
+                        <% } for (let i=startPage; i <=endPage; i++) { %>
+                            <button
+                                class="btn btn-sm <%= pagination.currentPage === i ? 'btn-primary' : 'btn-outline-secondary' %>"
+                                onclick="window.location.href='/admin/ordermanage?page=<%= i %>'">
+                                <%= i %>
+                            </button>
+                            <% } if (endPage < pagination.totalPages) { %>
+                                <span class="btn btn-sm btn-outline-secondary disabled">...</span>
+                                <% } %>
+
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="window.location.href='/admin/ordermanage?page=<%= pagination.nextPage %>'"
+                                        <%=!pagination.hasNextPage ? 'disabled' : '' %>>
+                                        <i class="fas fa-angle-right"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="window.location.href='/admin/ordermanage?page=<%= pagination.totalPages %>'"
+                                        <%=pagination.currentPage===pagination.totalPages ? 'disabled' : '' %>>
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </button>
+                </div>
             </div>
-        </div>
-    <% } %>
-</section>
+            <% } %>
+    </section>
 
-<%- include("../partials/admin/adminFooter") %>
+    <%- include("../partials/admin/adminFooter") %>
 
-</html>
+        </html>

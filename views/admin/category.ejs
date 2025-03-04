@@ -315,9 +315,9 @@
         </div>
       </div>
       <header class="card-header text-center mb-20">
-        <form action="/admin/category/" method="get" class="d-inline">
+        <form action="/admin/category" method="get" class="d-inline">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search products or brands" name="search" />
+            <input type="text" class="form-control" placeholder="Search categories..." name="search" value="<%= typeof search !== 'undefined' ? search : '' %>" />
             <button class="btn" type="submit">Search</button>
           </div>
         </form>
@@ -366,7 +366,15 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <%cat.reverse().forEach((category,index)=>{%>
+                    <%cat.reverse().forEach((category,index)=>{
+                      if (typeof search !== 'undefined' && search !== '') {
+                        const name = category.name.toLowerCase();
+                        const description = category.description.toLowerCase();
+                        if (!name.includes(search) && !description.includes(search)) {
+                          return;
+                        }
+                      }
+                    %>
                       <tr>
                         <td></td>
                         <td class="text-start">
@@ -401,7 +409,7 @@
                           <a href="/admin/editCategory?id=<%=category._id%>" class="btn btn-info text-white">Edit</a>
                         </td>
                       </tr>
-                      <%})%>
+                    <%})%>
                   </tbody>
                 </table>
               </div>
@@ -531,6 +539,27 @@
           element.style.display = "none";
         });
       }
+
+      // Add this function for real-time search filtering
+      function filterCategories() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchTerm = searchInput.value.toLowerCase();
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        tableRows.forEach(row => {
+          const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          const description = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+          
+          if (name.includes(searchTerm) || description.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+
+      // Add event listener for real-time search
+      document.querySelector('input[name="search"]').addEventListener('input', filterCategories);
     </script>
     <%- include("../../views/partials/admin/adminFooter.ejs") %>
   </body>

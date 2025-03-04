@@ -374,6 +374,56 @@
         font-size: 14px;
       }
     }
+
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pagination-container button {
+      padding: 8px 12px;
+      border: none;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .pagination-container button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .category-button.active {
+      background: #f06c2f;
+      color: white;
+      border-color: #28a745;
+    }
+
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .search-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 25px;
+      outline: none;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .search-input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+    }
   </style>
   <div class="main-container">
     <section class="shop-page container">
@@ -381,16 +431,15 @@
         <!-- ... (keep breadcrumb unchanged) ... -->
         <div class="search-bar">
           <input type="text" id="search-input" placeholder="Search items..." class="search-input"
-            oninput="filterProducts()">
+            oninput="handleSearch()">
         </div>
         <div class="sort-options">
-          <select id="sort-select" onchange="sortProducts()">
-            <option value="priceLowHigh">Price: Low to High</option>
-            <option value="priceHighLow">Price: High to Low</option>
-            <option value="rating">Average Ratings</option>
-            <option value="aToZ">A - Z</option>
-            <option value="zToA">Z - A</option>
-            <option value="newArrivals">New Arrivals</option>
+          <select id="sort-select" onchange="handleSort(this.value)">
+            <option value="newArrivals" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'newArrivals') ? 'selected' : '' %>>New Arrivals</option>
+            <option value="priceLowHigh" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'priceLowHigh') ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="priceHighLow" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'priceHighLow') ? 'selected' : '' %>>Price: High to Low</option>
+            <option value="aToZ" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'aToZ') ? 'selected' : '' %>>A - Z</option>
+            <option value="zToA" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'zToA') ? 'selected' : '' %>>Z - A</option>
           </select>
         </div>
       </div>
@@ -409,6 +458,7 @@
           <div class="category-filter">
             <div class="filter-title">Filter by Category</div>
             <div class="category-options">
+              <button type="button" class="category-button" onclick="filterByCategory('all')">All</button>
               <% category.forEach(category=> { %>
                 <button type="button" class="category-button" onclick="filterByCategory('<%= category._id %>')">
                   <%= category.name %>
@@ -421,10 +471,10 @@
           <div class="price-filter">
             <div class="filter-title">Filter by Price</div>
             <div class="price-options">
-              <button type="button" class="price-button" onclick="filterByPrice(0, 500)">Under ₹500</button>
-              <button type="button" class="price-button" onclick="filterByPrice(500, 1000)">₹500 - ₹1000</button>
-              <button type="button" class="price-button" onclick="filterByPrice(1000, 1500)">₹1000 - ₹1500</button>
-              <button type="button" class="price-button" onclick="filterByPrice(1500, 100000)">Above ₹1500</button>
+              <button type="button" class="price-button" onclick="handlePriceFilter(0, 500)">Under ₹500</button>
+              <button type="button" class="price-button" onclick="handlePriceFilter(500, 1000)">₹500 - ₹1000</button>
+              <button type="button" class="price-button" onclick="handlePriceFilter(1000, 1500)">₹1000 - ₹1500</button>
+              <button type="button" class="price-button" onclick="handlePriceFilter(1500, 100000)">Above ₹1500</button>
             </div>
           </div>
         </aside>
@@ -473,7 +523,7 @@
                     <p>
                       <% if (product.variants && product.variants[0]) { %>
                         Price: ₹<%= product.variants[0].price %>
-                      <% } %>
+                          <% } %>
                     </p>
                   </div>
                 </div>
@@ -485,60 +535,109 @@
         </main>
       </div>
 
-      <!-- ... (keep pagination unchanged) ... -->
+      <div class="pagination-container">
+        <button id="prev-page" onclick="changePage(-1)">« Prev</button>
+        <span id="page-info">Page <span id="current-page">1</span> of <span id="total-pages"></span></span>
+        <button id="next-page" onclick="changePage(1)">Next »</button>
+      </div>
+
     </section>
   </div>
 
   <script>
-    // Filter products by search input
-    function filterProducts() {
-      const searchQuery = document.getElementById('search-input').value.toLowerCase();
-      const products = document.querySelectorAll('.product-card');
-
-      products.forEach(product => {
-        const productName = product.dataset.name;
-        product.style.display = productName.includes(searchQuery) ? 'block' : 'none';
+    // Update URL with filters and reload page
+    function updateFilters(params) {
+      const url = new URL(window.location.href);
+      
+      // Clear existing parameters
+      url.searchParams.forEach((value, key) => {
+        url.searchParams.delete(key);
       });
-    }
-
-    // Sort products based on selected option
-    function sortProducts() {
-      const sortValue = document.getElementById('sort-select').value;
-      const productGrid = document.getElementById('product-grid');
-      const products = Array.from(document.querySelectorAll('.product-card'));
-
-      products.sort((a, b) => {
-        switch (sortValue) {
-          case 'priceLowHigh':
-            return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
-          case 'priceHighLow':
-            return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
-          case 'rating':
-            return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
-          case 'aToZ':
-            return a.dataset.name.localeCompare(b.dataset.name);
-          case 'zToA':
-            return b.dataset.name.localeCompare(a.dataset.name);
-          case 'newArrivals':
-            return new Date(b.dataset.date) - new Date(a.dataset.date);
-          default:
-            return 0;
+      
+      // Add new parameters
+      Object.entries(params).forEach(([key, value]) => {
+        if (value && value !== 'all') {
+          url.searchParams.set(key, value);
         }
       });
-
-      productGrid.innerHTML = '';
-      products.forEach(product => productGrid.appendChild(product));
+      
+      window.location.href = url.toString();
     }
 
-    // Filter products by price range
-    function filterByPrice(min, max) {
-      const products = document.querySelectorAll('.product-card');
-
-      products.forEach(product => {
-        const price = parseFloat(product.dataset.price);
-        const showProduct = price >= min && price <= max;
-        product.style.display = showProduct ? 'block' : 'none';
+    // Handle sort selection
+    function handleSort(sortValue) {
+      const currentUrl = new URL(window.location.href);
+      const currentParams = Object.fromEntries(currentUrl.searchParams);
+      
+      updateFilters({
+        ...currentParams,
+        sort: sortValue,
+        page: 1
       });
+    }
+
+    // Handle price filter buttons
+    function handlePriceFilter(min, max) {
+      const currentUrl = new URL(window.location.href);
+      const currentParams = Object.fromEntries(currentUrl.searchParams);
+      
+      // Remove active class from all price buttons
+      document.querySelectorAll('.price-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Add active class to clicked button
+      const clickedButton = document.querySelector(`.price-button[onclick="handlePriceFilter(${min}, ${max})"]`);
+      if (clickedButton) {
+        clickedButton.classList.add('active');
+      }
+      
+      updateFilters({
+        ...currentParams,
+        minPrice: min,
+        maxPrice: max,
+        page: 1
+      });
+    }
+
+    // Handle category filter
+    function filterByCategory(categoryId) {
+      const currentUrl = new URL(window.location.href);
+      const currentParams = Object.fromEntries(currentUrl.searchParams);
+      
+      // Remove active class from all category buttons
+      document.querySelectorAll('.category-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Add active class to clicked button
+      const clickedButton = document.querySelector(`.category-button[onclick="filterByCategory('${categoryId}')"]`);
+      if (clickedButton) {
+        clickedButton.classList.add('active');
+      }
+      
+      updateFilters({
+        ...currentParams,
+        category: categoryId,
+        page: 1
+      });
+    }
+
+    // Handle search input
+    let searchTimeout;
+    function handleSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchValue = document.getElementById('search-input').value;
+        const currentUrl = new URL(window.location.href);
+        const currentParams = Object.fromEntries(currentUrl.searchParams);
+        
+        updateFilters({
+          ...currentParams,
+          search: searchValue,
+          page: 1
+        });
+      }, 500);
     }
   </script>
 
@@ -571,14 +670,52 @@
     }
   </script>
   <script>
-    function filterByCategory(categoryId) {
-      const products = document.querySelectorAll('.product-card');
+    // pagination
+    let currentPage = 1;
+    const itemsPerPage = 6; // Change this value as needed
 
-      products.forEach(product => {
-        const productCategory = product.dataset.category;
-        product.style.display = productCategory === categoryId || categoryId === 'all' ? 'block' : 'none';
+    function paginateProducts() {
+      const products = document.querySelectorAll(".product-card");
+      const totalPages = Math.ceil(products.length / itemsPerPage);
+
+      // Hide all products initially
+      products.forEach(product => product.style.display = "none");
+
+      // Show products for the current page
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      products.forEach((product, index) => {
+        if (index >= start && index < end) {
+          product.style.display = "block";
+        }
       });
+
+      // Update pagination info
+      document.getElementById("current-page").textContent = currentPage;
+      document.getElementById("total-pages").textContent = totalPages;
+
+      // Enable/Disable buttons
+      document.getElementById("prev-page").disabled = currentPage === 1;
+      document.getElementById("next-page").disabled = currentPage === totalPages;
     }
+
+    function changePage(step) {
+      currentPage += step;
+      paginateProducts();
+    }
+
+    // Initial pagination setup
+    document.addEventListener("DOMContentLoaded", paginateProducts);
   </script>
+  <script>
+    document.querySelectorAll('.category-button').forEach(button => {
+      button.addEventListener('click', function () {
+        document.querySelectorAll('.category-button').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+  </script>
+
 
   <%- include("../../views/partials/user/footer") %>

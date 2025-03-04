@@ -22,7 +22,9 @@ const pageNotFound = async (req, res) => {
 //homepage loading
 const loadHomepage = async (req, res) => {
   try {
-    const products = await product.find({ isBlocked: false });
+    const products = await product.find({ isBlocked: false })
+    .sort({createdAt:-1})
+    .limit(4)
     const user = req.session.user;
     console.log(req.session);
 
@@ -324,12 +326,10 @@ const loadShoppingPage = async (req, res) => {
   try {
     const user = req.session.user;
     const userData = await User.findOne({ _id: user });
-
-    const categories = await Category.find({ isListed: true });
-
+    const categories = await Category.find({ isListed: true })
     const products = await Product.find({
       isBlocked: false,
-    });
+    }).sort({createdAt : -1})
 
     console.log("Fetched products:", products);
 

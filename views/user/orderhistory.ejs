@@ -78,9 +78,36 @@
         }
 
         .status-badge {
+            padding: 8px 16px;
+            font-weight: 500;
             font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.bg-warning {
+            background-color: #10e5f8 !important;
+            color: #000 !important;
+        }
+        
+        .status-badge.bg-success {
+            background-color: #28a745 !important;
+            color: #fff !important;
+        }
+        
+        .status-badge.bg-danger {
+            background-color: #dc3545 !important;
+            color: #fff !important;
+        }
+        
+        .status-badge.bg-primary {
+            background-color: #e87110 !important;
+            color: #fff !important;
+        }
+        
+        .status-badge.bg-secondary {
+            background-color: #0a4d4e !important;
+            color: #fff !important;
         }
 
         .total-amount {
@@ -166,15 +193,88 @@
             background-color: #ffca2c;
             color: #000;
         }
-        .status-badge {
-            padding: 0.5em 1em;
-            border-radius: 20px;
-            font-weight: 500;
-        }
         .product-image {
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
+        .pagination-controls {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pagination-controls button {
+            min-width: 40px;
+            height: 40px;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            margin: 0 2px;
+        }
+
+        .pagination-controls button.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .pagination-controls button:disabled {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        #itemsPerPage {
+            width: 70px !important;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 4px;
+        }
+
+        /* Smooth transitions for pagination */
+        .pagination-item {
+            transition: opacity 0.3s ease;
+        }
+
+        .pagination-item[style*="display: none"] {
+            opacity: 0;
+        }
+
+        .pagination-item[style*="display: block"] {
+            opacity: 1;
+        }
+        .breadcrumb {
+    background-color: #f8f9fa; /* Light background */
+    padding: 10px 15px;
+    border-radius: 8px; /* Rounded corners */
+    display: flex;
+    justify-content: center; /* Center align */
+    font-size: 14px;
+}
+
+.breadcrumb-item a {
+    text-decoration: none;
+    color: #007bff; /* Bootstrap primary blue */
+    transition: color 0.3s ease-in-out;
+}
+
+.breadcrumb-item a:hover {
+    color: #0056b3; /* Darker blue on hover */
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    font-weight: bold;
+    color: #6c757d; /* Grey color for the active item */
+}
+
     </style>
 </head>
 
@@ -243,115 +343,203 @@
             </nav>
         </div>
 
-        <!-- Your existing order cards -->
-        <% orders.forEach(order=> { %>
-            <% order.products.forEach(product=> { %>
-                <div class="order-card">
-                    <div class="row align-items-center">
-                        <!-- Product Image -->
-                        <div class="col-md-2 text-center">
-                            <img src="<%= product.productId.image1 %>" class="product-image"
-                                alt="<%= product.productId.productName %>">
-                        </div>
+        <!-- Orders Container -->
+        <div id="ordersContainer">
+            <% orders.forEach(order=> { %>
+                <% order.products.forEach(product=> { %>
+                    <div class="order-card pagination-item">
+                        <div class="row align-items-center">
+                            <!-- Product Image -->
+                            <div class="col-md-2 text-center">
+                                <img src="<%= product.productId.image1 %>" class="product-image"
+                                    alt="<%= product.productId.productName %>">
+                            </div>
 
-                        <!-- Product Details -->
-                        <div class="col-md-5">
-                            <h5 class="mb-1">
-                                <%= product.productId.productName %>
-                            </h5>
-                            <p class="mb-1 text-muted">Qty: <%= product.quantity %>
-                            </p>
-                            <p class="total-amount mb-0">Price: ₹<%= product.totalPrice %>
-                            </p>
-                        </div>
+                            <!-- Product Details -->
+                            <div class="col-md-5">
+                                <h5 class="mb-1">
+                                    <%= product.productId.productName %>
+                                </h5>
+                                <p class="mb-1 text-muted">Qty: <%= product.quantity %>
+                                </p>
+                                <p class="total-amount mb-0">Price: ₹<%= product.totalPrice %>
+                                </p>
+                            </div>
 
-                        <!-- Order Summary -->
-                        <div class="col-md-3 text-center">
-                            <span class="order-id d-block">Order #<%= order.orderId %></span>
-                            <span class="status-badge badge <%= order.status === 'Pending' ? 'bg-warning' : 
-                                order.status === 'Delivered' ? 'bg-success' : 
-                                order.status === 'Return Request' ? 'bg-info' : 'bg-secondary' %>">
-                                <%= order.status %>
-                            </span>
-                            <% if (product.returnStatus) { %>
-                                <span class="badge bg-info mt-2">Return <%= product.returnStatus %></span>
-                            <% } %>
-                        </div>
+                            <!-- Order Summary -->
+                            <div class="col-md-3 text-center">
+                                <span class="order-id d-block">Order #<%= order.orderId %></span>
+                                <span class="status-badge badge <%= 
+                                    order.status === 'Pending' ? 'bg-warning text-dark' : 
+                                    order.status === 'Delivered' ? 'bg-success' : 
+                                    order.status === 'Cancelled' ? 'bg-danger' :
+                                    order.status === 'Processing' ? 'bg-primary' :
+                                    order.status === 'Return Request' ? 'bg-secondary' : 
+                                    'bg-secondary' %>">
+                                    <%= order.status %>
+                                </span>
+                                <% if (product.returnStatus) { %>
+                                    <span class="badge bg-secondary mt-2">Return <%= product.returnStatus %></span>
+                                <% } %>
+                            </div>
 
-                        <!-- View Button -->
-                        <div class="col-md-2 text-center d-flex flex-column gap-2">
-                            <a href="/order-view?orderId=<%= order.orderId %>" class="btn btn-primary view-btn">
-                                View Details
-                            </a>
-                            <% if (order.status === 'Delivered' && !product.isReturned) { %>
-                                <button class="btn btn-warning view-btn" data-bs-toggle="modal" 
-                                    data-bs-target="#returnModal<%= order._id %>_<%= product.productId._id %>">
-                                    Return
-                                </button>
-                            <% } %>
+                            <!-- View Button -->
+                            <div class="col-md-2 text-center d-flex flex-column gap-2">
+                                <a href="/order-view?orderId=<%= order.orderId %>" class="btn btn-primary view-btn">
+                                    View Details
+                                </a>
+                                <% if (order.status === 'Delivered' && !product.isReturned) { %>
+                                    <button class="btn btn-warning view-btn" data-bs-toggle="modal" 
+                                        data-bs-target="#returnModal<%= order._id %>_<%= product.productId._id %>">
+                                        Return
+                                    </button>
+                                <% } %>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Return Modal -->
-                <div class="modal fade" id="returnModal<%= order._id %>_<%= product.productId._id %>" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Return Request</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form action="/return-product" method="POST">
-                                <div class="modal-body">
-                                    <input type="hidden" name="orderId" value="<%= order._id %>">
-                                    <input type="hidden" name="productId" value="<%= product.productId._id %>">
-                                    
-                                    <div class="mb-4">
-                                        <h6 class="mb-3">Product Details:</h6>
-                                        <div class="d-flex align-items-center">
-                                            <img src="<%= product.productId.image1 %>" alt="<%= product.productId.productName %>" 
-                                                class="product-image me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                            <div>
-                                                <p class="mb-1 fw-bold"><%= product.productId.productName %></p>
-                                                <p class="mb-0 text-muted">Quantity: <%= product.quantity %></p>
+                    <!-- Return Modal -->
+                    <div class="modal fade" id="returnModal<%= order._id %>_<%= product.productId._id %>" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Return Request</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form action="/return-product" method="POST">
+                                    <div class="modal-body">
+                                        <input type="hidden" name="orderId" value="<%= order._id %>">
+                                        <input type="hidden" name="productId" value="<%= product.productId._id %>">
+                                        
+                                        <div class="mb-4">
+                                            <h6 class="mb-3">Product Details:</h6>
+                                            <div class="d-flex align-items-center">
+                                                <img src="<%= product.productId.image1 %>" alt="<%= product.productId.productName %>" 
+                                                    class="product-image me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                                <div>
+                                                    <p class="mb-1 fw-bold"><%= product.productId.productName %></p>
+                                                    <p class="mb-0 text-muted">Quantity: <%= product.quantity %></p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="mb-3">
-                                        <label for="returnReason<%= order._id %>_<%= product.productId._id %>" class="form-label">Return Reason</label>
-                                        <select class="form-select" id="returnReason<%= order._id %>_<%= product.productId._id %>" 
-                                            name="returnReason" required>
-                                            <option value="">Select a reason</option>
-                                            <option value="Wrong Size">Wrong Size</option>
-                                            <option value="Damaged Product">Damaged Product</option>
-                                            <option value="Not as Described">Not as Described</option>
-                                            <option value="Quality Issues">Quality Issues</option>
-                                            <option value="Other">Other</option>
-                                        </select>
+                                        <div class="mb-3">
+                                            <label for="returnReason<%= order._id %>_<%= product.productId._id %>" class="form-label">Return Reason</label>
+                                            <select class="form-select" id="returnReason<%= order._id %>_<%= product.productId._id %>" 
+                                                name="returnReason" required>
+                                                <option value="">Select a reason</option>
+                                                <option value="Wrong Size">Wrong Size</option>
+                                                <option value="Damaged Product">Damaged Product</option>
+                                                <option value="Not as Described">Not as Described</option>
+                                                <option value="Quality Issues">Quality Issues</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="returnComments<%= order._id %>_<%= product.productId._id %>" class="form-label">Additional Comments</label>
+                                            <textarea class="form-control" id="returnComments<%= order._id %>_<%= product.productId._id %>" 
+                                                name="returnComments" rows="3" placeholder="Please provide additional details about your return request"></textarea>
+                                        </div>
                                     </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="returnComments<%= order._id %>_<%= product.productId._id %>" class="form-label">Additional Comments</label>
-                                        <textarea class="form-control" id="returnComments<%= order._id %>_<%= product.productId._id %>" 
-                                            name="returnComments" rows="3" placeholder="Please provide additional details about your return request"></textarea>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Submit Return Request</button>
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Submit Return Request</button>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <% }) %>
             <% }) %>
-        <% }) %>
-    </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls d-flex flex-column align-items-center mt-4 mb-4">
+            <div class="pagination-numbers mb-2"></div>
+            
+        </div>
+        
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Pagination Script -->
     <script>
-       
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentPage = 1;
+            const itemsPerPage = 10; // Fixed at 10 items per page
+            
+            const ordersContainer = document.getElementById('ordersContainer');
+            const paginationNumbers = document.querySelector('.pagination-numbers');
+            const items = document.querySelectorAll('.pagination-item');
+            const totalItems = items.length;
+
+            function updatePagination() {
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                
+                // Hide all items first
+                items.forEach(item => item.style.display = 'none');
+                
+                // Show items for current page
+                const start = (currentPage - 1) * itemsPerPage;
+                const end = Math.min(start + itemsPerPage, totalItems);
+                
+                for(let i = start; i < end; i++) {
+                    if(items[i]) {
+                        items[i].style.display = 'block';
+                    }
+                }
+
+                // Generate pagination buttons
+                let paginationHTML = '';
+                
+                // Previous button
+                paginationHTML += `
+                    <button class="btn btn-outline-primary me-2" 
+                            ${currentPage === 1 ? 'disabled' : ''} 
+                            onclick="changePage(${currentPage - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>`;
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHTML += `
+                        <button class="btn btn-outline-primary me-2 ${i === currentPage ? 'active' : ''}" 
+                                onclick="changePage(${i})">
+                            ${i}
+                        </button>`;
+                }
+
+                // Next button
+                paginationHTML += `
+                    <button class="btn btn-outline-primary" 
+                            ${currentPage === totalPages ? 'disabled' : ''} 
+                            onclick="changePage(${currentPage + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>`;
+
+                paginationNumbers.innerHTML = paginationHTML;
+
+                // Update info text
+                const startItem = Math.min(start + 1, totalItems);
+                const endItem = Math.min(end, totalItems);
+                document.getElementById('startItem').textContent = startItem;
+                document.getElementById('endItem').textContent = endItem;
+                document.getElementById('totalItems').textContent = totalItems;
+            }
+
+            // Global function to change page
+            window.changePage = function(page) {
+                if (page < 1 || page > Math.ceil(totalItems / itemsPerPage)) return;
+                currentPage = page;
+                updatePagination();
+                // Smooth scroll to top of orders container
+                ordersContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Initialize pagination
+            updatePagination();
+        });
 
         function showToast(type, message) {
             const toastContainer = document.createElement('div');

@@ -1,28 +1,233 @@
 <%- include('../partials/admin/adminHeader.ejs') %>
 <style>
-    .content-main{
-        margin-left: 300px;
+/* General Content Styling */
+.content-main {
+    margin-left: 300px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+/* Table Styling */
+.table {
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 12px;
+}
+
+.table td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 12px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* Product Image */
+.img-xs {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+/* Status Badge */
+.badge {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 12px;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Buttons */
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-sm:hover {
+    transform: scale(1.05);
+}
+
+/* Filter Dropdown */
+.form-select {
+    width: 200px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+/* Header & Card Styling */
+.content-header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-main {
+        margin-left: 0;
+        padding: 10px;
     }
-    .img-xs {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 4px;
+
+    .form-select {
+        width: 100%;
     }
-    .badge {
-        padding: 0.5em 1em;
-    }
+
     .btn-group {
-        display: flex;
-        gap: 0.5rem;
+        flex-direction: column;
     }
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
+
+    .table td, .table th {
+        font-size: 12px;
+        padding: 8px;
     }
-    .table td {
-        vertical-align: middle;
+}
+
+/* Add these styles to your existing styles */
+.product-image-container {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    background-color: #fff;
+}
+
+.product-image-container img {
+    transition: transform 0.3s ease;
+}
+
+.product-image-container:hover img {
+    transform: scale(1.1);
+}
+
+.product-details {
+    max-width: 200px;
+}
+
+.product-details p {
+    color: #374151;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.product-details small {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+/* Table cell styling */
+.table td.py-3.px-6 {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .product-details {
+        max-width: 150px;
     }
+}
+
+/* Pagination Styles */
+.pagination-container {
+    padding: 1rem;
+    background-color: #fff;
+    border-top: 1px solid #e5e7eb;
+    border-radius: 0 0 8px 8px;
+}
+
+.pagination-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination-buttons .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+    margin: 0 0.5rem;
+}
+
+.pagination-buttons .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem !important;
+    margin: 0;
+}
+
+.pagination-buttons .btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.showing-info {
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .pagination-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .pagination-buttons .btn-group {
+        margin: 0.5rem 0;
+    }
+}
 </style>
 <section class="content-main">
     <div class="content-header">
@@ -67,24 +272,24 @@
                             <tr>
                                 <td><%= item.order.orderId %></td>
                                 <td class="py-3 px-6">
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center gap-3">
                                         <% if (item.product && item.product.image1) { %>
-                                            <div style="width: 60px; height: 60px;">
-                                                <img src="/uploads/<%= item.product.image1 %>"
+                                            <div class="product-image-container" style="min-width: 60px; width: 60px; height: 60px; flex-shrink: 0;">
+                                                <img src="<%= item.product.image1.startsWith('/') ? item.product.image1 : '/' + item.product.image1 %>"
                                                      alt="<%= item.product.productName %>"
                                                      style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
-                                                     onerror="this.onerror=null; this.src='/images/placeholder.png'">
+                                                     onerror="if (this.src !== '/uploads/products/<%= item.product.image1 %>') this.src = '/uploads/products/<%= item.product.image1 %>'; else this.src = '/images/placeholder.png';">
                                             </div>
                                         <% } else { %>
-                                            <div style="width: 60px; height: 60px; background-color: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                            <div class="product-image-container" style="min-width: 60px; width: 60px; height: 60px; flex-shrink: 0; background-color: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
                                                 <i class="fas fa-image" style="color: #9ca3af; font-size: 1.5rem;"></i>
                                             </div>
                                         <% } %>
-                                        <div class="ms-3">
-                                            <p class="mb-0 fw-medium">
+                                        <div class="product-details" style="flex-grow: 1; min-width: 0;">
+                                            <p class="mb-0 fw-medium text-truncate">
                                                 <%= item.product ? item.product.productName : 'Product Unavailable' %>
                                             </p>
-                                            <small class="text-muted">Quantity: <%= item.quantity %></small>
+                                            <small class="text-muted d-block">Quantity: <%= item.quantity %></small>
                                         </div>
                                     </div>
                                 </td>
@@ -121,55 +326,74 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <div class="pagination-container mt-4 d-flex flex-column align-items-center text-center">
+                <div class="pagination-buttons d-flex justify-content-center align-items-center">
+                    <button class="btn btn-outline-primary btn-sm me-2" id="prevPage" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div class="btn-group" id="pageNumbers">
+                        <!-- Page numbers will be inserted here -->
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm ms-2" id="nextPage" disabled>
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
 <script>
-    function handleReturn(orderId, productId, action) {
-        if (!confirm(`Are you sure you want to ${action.toLowerCase()} this return request?`)) {
-            return;
+    document.addEventListener('DOMContentLoaded', function () {
+        const itemsPerPage = 10;
+        let currentPage = 1;
+        
+        const tableRows = document.querySelectorAll('tbody tr');
+        const totalItems = tableRows.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        function showPage(page) {
+            currentPage = page;
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            
+            tableRows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            updatePagination();
         }
 
-        fetch('/admin/handle-return', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                orderId,
-                productId,
-                action
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Refresh the page to show updated status
-                location.reload();
-            } else {
-                alert('Failed to process return request');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while processing the request');
-        });
-    }
+        function updatePagination() {
+            const paginationContainer = document.getElementById('pageNumbers');
+            paginationContainer.innerHTML = '';
 
-    function filterByStatus(status) {
-        const rows = document.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            const statusCell = row.querySelector('td:nth-child(6)');
-            if (status === 'all' || statusCell.textContent.trim() === status) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.className = `btn btn-outline-primary btn-sm ${i === currentPage ? 'active' : ''}`;
+                button.textContent = i;
+                button.onclick = () => showPage(i);
+                paginationContainer.appendChild(button);
             }
-        });
-    }
+
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        document.getElementById('prevPage').onclick = () => {
+            if (currentPage > 1) showPage(currentPage - 1);
+        };
+
+        document.getElementById('nextPage').onclick = () => {
+            if (currentPage < totalPages) showPage(currentPage + 1);
+        };
+
+        if (totalPages > 1) {
+            showPage(1);
+        }
+    });
 </script>
-
-
 
 <%- include('../partials/admin/adminFooter.ejs') %> 

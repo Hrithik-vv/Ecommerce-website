@@ -95,10 +95,12 @@ const orderHistory = async (req, res) => {
       return res.redirect("/orderhistory");
     }
 
-    // Find orders that contain any of the given productIds
+    // Find orders that contain any of the given productIds and sort by newest first
     const orders = await Order.find({
-      "products.productId": { $in: objectIds },
-    }).populate("products.productId");
+      "products.productId": { $in: objectIds }
+    })
+    .populate("products.productId")
+    .sort({ createdAt: -1 }); // Sort by creation date, newest first
 
     if (!orders.length) {
       req.session.message = {
@@ -337,10 +339,12 @@ const processPayment = async (req, res) => {
 
 const loadOrderHistory = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.session.user }).populate({
-      path: "products.productId",
-      select: "productName image1",
-    });
+    const orders = await Order.find({ userId: req.session.user })
+      .populate({
+        path: "products.productId",
+        select: "productName image1",
+      })
+      .sort({ createdAt: -1 }); // Sort by creation date, newest first
 
     res.render("orderhistory", { orders });
   } catch (error) {
