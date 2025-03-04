@@ -1,156 +1,156 @@
 <%- include("../partials/admin/adminHeader.ejs") %>
 
-<style>
-    .content-main {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 30px;
-        background: #f8f9fa;
-        margin-left: 330px;
-        margin-top: 80px;
-        min-height: calc(100vh - 80px);
-        position: relative;
-        z-index: 1;
-    }
-
-    .welcome-card {
-        background: #fff;
-        border-radius: 10px;
-        padding: 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-
-    .welcome-title {
-        font-size: 2.5rem;
-        color: #2c3e50;
-        margin-bottom: 10px;
-        font-weight: 700;
-    }
-
-    .welcome-subtitle {
-        font-size: 1.2rem;
-        color: #7f8c8d;
-        margin-bottom: 20px;
-    }
-
-    .stats-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-        margin-bottom: 30px;
-    }
-
-    .stat-card {
-        background: #fff;
-        border-radius: 8px;
-        padding: 25px;
-        width: calc(25% - 20px);
-        min-width: 200px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    }
-
-    .stat-icon {
-        font-size: 2.5rem;
-        margin-bottom: 15px;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .stat-label {
-        font-size: 1rem;
-        color: #7f8c8d;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .quick-links {
-        background: #fff;
-        border-radius: 10px;
-        padding: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .quick-links h3 {
-        margin-bottom: 20px;
-        color: #2c3e50;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .links-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: center;
-    }
-
-    .link-card {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        width: calc(33.333% - 15px);
-        min-width: 180px;
-        text-align: center;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        color: #2c3e50;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .link-card:hover {
-        background: #e9ecef;
-        transform: scale(1.03);
-    }
-
-    .link-icon {
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
-
-    .link-text {
-        font-weight: 600;
-    }
-
-    @media (max-width: 768px) {
+    <style>
         .content-main {
-            margin-left: 0;
-            padding: 15px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #f8f9fa;
+            margin-left: 330px;
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
         }
 
         .stat-card {
-            width: calc(50% - 15px);
+            background: #fff;
+            border-radius: 8px;
+            padding: 25px;
+            width: calc(25% - 20px);
+            min-width: 200px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quick-links {
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-links h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .links-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
         }
 
         .link-card {
-            width: calc(50% - 15px);
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            width: calc(33.333% - 15px);
+            min-width: 180px;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-    }
-</style>
 
-<section class="content-main">
-    <div class="welcome-card">
-        <h1 class="welcome-title">Welcome to Oxyboo Admin Dashboard</h1>
-    </div>
+        .link-card:hover {
+            background: #e9ecef;
+            transform: scale(1.03);
+        }
 
-    <!-- <div class="stats-container" id="dashboard-stats">
+        .link-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .link-text {
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .content-main {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .stat-card {
+                width: calc(50% - 15px);
+            }
+
+            .link-card {
+                width: calc(50% - 15px);
+            }
+        }
+    </style>
+
+    <section class="content-main">
+        <div class="welcome-card">
+            <h1 class="welcome-title">Welcome to Oxyboo Admin Dashboard</h1>
+        </div>
+
+        <!-- <div class="stats-container" id="dashboard-stats">
         <div class="stat-card">
             <i class="icon material-icons md-shopping_cart stat-icon" style="color: #3498db;"></i>
             <div class="stat-value" id="total-orders">0</div>
@@ -173,7 +173,7 @@
         </div>
     </div> -->
 
-    <!-- <div class="quick-links">
+        <!-- <div class="quick-links">
         <h3>Quick Actions</h3>
         <div class="links-container">
             <a href="/admin/sales-report" class="link-card">
@@ -204,47 +204,47 @@
     </div>
 </section> -->
 
-<script>
-document.addEventListener('DOMContentLoaded', async function() {
-    try {
-        // Get today's date range
-        const today = new Date();
-        const startDate = new Date(today);
-        startDate.setHours(0, 0, 0, 0);
-        const endDate = new Date(today);
-        endDate.setHours(23, 59, 59, 999);
-        
-        // Fetch dashboard data
-        const response = await fetch('/admin/dashboard/stats', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString()
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch dashboard data');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Update dashboard stats
-            document.getElementById('total-orders').textContent = data.data.totalOrders || 0;
-            document.getElementById('total-revenue').textContent = '₹' + (data.data.totalRevenue || 0).toFixed(2);
-            document.getElementById('total-customers').textContent = data.data.totalCustomers || 0;
-            document.getElementById('total-products').textContent = data.data.totalProducts || 0;
-        } else {
-            console.error('Error fetching dashboard data:', data.message);
-        }
-    } catch (error) {
-        console.error('Error loading dashboard stats:', error);
-    }
-});
-</script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async function () {
+                try {
+                    // Get today's date range
+                    const today = new Date();
+                    const startDate = new Date(today);
+                    startDate.setHours(0, 0, 0, 0);
+                    const endDate = new Date(today);
+                    endDate.setHours(23, 59, 59, 999);
 
-<%- include("../partials/admin/adminFooter.ejs") %>
+                    // Fetch dashboard data
+                    const response = await fetch('/admin/dashboard/stats', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            startDate: startDate.toISOString(),
+                            endDate: endDate.toISOString()
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch dashboard data');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update dashboard stats
+                        document.getElementById('total-orders').textContent = data.data.totalOrders || 0;
+                        document.getElementById('total-revenue').textContent = '₹' + (data.data.totalRevenue || 0).toFixed(2);
+                        document.getElementById('total-customers').textContent = data.data.totalCustomers || 0;
+                        document.getElementById('total-products').textContent = data.data.totalProducts || 0;
+                    } else {
+                        console.error('Error fetching dashboard data:', data.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading dashboard stats:', error);
+                }
+            });
+        </script>
+
+        <%- include("../partials/admin/adminFooter.ejs") %>

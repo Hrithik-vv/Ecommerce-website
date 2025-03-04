@@ -30,7 +30,7 @@ const categoryInfo = async (req, res) => {
 
 // Add a new category
 const addCategory = async (req, res) => {
-  const { name, description, offer } = req.body; 
+  const { name, description, offer } = req.body;
 
   try {
     const regex = new RegExp(`^${name}$`, "i");
@@ -38,7 +38,11 @@ const addCategory = async (req, res) => {
     if (existingCategory) {
       return res.status(400).json({ error: "Category already exists" });
     }
-    const newCategory = new Category({ name, description, categoryOffer: offer }); 
+    const newCategory = new Category({
+      name,
+      description,
+      categoryOffer: offer,
+    });
     await newCategory.save();
     return res
       .status(201)
@@ -111,16 +115,15 @@ const editCategory = async (req, res) => {
   try {
     const id = new a.Types.ObjectId(req.params.id);
 
-    const { categoryname, description, offer } = req.body; 
+    const { categoryname, description, offer } = req.body;
     const existingCategory = await Category.findOne({ name: categoryname });
 
-  
     const updateCategory = await Category.findByIdAndUpdate(
       id,
       {
         name: categoryname,
         description: description,
-        categoryOffer: offer, 
+        categoryOffer: offer,
       },
       { new: true }
     );

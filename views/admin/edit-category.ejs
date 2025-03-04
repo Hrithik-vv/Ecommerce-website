@@ -1,127 +1,114 @@
 <%- include("../../views/partials/admin/adminHeader.ejs") %>
-<style>
+    <style>
+        /* Global styles */
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Arial', sans-serif;
+        }
 
-  /* Global styles */
-body {
-    background-color: #f4f6f9;
-    font-family: 'Arial', sans-serif;
-}
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
+        /* Form styling */
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
 
-/* Form styling */
-.form-label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 8px;
-}
+        .form-control {
+            background-color: #ffffff;
+            border: 1.5px solid #ced4da !important;
+            border-radius: 6px;
+            padding: 10px 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
 
-.form-control {
-    background-color: #ffffff;
-    border: 1.5px solid #ced4da !important;
-    border-radius: 6px;
-    padding: 10px 15px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
 
-.form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    outline: none;
-}
+        .form-control.border {
+            border-width: 1.5px !important;
+        }
 
-.form-control.border {
-    border-width: 1.5px !important;
-}
+        /* Button styling */
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
 
-/* Button styling */
-.btn-primary {
-    background-color: #007bff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
 
-.btn-primary:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
+        .btn-primary:active {
+            transform: translateY(0);
+        }
 
-.btn-primary:active {
-    transform: translateY(0);
-}
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .btn-primary {
-        width: 100%;
-    }
-}
+            .btn-primary {
+                width: 100%;
+            }
+        }
 
-/* Utility classes */
-.mt-60 {
-    margin-top: 60px;
-}
+        /* Utility classes */
+        .mt-60 {
+            margin-top: 60px;
+        }
 
-.mt-30 {
-    margin-top: 30px;
-}
-</style>
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-6 mt-60">
-      <form method="post" action="/admin/editCategory/<%=category._id%>">
-        <div class="d-grid text-end mt-30 col-md-5">
-          <button class="btn btn-primary" type="submit">Update category</button>
-        </div>
-        <div class="mb-4 mt-30">
-          <label for="product_name" class="form-label">Name</label>
-          <input
-            type="text"
-            name="categoryname"
-            value="<%=category.name%>"
-            class="form-control border"
-          />
-        </div>
+        .mt-30 {
+            margin-top: 30px;
+        }
+    </style>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 mt-60">
+                <form method="post" action="/admin/editCategory/<%=category._id%>">
+                    <div class="d-grid text-end mt-30 col-md-5">
+                        <button class="btn btn-primary" type="submit">Update category</button>
+                    </div>
+                    <div class="mb-4 mt-30">
+                        <label for="product_name" class="form-label">Name</label>
+                        <input type="text" name="categoryname" value="<%=category.name%>" class="form-control border" />
+                    </div>
 
-        <div class="mb-4">
-          <label class="form-label">Description</label>
-          <textarea name="description" class="form-control border">
+                    <div class="mb-4">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control border">
 <%=category.description%></textarea>
-        </div>
+                    </div>
 
-        <div class="mb-4">
-          <label class="form-label">Offer (%)</label>
-          <input
-            type="number"
-            name="offer"
-            value="<%=category.categoryOffer%>"
-            class="form-control border"
-            min="0"
-            max="100"
-            placeholder="Enter offer percentage"
-          />
-          <div id="offer-error" class="error-message"></div>
+                    <div class="mb-4">
+                        <label class="form-label">Offer (%)</label>
+                        <input type="number" name="offer" value="<%=category.categoryOffer%>"
+                            class="form-control border" min="0" max="100" placeholder="Enter offer percentage" />
+                        <div id="offer-error" class="error-message"></div>
+                    </div>
+                </form>
+            </div>
         </div>
-      </form>
     </div>
-  </div>
-</div>
 
-<!-- validation -->
- <!-- <script>
+    <!-- validation -->
+    <!-- <script>
   function handleEditFormSubmit(event) {
     event.preventDefault();
     clearErrorMessages();
@@ -222,4 +209,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
  </script> -->
-<%- include("../../views/partials/admin/adminFooter.ejs") %>
+    <%- include("../../views/partials/admin/adminFooter.ejs") %>

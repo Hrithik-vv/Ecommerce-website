@@ -2,18 +2,17 @@ const Order = require("../../models/orderSchema");
 const path = require("path");
 const Product = require("../../models/productSchema");
 
-
 const adminOrderView = async (req, res) => {
   try {
     // Get pagination parameters from query string with defaults
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    
+
     // Get total count for pagination
     const totalOrders = await Order.countDocuments();
     const totalPages = Math.ceil(totalOrders / limit);
-    
+
     // Fetch orders with pagination
     const orders = await Order.find()
       .populate({
@@ -33,17 +32,17 @@ const adminOrderView = async (req, res) => {
     }
 
     // Check if product images are properly populated
-    orders.forEach(order => {
-      order.products.forEach(product => {
-        if (product.productId && !product.productId.image1.startsWith('http')) {
+    orders.forEach((order) => {
+      order.products.forEach((product) => {
+        if (product.productId && !product.productId.image1.startsWith("http")) {
           // If image path doesn't have a full URL, ensure it has the correct path
-          if (!product.productId.image1.startsWith('/')) {
-            product.productId.image1 = '/' + product.productId.image1;
+          if (!product.productId.image1.startsWith("/")) {
+            product.productId.image1 = "/" + product.productId.image1;
           }
         }
       });
     });
-    
+
     console.log("Rendering ordermanage.ejs with orders:", orders);
     res.render(path.join(__dirname, "../../views/admin/ordermanage.ejs"), {
       orders,
@@ -55,15 +54,14 @@ const adminOrderView = async (req, res) => {
         nextPage: page + 1,
         previousPage: page - 1,
         totalOrders: totalOrders,
-        limit: limit
-      }
+        limit: limit,
+      },
     });
   } catch (error) {
     console.error("Error fetching order details:", error);
     res.status(500).send({ message: "Internal Server Error" });
   }
 };
-
 
 // Update order status using form submission
 const updateOrderStatus = async (req, res) => {

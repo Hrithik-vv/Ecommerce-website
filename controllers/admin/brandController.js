@@ -35,8 +35,8 @@ const getBrandPage = async (req, res) => {
 // Add a new brand
 const addBrand = async (req, res) => {
   try {
-    const brandName = req.body.name; 
-    const findBrand = await Brand.findOne({ brandName }); 
+    const brandName = req.body.name;
+    const findBrand = await Brand.findOne({ brandName });
 
     if (!findBrand) {
       if (!req.file) {

@@ -164,11 +164,11 @@ const userProfile = async (req, res) => {
     res.render("profile", {
       user: userData,
       userAddress: addressData,
-      wallet: walletData
+      wallet: walletData,
     });
   } catch (error) {
     console.error("Error for retrieve profile data", error);
-    res.redirect("/pageNotFound"); 
+    res.redirect("/pageNotFound");
   }
 };
 
@@ -317,44 +317,48 @@ const postAddAddress = async (req, res) => {
       phone,
       altPhone,
     } = req.body;
-console.log(addressType)
-if (!addressType || !name || !city || !state || !pincode || !phone) {
-  console.log("Missing required fields:", { addressType, name, city, state, pincode, phone });
-  return res.status(400).send("All fields are required");
-}
+    console.log(addressType);
+    if (!addressType || !name || !city || !state || !pincode || !phone) {
+      console.log("Missing required fields:", {
+        addressType,
+        name,
+        city,
+        state,
+        pincode,
+        phone,
+      });
+      return res.status(400).send("All fields are required");
+    }
 
+    const existingAddress = await Address.findOne({ userId: userData._id });
 
-   
-const existingAddress = await Address.findOne({ userId: userData._id });
+    const newAddressData = {
+      addressType,
+      name,
+      city,
+      landMark,
+      state,
+      pincode,
+      phone,
+      altPhone,
+    };
 
-const newAddressData = {
-  addressType,
-  name,
-  city,
-  landMark,
-  state,
-  pincode,
-  phone,
-  altPhone,
-};
+    if (existingAddress) {
+      // If address document exists, push the new address to the array
+      await Address.updateOne(
+        { userId: userData._id },
+        { $push: { address: newAddressData } }
+      );
+    } else {
+      // If no existing document, create a new one
+      const newAddress = new Address({
+        userId: userData._id,
+        address: [newAddressData],
+      });
+      await newAddress.save();
+    }
 
-if (existingAddress) {
-  // If address document exists, push the new address to the array
-  await Address.updateOne(
-    { userId: userData._id },
-    { $push: { address: newAddressData } }
-  );
-} else {
-  // If no existing document, create a new one
-  const newAddress = new Address({
-    userId: userData._id,
-    address: [newAddressData], 
-  });
-  await newAddress.save();
-}
-
-console.log("Address added successfully");
-
+    console.log("Address added successfully");
 
     res.redirect("/userProfile");
   } catch (error) {
@@ -364,8 +368,6 @@ console.log("Address added successfully");
 };
 
 const editAddress = async (req, res) => {
-
-
   try {
     const addressId = req.query.id;
     const user = req.session.user;
@@ -394,7 +396,7 @@ const editAddress = async (req, res) => {
 const postEditAddress = async (req, res) => {
   try {
     const data = req.body;
-    console.log("Request Body:", req.body,"usydghsbzjkjfbijk");
+    console.log("Request Body:", req.body, "usydghsbzjkjfbijk");
     const addressId = req.query.id;
     const user = req.session.user;
     const findAddress = await Address.findOne({ "address._id": addressId });

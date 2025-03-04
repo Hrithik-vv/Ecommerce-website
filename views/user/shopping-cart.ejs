@@ -1,436 +1,457 @@
 <%- include("../../views/partials/user/header") %>
-<style>
-    /* Keep existing styles up to the action buttons */
-    .shopping-cart {
-        padding: 4rem 0;
-        background-color: #f8f9fa;
-    }
+    <style>
+        /* Keep existing styles up to the action buttons */
+        .shopping-cart {
+            padding: 4rem 0;
+            background-color: #f8f9fa;
+        }
 
-    .cart-container {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-    }
+        .cart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
 
-    .shopping__cart__table table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 1rem;
-    }
+        .shopping__cart__table table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 1rem;
+        }
 
-    .shopping__cart__table th {
-        color: #1f2937;
-        font-weight: 600;
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 2px solid #edf2f7;
-    }
+        .shopping__cart__table th {
+            color: #1f2937;
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #edf2f7;
+        }
 
-    .shopping__cart__table td {
-        padding: 1rem;
-        color: #1f2937;
-        vertical-align: middle;
-    }
+        .shopping__cart__table td {
+            padding: 1rem;
+            color: #1f2937;
+            vertical-align: middle;
+        }
 
-    .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: #f8f9fa;
-        padding: 0.5rem;
-        border-radius: 8px;
-        width: fit-content;
-    }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 8px;
+            width: fit-content;
+        }
 
-    .qty-input {
-        width: 50px;
-        text-align: center;
-        border: none;
-        background: transparent;
-        font-weight: 500;
-        color: #1f2937;
-    }
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            color: #1f2937;
+        }
 
-    .qty-minus,
-    .qty-plus {
-        background: white;
-        border: 1px solid #edf2f7;
-        color: #1f2937;
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
+        .qty-minus,
+        .qty-plus {
+            background: white;
+            border: 1px solid #edf2f7;
+            color: #1f2937;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-    .qty-minus:hover,
-    .qty-plus:hover {
-        background: #000000;
-        color: white;
-        border-color: #000000;
-    }
+        .qty-minus:hover,
+        .qty-plus:hover {
+            background: #000000;
+            color: white;
+            border-color: #000000;
+        }
 
-    /* Updated action buttons styles */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-        justify-content: flex-end;
-    }
+        /* Updated action buttons styles */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: flex-end;
+        }
 
-    .btn-update {
-        background: #000000;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.9rem;
-        height: 35px;
-    }
+        .btn-update {
+            background: #000000;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            height: 35px;
+        }
 
-    .btn-update:hover {
-        background: #27c104;
-    }
+        .btn-update:hover {
+            background: #27c104;
+        }
 
-    .remove-link {
-        background: #f32a2a;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
-        font-size: 0.9rem;
-        height: 35px;
-        display: flex;
-        align-items: center;
-    }
+        .remove-link {
+            background: #f32a2a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 0.9rem;
+            height: 35px;
+            display: flex;
+            align-items: center;
+        }
 
-    .remove-link:hover {
-        background: #f30808;
-    }
+        .remove-link:hover {
+            background: #f30808;
+        }
 
-    /* Rest of the existing styles */
-    .cart-summary {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
+        /* Rest of the existing styles */
+        .cart-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-    .cart-total {
-        font-size: 1.5rem;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #edf2f7;
-    }
+        .cart-total {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #edf2f7;
+        }
 
-    .checkout-btn {
-        display: inline-block;
-        background: #000000;
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.2s;
-        width: 100%;
-        text-align: center;
-    }
+        .checkout-btn {
+            display: inline-block;
+            background: #000000;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            width: 100%;
+            text-align: center;
+        }
 
-    .checkout-btn:hover {
-        background: #000000;
-        transform: translateY(-1px);
-    }
+        .checkout-btn:hover {
+            background: #000000;
+            transform: translateY(-1px);
+        }
 
-    .empty-cart {
-        text-align: center;
-        padding: 3rem;
-        color: #6b7280;
-    }
-    
-  .wishlist-header {
-    background: linear-gradient(135deg, #5052a7 0%, #000000 100%);
-    padding: 2rem 0;
-    margin-bottom: 3rem;
-  }
+        .empty-cart {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
 
-  .wishlist-title {
-    color: white;
-    font-size: 2rem;
-    text-align: center;
-    margin: 0;
-  }
+        .wishlist-header {
+            background: linear-gradient(135deg, #5052a7 0%, #000000 100%);
+            padding: 2rem 0;
+            margin-bottom: 3rem;
+        }
 
-  .wishlist-breadcrumb {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin-top: 0.5rem;
-  }
+        .wishlist-title {
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            margin: 0;
+        }
 
-  .wishlist-breadcrumb a {
-    color: white;
-    text-decoration: none;
-  }
+        .wishlist-breadcrumb {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
+        }
 
-  /* Add these styles for the product image and name layout */
-  .product-cell {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
+        .wishlist-breadcrumb a {
+            color: white;
+            text-decoration: none;
+        }
 
-  .product-image {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+        /* Add these styles for the product image and name layout */
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-  .product-name {
-    font-weight: 500;
-    color: #1f2937;
-  }
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-  .product-details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
+        .product-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
 
-  .product-variants {
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
+        .product-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
 
-  .variant-info {
-    display: inline-block;
-    margin-right: 1rem;
-  }
-</style>
+        .product-variants {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
 
-<div class="wishlist-header">
-    <div class="container">
-      <h1 class="wishlist-title">Cart Page</h1>
-      <div class="wishlist-breadcrumb">
-        <a href="/">Home</a>
-        <span>›</span>
-        <a href="/shop">Shop</a>
-        <span>›</span>
-        <span>Cart page</span>
-      </div>
+        .variant-info {
+            display: inline-block;
+            margin-right: 1rem;
+        }
+    </style>
+
+    <div class="wishlist-header">
+        <div class="container">
+            <h1 class="wishlist-title">Cart Page</h1>
+            <div class="wishlist-breadcrumb">
+                <a href="/">Home</a>
+                <span>›</span>
+                <a href="/shop">Shop</a>
+                <span>›</span>
+                <span>Cart page</span>
+            </div>
+        </div>
     </div>
-  </div>
 
-<section class="shopping-cart">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="cart-container">
-                    <div class="shopping__cart__table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Total</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (cartItems.length === 0) { %>
+    <section class="shopping-cart">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="cart-container">
+                        <div class="shopping__cart__table">
+                            <table>
+                                <thead>
                                     <tr>
-                                        <td colspan="5">
-                                            <div class="empty-cart">
-                                                <h3>Your cart is empty</h3>
-                                                <p>Add items to your cart to continue shopping</p>
-                                            </div>
-                                        </td>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
                                     </tr>
-                                <% } else { %>
-                                    <% cartItems.forEach((item) => { %>
-                                        <tr data-item-id="<%= item.productId %>">
-                                         
-                                           
-                                            <td>
-                                              
-                                                <div class="product-cell">
-                                                    <img class="product-image" src="/<%= item.productId.image1 %>" alt="Product image">
-                                                    <div class="product-details">
-                                                        <span class="product-name"><%= item.productId.productName %></span>
-                                                        <div class="product-variants">
-                                                            <span class="variant-info">Color: <%= item.color %></span>
-                                                            <span class="variant-info">Size: <%= item.size %></span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>₹<%= item.productPrice %></td>
-                                            <td>
-                                                <div class="quantity-controls">
-                                                    <button type="button" class="qty-minus" onclick="updateQuantity(this, -1)">-</button>
-                                                    <input class="qty-input" name="quantity" value="<%= item.quantity %>" min="1" 
-                                                           data-product-id="<%= item.productId._id %>" 
-                                                           data-price="<%= item.productPrice %>"
-                                                           onchange="updateQuantityInCart(this)">
-                                                    <button type="button" class="qty-plus" onclick="updateQuantity(this, 1, <%= item.productStock %>)">+</button>
-                                                </div>
-                                            </td>
-                                            <td>₹<span class="item-total"><%= item.totalPrice %></span></td>
-                                            <td>
-                                                <div class="action-buttons">
-                                                    <form class="quantity-form" action="/cart/update" method="POST" style="display: contents;">
-                                                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
-                                                        <input type="hidden" class="qty-input-hidden" name="quantity" value="<%= item.quantity %>">
-                                                    </form>
-                                                    <a href="#" onclick="confirmRemove('<%= item.productId._id %>')" class="remove-link">Remove</a>
+                                </thead>
+                                <tbody>
+                                    <% if (cartItems.length===0) { %>
+                                        <tr>
+                                            <td colspan="5">
+                                                <div class="empty-cart">
+                                                    <h3>Your cart is empty</h3>
+                                                    <p>Add items to your cart to continue shopping</p>
                                                 </div>
                                             </td>
                                         </tr>
-                                    <% }) %>
-                                <% } %>
-                            </tbody>
-                        </table>
+                                        <% } else { %>
+                                            <% cartItems.forEach((item)=> { %>
+                                                <tr data-item-id="<%= item.productId %>">
+
+
+                                                    <td>
+
+                                                        <div class="product-cell">
+                                                            <img class="product-image"
+                                                                src="/<%= item.productId.image1 %>" alt="Product image">
+                                                            <div class="product-details">
+                                                                <span class="product-name">
+                                                                    <%= item.productId.productName %>
+                                                                </span>
+                                                                <div class="product-variants">
+                                                                    <span class="variant-info">Color: <%= item.color %>
+                                                                            </span>
+                                                                    <span class="variant-info">Size: <%= item.size %>
+                                                                            </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>₹<%= item.productPrice %>
+                                                    </td>
+                                                    <td>
+                                                        <div class="quantity-controls">
+                                                            <button type="button" class="qty-minus"
+                                                                onclick="updateQuantity(this, -1)">-</button>
+                                                            <input class="qty-input" name="quantity"
+                                                                value="<%= item.quantity %>" min="1"
+                                                                data-product-id="<%= item.productId._id %>"
+                                                                data-price="<%= item.productPrice %>"
+                                                                onchange="updateQuantityInCart(this)">
+                                                            <button type="button" class="qty-plus"
+                                                                onclick="updateQuantity(this, 1, <%= item.productStock %>)">+</button>
+                                                        </div>
+                                                    </td>
+                                                    <td>₹<span class="item-total">
+                                                            <%= item.totalPrice %>
+                                                        </span></td>
+                                                    <td>
+                                                        <div class="action-buttons">
+                                                            <form class="quantity-form" action="/cart/update"
+                                                                method="POST" style="display: contents;">
+                                                                <input type="hidden" name="productId"
+                                                                    value="<%= item.productId._id %>">
+                                                                <input type="hidden" class="qty-input-hidden"
+                                                                    name="quantity" value="<%= item.quantity %>">
+                                                            </form>
+                                                            <a href="#"
+                                                                onclick="confirmRemove('<%= item.productId._id %>')"
+                                                                class="remove-link">Remove</a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
+
+                <% if (cartItems.length> 0) { %>
+                    <div class="col-lg-4">
+                        <div class="cart-summary">
+                            <h3 class="cart-total">Total: ₹<span id="cart-total">
+                                    <%= cartItems.reduce((acc, item)=> acc + item.totalPrice, 0).toFixed(2) %>
+                                </span></h3>
+                            <form action="/checkout" method="POST" style="display: inline;">
+                                <% cartItems.forEach((item, index)=> { %>
+                                    <input type="hidden" name="items[<%= index %>][productId]"
+                                        value="<%= item.productId %>">
+                                    <input type="hidden" name="items[<%= index %>][quantity]"
+                                        value="<%= item.quantity %>">
+                                    <input type="hidden" name="items[<%= index %>][price]"
+                                        value="<%= item.productPrice %>">
+                                    <% }); %>
+                                        <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+                            </form>
+                        </div>
+                    </div>
+                    <% } %>
             </div>
-
-            <% if (cartItems.length > 0) { %>
-                <div class="col-lg-4">
-                    <div class="cart-summary">
-                        <h3 class="cart-total">Total: ₹<span id="cart-total"><%= cartItems.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2) %></span></h3>
-                        <form action="/checkout" method="POST" style="display: inline;">
-                            <% cartItems.forEach((item, index) => { %>
-                                <input type="hidden" name="items[<%= index %>][productId]" value="<%= item.productId %>">
-                                <input type="hidden" name="items[<%= index %>][quantity]" value="<%= item.quantity %>">
-                                <input type="hidden" name="items[<%= index %>][price]" value="<%= item.productPrice %>">
-                            <% }); %>
-                            <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-                        </form>
-                    </div>
-                </div>
-            <% } %>
         </div>
-    </div>
-</section>
+    </section>
 
-<script>
-    function validateNumber(input) {
-        if (input.value < 1) input.value = 1;
-        if (isNaN(input.value)) input.value = 1;
-    }
-
-    function validateQuantity(form) {
-        const input = form.querySelector('.qty-input');
-        if (input.value < 1 || isNaN(input.value)) {
-            alert('Please enter a valid quantity');
-            return false;
-        }
-        return true;
-    }
-
-    async function updateQuantityInCart(input) {
-        const productId = input.dataset.productId;
-        const quantity = parseInt(input.value);
-        const price = parseFloat(input.dataset.price);
-
-        if (isNaN(quantity) || quantity < 1) {
-            input.value = 1;
-            return;
+    <script>
+        function validateNumber(input) {
+            if (input.value < 1) input.value = 1;
+            if (isNaN(input.value)) input.value = 1;
         }
 
-        try {
-            const response = await fetch('/cart/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+        function validateQuantity(form) {
+            const input = form.querySelector('.qty-input');
+            if (input.value < 1 || isNaN(input.value)) {
+                alert('Please enter a valid quantity');
+                return false;
+            }
+            return true;
+        }
+
+        async function updateQuantityInCart(input) {
+            const productId = input.dataset.productId;
+            const quantity = parseInt(input.value);
+            const price = parseFloat(input.dataset.price);
+
+            if (isNaN(quantity) || quantity < 1) {
+                input.value = 1;
+                return;
+            }
+
+            try {
+                const response = await fetch('/cart/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productId,
+                        quantity
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update the item total
+                    const row = input.closest('tr');
+                    const itemTotal = row.querySelector('.item-total');
+                    itemTotal.textContent = data.itemTotal;
+
+                    // Update the cart total
+                    document.getElementById('cart-total').textContent = data.cartTotal;
+                } else {
+                    alert('Failed to update quantity');
+                }
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+                alert('Error updating quantity');
+            }
+        }
+
+        function updateQuantity(button, change, max) {
+            const row = button.closest('tr');
+            const input = row.querySelector('.qty-input');
+            let newVal = parseInt(input.value) + change;
+
+            if (newVal < 1) newVal = 1;
+            if (max && newVal > max) newVal = max;
+
+            input.value = newVal;
+            updateQuantityInCart(input);
+        }
+
+        // Update the checkout form to include all necessary data
+        document.querySelector('form[action="/checkout"]').addEventListener('submit', function (e) {
+            const cartItems = [];
+            document.querySelectorAll('.shopping__cart__table tbody tr').forEach(row => {
+                const productId = row.querySelector('.qty-input').dataset.productId;
+                const quantity = parseInt(row.querySelector('.qty-input').value);
+                const price = parseFloat(row.querySelector('.qty-input').dataset.price);
+
+                cartItems.push({
                     productId,
-                    quantity
-                })
+                    quantity,
+                    price,
+                    totalPrice: quantity * price
+                });
             });
 
-            const data = await response.json();
-            
-            if (data.success) {
-                // Update the item total
-                const row = input.closest('tr');
-                const itemTotal = row.querySelector('.item-total');
-                itemTotal.textContent = data.itemTotal;
-                
-                // Update the cart total
-                document.getElementById('cart-total').textContent = data.cartTotal;
-            } else {
-                alert('Failed to update quantity');
-            }
-        } catch (error) {
-            console.error('Error updating quantity:', error);
-            alert('Error updating quantity');
+            // Add cart items data to form
+            const itemsInput = document.createElement('input');
+            itemsInput.type = 'hidden';
+            itemsInput.name = 'cartItems';
+            itemsInput.value = JSON.stringify(cartItems);
+            this.appendChild(itemsInput);
+        });
+
+        function confirmRemove(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This item will be removed from your cart",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/remove-from-cart/${productId}`;
+                }
+            });
         }
-    }
 
-    function updateQuantity(button, change, max) {
-        const row = button.closest('tr');
-        const input = row.querySelector('.qty-input');
-        let newVal = parseInt(input.value) + change;
-        
-        if (newVal < 1) newVal = 1;
-        if (max && newVal > max) newVal = max;
-        
-        input.value = newVal;
-        updateQuantityInCart(input);
-    }
+    </script>
 
-    // Update the checkout form to include all necessary data
-    document.querySelector('form[action="/checkout"]').addEventListener('submit', function(e) {
-        const cartItems = [];
-        document.querySelectorAll('.shopping__cart__table tbody tr').forEach(row => {
-            const productId = row.querySelector('.qty-input').dataset.productId;
-            const quantity = parseInt(row.querySelector('.qty-input').value);
-            const price = parseFloat(row.querySelector('.qty-input').dataset.price);
-            
-            cartItems.push({
-                productId,
-                quantity,
-                price,
-                totalPrice: quantity * price
-            });
-        });
-
-        // Add cart items data to form
-        const itemsInput = document.createElement('input');
-        itemsInput.type = 'hidden';
-        itemsInput.name = 'cartItems';
-        itemsInput.value = JSON.stringify(cartItems);
-        this.appendChild(itemsInput);
-    });
-
-    function confirmRemove(productId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This item will be removed from your cart",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, remove it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/remove-from-cart/${productId}`;
-            }
-        });
-    }
-
-</script>
-
-<%- include("../../views/partials/user/footer") %>
+    <%- include("../../views/partials/user/footer") %>

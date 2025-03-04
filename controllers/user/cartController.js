@@ -143,10 +143,10 @@ const viewCart = async (req, res) => {
 // Add this removeFromCart function
 const removeFromCart = async (req, res) => {
   try {
-    const userId = req.user._id; 
-    const productId = req.params.productId; 
+    const userId = req.user._id;
+    const productId = req.params.productId;
 
-    const cart = await Cart.findOne({ userId }); 
+    const cart = await Cart.findOne({ userId });
     if (!cart) {
       return res
         .status(404)
@@ -157,7 +157,7 @@ const removeFromCart = async (req, res) => {
     cart.items = cart.items.filter(
       (item) => item.productId.toString() !== productId
     );
-    await cart.save(); 
+    await cart.save();
 
     // Redirect back to cart page
     res.redirect("/shopping-cart");
@@ -175,23 +175,31 @@ const updateQuantity = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId, quantity } = req.body;
-    
+
     // Ensure the quantity is an integer
     const qty = parseInt(quantity, 10);
     if (isNaN(qty) || qty <= 0) {
-      return res.status(400).json({ success: false, message: "Invalid quantity" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid quantity" });
     }
 
     // Find the cart and product
-    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
     if (!cart) {
-      return res.status(404).json({ success: false, message: "Cart not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
     }
 
     // Find the item in cart
-    const item = cart.items.find(item => item.productId._id.toString() === productId);
+    const item = cart.items.find(
+      (item) => item.productId._id.toString() === productId
+    );
     if (!item) {
-      return res.status(404).json({ success: false, message: "Product not found in cart" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found in cart" });
     }
 
     // Update quantity and total price
@@ -202,49 +210,58 @@ const updateQuantity = async (req, res) => {
     await cart.save();
 
     // Calculate new cart total
-    const cartTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
+    const cartTotal = cart.items.reduce(
+      (total, item) => total + item.totalPrice,
+      0
+    );
 
     res.json({
       success: true,
       message: "Quantity updated successfully",
       cartTotal: cartTotal.toFixed(2),
-      itemTotal: item.totalPrice.toFixed(2)
+      itemTotal: item.totalPrice.toFixed(2),
     });
   } catch (error) {
     console.error("Error updating quantity:", error);
-    res.status(500).json({ success: false, message: "Error updating quantity" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating quantity" });
   }
 };
 
 const checkoutController = async (req, res) => {
   try {
     const userId = req.user._id || req.session.user._id;
-    if (req.method === 'POST') {
-      const { selectedAddressId, paymentMethod, couponCode, cartItems } = req.body;
+    if (req.method === "POST") {
+      const { selectedAddressId, paymentMethod, couponCode, cartItems } =
+        req.body;
 
       // Validate cart
-      const cart = await Cart.findOne({ userId }).populate('items.productId');
+      const cart = await Cart.findOne({ userId }).populate("items.productId");
       if (!cart || cart.items.length === 0) {
-        req.flash('error', 'Your cart is empty');
-        return res.redirect('/shopping-cart');
+        req.flash("error", "Your cart is empty");
+        return res.redirect("/shopping-cart");
       }
 
       // Validate address
       if (!selectedAddressId) {
-        req.flash('error', 'Please select a delivery address');
-        return res.redirect('/checkout');
+        req.flash("error", "Please select a delivery address");
+        return res.redirect("/checkout");
       }
 
       // Calculate total amount from cart items
-      const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-      
-      if (paymentMethod === 'razorpay') {
+      const totalAmount = cart.items.reduce(
+        (sum, item) => sum + item.totalPrice,
+        0
+      );
+
+      if (paymentMethod === "razorpay") {
         return res.json({
           success: true,
           totalAmount,
           addressId: selectedAddressId,
           couponCode,
-          cartItems: cart.items
+          cartItems: cart.items,
         });
       }
 
@@ -252,7 +269,7 @@ const checkoutController = async (req, res) => {
       const order = new Order({
         couponId: couponCode,
         userId: userId,
-        products: cart.items.map(item => ({
+        products: cart.items.map((item) => ({
           productId: item.productId._id,
           variantId: item.variantId,
           quantity: item.quantity,
@@ -294,12 +311,12 @@ const checkoutController = async (req, res) => {
       req.flash("success", "Order placed successfully!");
       return res.redirect("/order-placed");
     }
-    
+
     // GET request - show checkout page
-    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
     const addresses = await Address.findOne({ userId });
     const userData = await User.findById(userId);
-    
+
     // Calculate total amount from cart items
     let totalAmount = 0;
     if (cart && cart.items) {
@@ -327,9 +344,8 @@ const checkoutController = async (req, res) => {
       messages: {
         success: req.flash("success"),
         error: req.flash("error"),
-      }
+      },
     });
-
   } catch (error) {
     console.error("Checkout error:", error);
     req.flash("error", "Error processing checkout");
@@ -339,7 +355,7 @@ const checkoutController = async (req, res) => {
 
 const orderView = async (req, res) => {
   try {
-    const orderId = req.query.orderId; 
+    const orderId = req.query.orderId;
     console.log("Order ID:", orderId);
 
     // Find the order using the orderId
@@ -347,13 +363,13 @@ const orderView = async (req, res) => {
       orderId: orderId,
     }).populate({
       path: "products.productId",
-      select: "productName image1 status salePrice", 
+      select: "productName image1 status salePrice",
     });
     if (!order) {
       return res.status(404).send("Order not found.");
     }
 
-    const orderProduct = order.products[0]; 
+    const orderProduct = order.products[0];
     if (!orderProduct) {
       return res.status(404).send("Product not found in the order.");
     }
@@ -366,17 +382,17 @@ const orderView = async (req, res) => {
     };
 
     const address = await Address.findOne({
-      userId: new mongoose.Types.ObjectId(order.userId)
+      userId: new mongoose.Types.ObjectId(order.userId),
     });
-    
+
     if (!address) {
-      console.log('No address found for userId:', order.userId);
+      console.log("No address found for userId:", order.userId);
       return res.status(404).send("Address not found.");
     }
 
-    const neededAddress = address.address.find(addr => addr._id.toString() == order.shippingAddress);
-    
-   
+    const neededAddress = address.address.find(
+      (addr) => addr._id.toString() == order.shippingAddress
+    );
 
     res.render("orderview", {
       product,
@@ -396,29 +412,29 @@ const orderPlaced = (req, res) => {
 
 const orderHistory = async (req, res) => {
   try {
-    let { productId } = req.query; 
+    let { productId } = req.query;
 
     if (!productId) {
       req.session.message = { type: "error", text: "Product ID is required" };
       return res.redirect("/orderhistory");
     }
 
-    // Ensure productId is always an array 
+    // Ensure productId is always an array
     if (typeof productId === "string") {
-      productId = productId.split(","); 
+      productId = productId.split(",");
     }
 
     // Convert productId values to ObjectId
     const objectIds = productId
       .map((id) => {
         try {
-          return new mongoose.Types.ObjectId(id.trim()); 
+          return new mongoose.Types.ObjectId(id.trim());
         } catch (err) {
           console.error("Invalid ObjectId:", id);
-          return null; 
+          return null;
         }
       })
-      .filter((id) => id !== null); 
+      .filter((id) => id !== null);
 
     if (objectIds.length === 0) {
       req.session.message = { type: "error", text: "Invalid Product ID(s)" };
@@ -459,4 +475,3 @@ module.exports = {
   orderPlaced,
   orderHistory,
 };
-

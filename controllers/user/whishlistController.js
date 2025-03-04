@@ -30,13 +30,11 @@ const addToWishlist = async (req, res) => {
         Products: [{ productId }],
       });
       await wishlist.save();
-      return res
-        .status(200)
-        .json({
-          status: true,
-          message: "Product added to wishlist",
-          action: "add",
-        });
+      return res.status(200).json({
+        status: true,
+        message: "Product added to wishlist",
+        action: "add",
+      });
     }
 
     // Check if the product is already in the wishlist
@@ -49,26 +47,22 @@ const addToWishlist = async (req, res) => {
         { userId },
         { $pull: { Products: { productId } } }
       );
-      return res
-        .status(200)
-        .json({
-          status: true,
-          message: "Product removed from wishlist",
-          action: "remove",
-        });
+      return res.status(200).json({
+        status: true,
+        message: "Product removed from wishlist",
+        action: "remove",
+      });
     } else {
       // Add the product to the wishlist
       await Wishlist.updateOne(
         { userId },
         { $push: { Products: { productId } } }
       );
-      return res
-        .status(200)
-        .json({
-          status: true,
-          message: "Product added to wishlist",
-          action: "add",
-        });
+      return res.status(200).json({
+        status: true,
+        message: "Product added to wishlist",
+        action: "add",
+      });
     }
   } catch (error) {
     console.error(error);
@@ -84,7 +78,7 @@ const removeProduct = async (req, res) => {
     const mongoose = require("mongoose");
 
     const result = await Wishlist.findOneAndUpdate(
-      { userId: new mongoose.Types.ObjectId(user._id) }, 
+      { userId: new mongoose.Types.ObjectId(user._id) },
       {
         $pull: {
           Products: { productId: new mongoose.Types.ObjectId(productId) },

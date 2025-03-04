@@ -25,7 +25,6 @@ const loadCoupon = async (req, res) => {
   }
 };
 
-
 const createCoupon = async (req, res) => {
   try {
     const { couponName, startDate, endDate, offerPrice, minimumPrice } =

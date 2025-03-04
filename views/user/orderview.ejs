@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <!-- Add SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Product Details</h1>
@@ -35,20 +37,19 @@
                     <h3 class="text-lg font-medium text-gray-800 mb-4">Product Info</h3>
                     <div class="flex items-center">
                         <% if(product.image1) { %>
-                            <img src="<%= product.image1 %>" 
-                                 class="w-16 h-16 object-cover rounded-lg"
-                                 alt="<%= product.productName %>">
-                        <% } else { %>
-                            <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
-                        <% } %>
-                        <div class="ml-4">
-                            <h4 class="font-medium text-gray-800">
-                                <%= product.productName %>
-                            </h4>
-                            <p class="text-gray-600 text-sm">
-                                Quantity: <%= product.quantity %>
-                            </p>
-                        </div>
+                            <img src="<%= product.image1 %>" class="w-16 h-16 object-cover rounded-lg"
+                                alt="<%= product.productName %>">
+                            <% } else { %>
+                                <div class="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                                <% } %>
+                                    <div class="ml-4">
+                                        <h4 class="font-medium text-gray-800">
+                                            <%= product.productName %>
+                                        </h4>
+                                        <p class="text-gray-600 text-sm">
+                                            Quantity: <%= product.quantity %>
+                                        </p>
+                                    </div>
                     </div>
                 </div>
 
@@ -56,7 +57,7 @@
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <h3 class="text-lg font-medium text-blue-800 mb-2">Price Information</h3>
                     <p class="text-gray-700 font-medium">
-                     
+
                         Price: ₹<%= (order.totalAmount) %>
                     </p>
                 </div>
@@ -73,102 +74,124 @@
                     Order ID: <%= order.orderId %>
                 </p>
 
-                <% if (order.status === 'Pending' ) { %>
+                <% if (order.status==='Pending' ) { %>
                     <div id="aaa" class="mt-4">
-                        <button onclick="confirmCancelOrder('<%= order._id %>')" 
-                                class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        <button onclick="confirmCancelOrder('<%= order._id %>')"
+                            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
                             Cancel Order
                         </button>
                     </div>
-                <% } %>
+                    <% } %>
 
-                <% if (order.status === 'Delivered') { %>
-                    <div class="mt-4">
-                        <button data-bs-toggle="modal" data-bs-target="#returnModal<%= order._id %>"
-                                class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                            Return Order
-                        </button>
-                    </div>
-                <% } %>
-
-                <!-- Return Modal -->
-                <div class="modal fade" id="returnModal<%= order._id %>" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Return Request</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <% if (order.status==='Delivered' ) { %>
+                            <div class="mt-4">
+                                <button data-bs-toggle="modal" data-bs-target="#returnModal<%= order._id %>"
+                                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                                    Return Order
+                                </button>
                             </div>
-                            <form action="/return-product" method="POST">
-                                <div class="modal-body">
-                                    <input type="hidden" name="orderId" value="<%= order._id %>">
-                                    <input type="hidden" name="productId" value="<%= product._id %>">
-                                    
-                                    <div class="mb-4">
-                                        <h6 class="mb-3">Product Details:</h6>
-                                        <div class="flex items-center">
-                                            <img src="<%= product.image1 %>" alt="<%= product.productName %>" 
-                                                class="w-16 h-16 object-cover rounded-lg mr-3">
-                                            <div>
-                                                <p class="font-medium text-gray-800 mb-1"><%= product.productName %></p>
-                                                <p class="text-gray-600 text-sm">Quantity: <%= product.quantity %></p>
+                            <% } %>
+
+                                <!-- Return Modal -->
+                                <div class="modal fade" id="returnModal<%= order._id %>" tabindex="-1"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Return Request</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
                                             </div>
+                                            <form action="/return-product" method="POST">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="orderId" value="<%= order._id %>">
+                                                    <input type="hidden" name="productId" value="<%= product._id %>">
+
+                                                    <div class="mb-4">
+                                                        <h6 class="mb-3">Product Details:</h6>
+                                                        <div class="flex items-center">
+                                                            <img src="<%= product.image1 %>"
+                                                                alt="<%= product.productName %>"
+                                                                class="w-16 h-16 object-cover rounded-lg mr-3">
+                                                            <div>
+                                                                <p class="font-medium text-gray-800 mb-1">
+                                                                    <%= product.productName %>
+                                                                </p>
+                                                                <p class="text-gray-600 text-sm">Quantity: <%=
+                                                                        product.quantity %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="returnReason<%= order._id %>"
+                                                            class="block text-sm font-medium text-gray-700 mb-2">Return
+                                                            Reason</label>
+                                                        <select class="form-select w-full rounded-lg border-gray-300"
+                                                            id="returnReason<%= order._id %>" name="returnReason"
+                                                            required>
+                                                            <option value="">Select a reason</option>
+                                                            <option value="Wrong Size">Wrong Size</option>
+                                                            <option value="Damaged Product">Damaged Product</option>
+                                                            <option value="Not as Described">Not as Described</option>
+                                                            <option value="Quality Issues">Quality Issues</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="returnComments<%= order._id %>"
+                                                            class="block text-sm font-medium text-gray-700 mb-2">Additional
+                                                            Comments</label>
+                                                        <textarea class="form-control w-full rounded-lg border-gray-300"
+                                                            id="returnComments<%= order._id %>" name="returnComments"
+                                                            rows="3"
+                                                            placeholder="Please provide additional details about your return request"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button"
+                                                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit"
+                                                        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">Submit
+                                                        Return Request</button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
-
-                                    <div class="mb-3">
-                                        <label for="returnReason<%= order._id %>" class="block text-sm font-medium text-gray-700 mb-2">Return Reason</label>
-                                        <select class="form-select w-full rounded-lg border-gray-300" 
-                                            id="returnReason<%= order._id %>" name="returnReason" required>
-                                            <option value="">Select a reason</option>
-                                            <option value="Wrong Size">Wrong Size</option>
-                                            <option value="Damaged Product">Damaged Product</option>
-                                            <option value="Not as Described">Not as Described</option>
-                                            <option value="Quality Issues">Quality Issues</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="returnComments<%= order._id %>" class="block text-sm font-medium text-gray-700 mb-2">Additional Comments</label>
-                                        <textarea class="form-control w-full rounded-lg border-gray-300" 
-                                            id="returnComments<%= order._id %>" name="returnComments" 
-                                            rows="3" placeholder="Please provide additional details about your return request"></textarea>
-                                    </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">Submit Return Request</button>
+
+                                <!-- Shipping Information -->
+                                <div class="mt-4">
+                                    <h3 class="text-lg font-medium text-gray-800 mb-2">Shipping Information</h3>
+                                    <% if (address) { %>
+                                        <p class="text-gray-700">Name: <%= address.name %>
+                                        </p>
+                                        <p class="text-gray-700">
+                                            Address: <%= address.landMark %>, <%= address.city %>, <%= address.state %>
+                                                        - <%= address.pincode %>
+                                        </p>
+                                        <p class="text-gray-700">Phone: <%= address.phone %>
+                                        </p>
+                                        <p class="text-gray-700">Alternate Phone: <%= address.altPhone %>
+                                        </p>
+                                        <% } else { %>
+                                            <p class="text-gray-700">No shipping address available.</p>
+                                            <% } %>
                                 </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Shipping Information -->
-                <div class="mt-4">
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">Shipping Information</h3>
-                    <% if (address) { %>
-                        <p class="text-gray-700">Name: <%= address.name %></p>
-                        <p class="text-gray-700">
-                            Address: <%= address.landMark %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %>
-                        </p>
-                        <p class="text-gray-700">Phone: <%= address.phone %></p>
-                        <p class="text-gray-700">Alternate Phone: <%= address.altPhone %></p>
-                    <% } else { %>
-                        <p class="text-gray-700">No shipping address available.</p>
-                    <% } %>
-                </div>
-                
 
-                <!-- Payment Information -->
-                <div class="mt-4">
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">Payment Information</h3>
-                    <p class="text-gray-700">Payment Method: <%= order.paymentMethod %></p>
-                    <p class="text-gray-700 font-medium">
-                        Total: ₹<%= (order.totalAmount) %>
-                    </p>
-                </div>
+                                <!-- Payment Information -->
+                                <div class="mt-4">
+                                    <h3 class="text-lg font-medium text-gray-800 mb-2">Payment Information</h3>
+                                    <p class="text-gray-700">Payment Method: <%= order.paymentMethod %>
+                                    </p>
+                                    <p class="text-gray-700 font-medium">
+                                        Total: ₹<%= (order.totalAmount) %>
+                                    </p>
+                                </div>
             </div>
         </div>
     </div>
@@ -201,20 +224,20 @@
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())  
-            .then(data => {
-                if (data.success) {
-                    alert('Order cancelled successfully');
-                    document.getElementById('aaa').style.display = 'none';
-                    document.getElementById(`order-status`).innerText = 'Order Status: Cancelled';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Order cancelled successfully');
+                        document.getElementById('aaa').style.display = 'none';
+                        document.getElementById(`order-status`).innerText = 'Order Status: Cancelled';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
 
-    
+
 
         function showToast(type, message) {
             const toastContainer = document.createElement('div');
@@ -222,13 +245,13 @@
             toastContainer.style.top = '20px';
             toastContainer.style.right = '20px';
             toastContainer.style.zIndex = '1050';
-            
+
             const toast = document.createElement('div');
             toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
             toast.setAttribute('role', 'alert');
             toast.setAttribute('aria-live', 'assertive');
             toast.setAttribute('aria-atomic', 'true');
-            
+
             toast.innerHTML = `
                 <div class="d-flex">
                     <div class="toast-body">
@@ -237,13 +260,13 @@
                     <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
             `;
-            
+
             toastContainer.appendChild(toast);
             document.body.appendChild(toastContainer);
-            
+
             const bsToast = new bootstrap.Toast(toast);
             bsToast.show();
-            
+
             toast.addEventListener('hidden.bs.toast', () => {
                 toastContainer.remove();
             });
@@ -260,23 +283,27 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
         }
+
         .modal.fade.show {
             display: block;
         }
+
         .modal-dialog {
             position: relative;
             width: auto;
             margin: 1.75rem auto;
             max-width: 500px;
         }
+
         .modal-content {
             position: relative;
             background-color: #fff;
             border-radius: 0.5rem;
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
+
         .modal-header {
             display: flex;
             align-items: center;
@@ -284,9 +311,11 @@
             padding: 1rem;
             border-bottom: 1px solid #dee2e6;
         }
+
         .modal-body {
             padding: 1rem;
         }
+
         .modal-footer {
             display: flex;
             justify-content: flex-end;
@@ -294,6 +323,7 @@
             padding: 1rem;
             border-top: 1px solid #dee2e6;
         }
+
         .btn-close {
             background: transparent;
             border: 0;
@@ -301,7 +331,9 @@
             padding: 0.5rem;
             cursor: pointer;
         }
-        .form-select, .form-control {
+
+        .form-select,
+        .form-control {
             width: 100%;
             padding: 0.5rem;
             border: 1px solid #dee2e6;
@@ -310,4 +342,5 @@
         }
     </style>
 </body>
+
 </html>

@@ -13,6 +13,7 @@
             margin: 0 auto;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .otp-timer-wrapper {
             display: flex;
             justify-content: center;
@@ -20,6 +21,7 @@
             margin-bottom: 10px;
             width: 100%;
         }
+
         .otp-timer {
             display: flex;
             justify-content: center;
@@ -32,13 +34,16 @@
             color: black;
             text-align: center;
         }
+
         .form-group {
             width: 100%;
             text-align: center;
         }
+
         .btn-primary {
             margin-top: 15px;
         }
+
         .resend-button {
             margin-top: 10px;
         }
@@ -92,7 +97,7 @@
                 timerElement.style.backgroundColor = '#dc3545';
             }
         }
-      function startOtpTimer() {
+        function startOtpTimer() {
             const timerElement = document.getElementById('otpTimer');
             otpTimerInterval = setInterval(function () {
                 const minutes = Math.floor(timer / 60);

@@ -4,7 +4,6 @@ const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
 const mongoose = require("mongoose");
 
-
 const productDetails = async (req, res) => {
   try {
     let id = req.query.id;
@@ -16,7 +15,7 @@ const productDetails = async (req, res) => {
       category: product.category,
       _id: { $ne: id },
       isBlocked: false,
-    }).limit(4); 
+    }).limit(4);
     res.render("product-details", {
       product,
       relatedProducts,
@@ -35,23 +34,23 @@ const getProducts = async (req, res) => {
 
     // Handle search filtering
     if (search) {
-      query.productName = { $regex: search, $options: 'i' };
+      query.productName = { $regex: search, $options: "i" };
     }
 
     // Handle price filtering
     if (minPrice !== undefined && maxPrice !== undefined) {
-      query['variants.0.price'] = {
+      query["variants.0.price"] = {
         $gte: parseFloat(minPrice),
-        $lte: parseFloat(maxPrice)
+        $lte: parseFloat(maxPrice),
       };
     }
 
     // Handle category filtering
-    if (category && category !== 'all') {
+    if (category && category !== "all") {
       try {
         query.category = new mongoose.Types.ObjectId(category);
       } catch (err) {
-        console.log('Invalid category ID:', err);
+        console.log("Invalid category ID:", err);
       }
     }
 
@@ -76,12 +75,12 @@ const getProducts = async (req, res) => {
         sortQuery = { createdAt: -1 };
     }
 
-    console.log('Applied Query:', query);
-    console.log('Applied Sort:', sortQuery);
+    console.log("Applied Query:", query);
+    console.log("Applied Sort:", sortQuery);
 
     // Fetch products with filters and sorting
     const products = await Product.find(query)
-      .populate('category')
+      .populate("category")
       .sort(sortQuery)
       .lean(); // Using lean() for better performance
 
@@ -90,36 +89,35 @@ const getProducts = async (req, res) => {
 
     // Create filters object with current values
     const filters = {
-      minPrice: minPrice || '',
-      maxPrice: maxPrice || '',
-      selectedCategory: category || 'all',
-      selectedSort: sort || 'newArrivals',
-      search: search || ''
+      minPrice: minPrice || "",
+      maxPrice: maxPrice || "",
+      selectedCategory: category || "all",
+      selectedSort: sort || "newArrivals",
+      search: search || "",
     };
 
-    console.log('Applied Filters:', filters);
-    console.log('Found Products:', products.length);
+    console.log("Applied Filters:", filters);
+    console.log("Found Products:", products.length);
 
     res.render("shop", {
       products,
       category: categories,
       filters,
-      user: req.session.user || null
+      user: req.session.user || null,
     });
-
   } catch (error) {
     console.error("Error in getProducts:", error);
     res.render("shop", {
       products: [],
       category: [],
       filters: {
-        minPrice: '',
-        maxPrice: '',
-        selectedCategory: 'all',
-        selectedSort: 'newArrivals',
-        search: ''
+        minPrice: "",
+        maxPrice: "",
+        selectedCategory: "all",
+        selectedSort: "newArrivals",
+        search: "",
       },
-      user: req.session.user || null
+      user: req.session.user || null,
     });
   }
 };

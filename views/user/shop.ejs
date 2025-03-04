@@ -435,11 +435,16 @@
         </div>
         <div class="sort-options">
           <select id="sort-select" onchange="handleSort(this.value)">
-            <option value="newArrivals" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'newArrivals') ? 'selected' : '' %>>New Arrivals</option>
-            <option value="priceLowHigh" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'priceLowHigh') ? 'selected' : '' %>>Price: Low to High</option>
-            <option value="priceHighLow" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'priceHighLow') ? 'selected' : '' %>>Price: High to Low</option>
-            <option value="aToZ" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'aToZ') ? 'selected' : '' %>>A - Z</option>
-            <option value="zToA" <%= (typeof filters !== 'undefined' && filters.selectedSort === 'zToA') ? 'selected' : '' %>>Z - A</option>
+            <option value="newArrivals" <%=(typeof filters !=='undefined' && filters.selectedSort==='newArrivals' )
+              ? 'selected' : '' %>>New Arrivals</option>
+            <option value="priceLowHigh" <%=(typeof filters !=='undefined' && filters.selectedSort==='priceLowHigh' )
+              ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="priceHighLow" <%=(typeof filters !=='undefined' && filters.selectedSort==='priceHighLow' )
+              ? 'selected' : '' %>>Price: High to Low</option>
+            <option value="aToZ" <%=(typeof filters !=='undefined' && filters.selectedSort==='aToZ' ) ? 'selected' : ''
+              %>>A - Z</option>
+            <option value="zToA" <%=(typeof filters !=='undefined' && filters.selectedSort==='zToA' ) ? 'selected' : ''
+              %>>Z - A</option>
           </select>
         </div>
       </div>
@@ -548,19 +553,19 @@
     // Update URL with filters and reload page
     function updateFilters(params) {
       const url = new URL(window.location.href);
-      
+
       // Clear existing parameters
       url.searchParams.forEach((value, key) => {
         url.searchParams.delete(key);
       });
-      
+
       // Add new parameters
       Object.entries(params).forEach(([key, value]) => {
         if (value && value !== 'all') {
           url.searchParams.set(key, value);
         }
       });
-      
+
       window.location.href = url.toString();
     }
 
@@ -568,7 +573,7 @@
     function handleSort(sortValue) {
       const currentUrl = new URL(window.location.href);
       const currentParams = Object.fromEntries(currentUrl.searchParams);
-      
+
       updateFilters({
         ...currentParams,
         sort: sortValue,
@@ -580,18 +585,18 @@
     function handlePriceFilter(min, max) {
       const currentUrl = new URL(window.location.href);
       const currentParams = Object.fromEntries(currentUrl.searchParams);
-      
+
       // Remove active class from all price buttons
       document.querySelectorAll('.price-button').forEach(btn => {
         btn.classList.remove('active');
       });
-      
+
       // Add active class to clicked button
       const clickedButton = document.querySelector(`.price-button[onclick="handlePriceFilter(${min}, ${max})"]`);
       if (clickedButton) {
         clickedButton.classList.add('active');
       }
-      
+
       updateFilters({
         ...currentParams,
         minPrice: min,
@@ -604,18 +609,18 @@
     function filterByCategory(categoryId) {
       const currentUrl = new URL(window.location.href);
       const currentParams = Object.fromEntries(currentUrl.searchParams);
-      
+
       // Remove active class from all category buttons
       document.querySelectorAll('.category-button').forEach(btn => {
         btn.classList.remove('active');
       });
-      
+
       // Add active class to clicked button
       const clickedButton = document.querySelector(`.category-button[onclick="filterByCategory('${categoryId}')"]`);
       if (clickedButton) {
         clickedButton.classList.add('active');
       }
-      
+
       updateFilters({
         ...currentParams,
         category: categoryId,
@@ -631,7 +636,7 @@
         const searchValue = document.getElementById('search-input').value;
         const currentUrl = new URL(window.location.href);
         const currentParams = Object.fromEntries(currentUrl.searchParams);
-        
+
         updateFilters({
           ...currentParams,
           search: searchValue,

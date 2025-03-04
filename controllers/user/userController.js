@@ -1,10 +1,10 @@
 // const { options } = require("../../app");
 const User = require("../../models/userSchema");
 const product = require("../../models/productSchema");
-const env = require("dotenv").config(); //variable configuration
-const nodemailer = require("nodemailer"); // sending email
-const bcrypt = require("bcrypt"); //hashing
-const aswinfn = require("../../utils/nodemailer"); //utilite  function for email sending
+const env = require("dotenv").config(); 
+const nodemailer = require("nodemailer"); 
+const bcrypt = require("bcrypt");
+const aswinfn = require("../../utils/nodemailer");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Brand = require("../../models/brandSchema");
@@ -22,9 +22,10 @@ const pageNotFound = async (req, res) => {
 //homepage loading
 const loadHomepage = async (req, res) => {
   try {
-    const products = await product.find({ isBlocked: false })
-    .sort({createdAt:-1})
-    .limit(4)
+    const products = await product
+      .find({ isBlocked: false })
+      .sort({ createdAt: -1 })
+      .limit(4);
     const user = req.session.user;
     console.log(req.session);
 
@@ -161,7 +162,6 @@ const securePassword = async (password) => {
 const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-
     console.log(otp === req.session.userOtp);
     const otpRecord = await OTP.findOne({ sessionId: req.session.id, otp });
     if (otpRecord) {
@@ -228,7 +228,7 @@ function resendOTP() {
   timer = 60;
   document.getElementById("otp").disabled = false;
   document.getElementById("timerValue").classList.remove("expired");
-  document.getElementById("timerValue").textContent = timer; 
+  document.getElementById("timerValue").textContent = timer;
 
   startTimer();
 
@@ -277,6 +277,7 @@ const loadLogin = async (req, res) => {
   }
 };
 
+
 // Handle user login
 const login = async (req, res) => {
   try {
@@ -305,6 +306,7 @@ const login = async (req, res) => {
   }
 };
 
+
 // logout
 const logout = async (req, res) => {
   try {
@@ -326,10 +328,10 @@ const loadShoppingPage = async (req, res) => {
   try {
     const user = req.session.user;
     const userData = await User.findOne({ _id: user });
-    const categories = await Category.find({ isListed: true })
+    const categories = await Category.find({ isListed: true });
     const products = await Product.find({
       isBlocked: false,
-    }).sort({createdAt : -1})
+    }).sort({ createdAt: -1 });
 
     console.log("Fetched products:", products);
 
@@ -343,6 +345,7 @@ const loadShoppingPage = async (req, res) => {
     res.redirect("/pageNotFound");
   }
 };
+
 
 // fillter
 const filterProduct = async (req, res) => {

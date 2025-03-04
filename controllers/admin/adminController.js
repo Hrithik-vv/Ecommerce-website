@@ -41,7 +41,6 @@ const login = async (req, res) => {
   }
 };
 
-
 // Load the admin dashboard
 const loadDashboard = async (req, res) => {
   if (req.session.admin) {
