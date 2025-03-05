@@ -1255,6 +1255,13 @@
                 const selectedColor = document.querySelector('input[name="color"]:checked')?.value;
                 const selectedSize = document.querySelector('input[name="size"]:checked')?.value;
 
+                // Check if all variants are out of stock
+                const allOutOfStock = variants.every(v => v.stock === 0);
+                if (allOutOfStock) {
+                    alert('Sorry, this product is currently out of stock');
+                    return;
+                }
+
                 if (!selectedColor || !selectedSize) {
                     alert('Please select both color and size');
                     return;
@@ -1270,6 +1277,22 @@
                     return;
                 }
 
+                // Check if selected variant is out of stock
+                if (variant.stock === 0) {
+                    alert('Sorry, this variant is currently out of stock');
+                    return;
+                }
+
+                // Get the quantity input value
+                const quantity = parseInt(document.getElementById('quantity-input').value);
+
+                // Validate quantity against stock
+                if (quantity > variant.stock) {
+                    alert(`Sorry, only ${variant.stock} items are available in stock`);
+                    document.getElementById('quantity-input').value = variant.stock;
+                    return;
+                }
+
                 // Get price directly from the displayed price element, handling the format properly
                 const priceText = document.getElementById('variant-price').innerText;
                 const price = parseFloat(priceText.replace('₹', '').trim());
@@ -1282,8 +1305,8 @@
                 const formData = {
                     productId: '<%= product._id %>',
                     variantId: variant._id,
-                    quantity: parseInt(document.getElementById('quantity-input').value),
-                    price: price // Send the price directly
+                    quantity: quantity,
+                    price: price
                 };
 
                 try {
