@@ -1,6 +1,43 @@
 <!DOCTYPE html>
 <html lang="zxx">
+<style>
+    .container {
+  display: flex;
+  justify-content: flex-end;
+}
 
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #000;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #333;
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+.w {
+  width: 100%;
+  max-width: 200px; /* Adjust as needed */
+}
+
+</style>
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Male_Fashion Template">
@@ -283,8 +320,15 @@
     <span>›</span>
     <span>Checkout</span>
 </div>
+<div class="container">
+    <a href="/addAddress">
+      <button class="btn btn-primary w">Add address</button>
+    </a>
+  </div>
+  
 
 <body>
+ 
     <!-- Checkout Section -->
     <section class="checkout spad">
         <div class="container">
@@ -327,10 +371,15 @@
                                                         moment</p>
                                                     <% } %>
                                 </div>
+                                
                             </div>
+                           
                             <h6 class="checkout__title">Billing Details</h6>
                             <% if (addresses && addresses.length> 0) { %>
                                 <div class="existing-addresses">
+                                    <div class = "address-btn" >
+                                       
+                                      </div>
                                     <h6>Select Delivery Address</h6>
                                     <div class="accordion" id="addressAccordion">
                                         <% addresses.forEach((addr, index)=> { %>
@@ -516,6 +565,7 @@
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/jquery-3.3.1.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const addressOptions = document.querySelectorAll('.address-option');
@@ -680,6 +730,7 @@
             }
         });
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const addressOptions = document.querySelectorAll('.address-option');
@@ -718,7 +769,6 @@
     <!-- Razorpay script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // ... existing code ...
 
             // Handle form submission
             document.querySelector('form').addEventListener('submit', function (e) {

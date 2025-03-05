@@ -371,6 +371,42 @@
             const totalItems = tableRows.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
 
+            // Add handleReturn function
+            async function handleReturn(orderId, productId, status) {
+                try {
+                    console.log('Sending return request:', { orderId, productId, status });
+                    
+                    const response = await fetch('/admin/handle-return', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderId,
+                            productId,
+                            action: status
+                        })
+                    });
+
+                    const data = await response.json();
+                    console.log('Response received:', data);
+
+                    if (data.success) {
+                        alert(`Return request ${status.toLowerCase()} successfully`);
+                        window.location.reload();
+                    } else {
+                        console.error('Error from server:', data);
+                        alert(data.message || 'Error processing return request');
+                    }
+                } catch (error) {
+                    console.error('Error handling return:', error);
+                    alert('Error processing return request. Please check the console for details.');
+                }
+            }
+
+            // Make handleReturn available globally
+            window.handleReturn = handleReturn;
+
             function showPage(page) {
                 currentPage = page;
                 const start = (currentPage - 1) * itemsPerPage;

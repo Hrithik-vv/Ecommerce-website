@@ -620,9 +620,9 @@
                                             <div class="option-section">
                                                 <div class="option-title">Select Color</div>
                                                 <div class="color-options">
-                                                    <% // Get unique colors using Set const uniqueColors=[...new
-                                                        Set(product.variants.map(v=> v.color))];
-
+                                                    <% 
+                                                    // Get unique colors using Set 
+                                                     const uniqueColors=[...new Set(product.variants.map(v=> v.color))];
                                                         uniqueColors.forEach((color, index) => {
                                                         // Check if any variant with this color is available
                                                         const hasAvailableVariant = product.variants.some(v =>
@@ -639,7 +639,7 @@
                                                             style="background-color: <%= color %>">
                                                             <input type="radio" name="color" value="<%= color %>"
                                                                 <%=index===0 ? 'checked' : '' %>
-                                                            <%= !hasAvailableVariant ? 'disabled' : '' %>>
+                                                                <%= !hasAvailableVariant ? 'disabled' : '' %>>
                                                         </label>
                                                         <% }); %>
                                                 </div>
@@ -1082,7 +1082,7 @@
 
         <!-- Add this JavaScript to handle variant selection -->
         <script>
-            const variants = <% - JSON.stringify(product.variants) %>;
+            const variants = <%- JSON.stringify(product.variants) %>;
             const priceElement = document.getElementById('variant-price');
             const quantityInput = document.getElementById('quantity-input');
             const selectedVariantInput = document.getElementById('selected-variant');
@@ -1147,7 +1147,7 @@
 
                     if (variant) {
                         // Get the maximum offer percentage
-                        const maxOffer = Math.max(<%= product.offer %>, <%= product.category.categoryOffer %>);
+                        const maxOffer = Math.max(<%- product.offer %>, <%- product.category.categoryOffer %>);
 
                         // Calculate discounted price
                         const originalPrice = variant.price;

@@ -1,5 +1,6 @@
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
+const Product = require("../../models/productSchema");
 
 const returnManagement = async (req, res) => {
   try {
@@ -45,36 +46,50 @@ const returnManagement = async (req, res) => {
 const handleReturn = async (req, res) => {
   try {
     const { orderId, productId, action } = req.body;
+    console.log('Received return request:', { orderId, productId, action });
 
     // Find the order and update the return status
     const order = await Order.findById(orderId).populate("userId");
+    console.log('Found order:', order ? 'Yes' : 'No');
+    
     if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "Order not found" 
+      });
     }
 
     // Find the specific product in the order
-    const product = order.products.find(
+    const productIndex = order.products.findIndex(
       (p) => p.productId.toString() === productId
     );
-    if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found in order" });
+    console.log('Product index in order:', productIndex);
+
+    if (productIndex === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Product not found in order" 
+      });
     }
+
+    // Get the product from the order
+    const product = order.products[productIndex];
 
     // Update return status
     product.returnStatus = action;
+    console.log('Updated return status to:', action);
 
     // If approved, process refund to wallet
     if (action === "Approved") {
-      const refundAmount = product.totalPrice; // Get the product's price
+      const refundAmount = product.totalPrice;
+      console.log('Processing refund amount:', refundAmount);
 
       // Find or create wallet
       let wallet = await Wallet.findOne({ userId: order.userId._id });
+      console.log('Found existing wallet:', wallet ? 'Yes' : 'No');
 
       if (!wallet) {
+        console.log('Creating new wallet for user');
         wallet = new Wallet({
           userId: order.userId._id,
           balance: 0,
@@ -92,16 +107,16 @@ const handleReturn = async (req, res) => {
       });
 
       await wallet.save();
-      console.log(
-        `Refunded ${refundAmount} to wallet for user ${order.userId._id}`
-      );
+      console.log('Wallet updated successfully');
 
       // Update order status
       product.isRefunded = true;
       order.status = "Returned";
+      console.log('Order status updated to Returned');
     }
 
     await order.save();
+    console.log('Order saved successfully');
 
     res.json({
       success: true,
@@ -111,7 +126,13 @@ const handleReturn = async (req, res) => {
     });
   } catch (error) {
     console.error("Error handling return:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Error stack:", error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
