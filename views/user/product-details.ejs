@@ -8,7 +8,9 @@
     <html lang="en">
     <style>
         /* Product Details Container */
-
+        body {
+            overflow-x: hidden;
+        }
 
         /* Product Title and Description */
         .name h4 {
@@ -98,9 +100,11 @@
 
         /* New style for Not Available status */
         .status-not-available {
-            color: #dc3545; /* Red color for visibility */
+            color: #dc3545;
+            /* Red color for visibility */
             font-weight: bold;
-            margin-left: 80px; /* Align with other elements */
+            margin-left: 80px;
+            /* Align with other elements */
         }
 
         /* Offer Badge */
@@ -122,7 +126,8 @@
         /* Product Options Container */
         .product__details__option {
             padding: 20px 0;
-            margin-left: 80px;  /* Align with other elements */
+            margin-left: 80px;
+            /* Align with other elements */
         }
 
         /* Common styles for option sections */
@@ -494,6 +499,7 @@
             border: 1px solid #ddd;
         }
     </style>
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -587,94 +593,96 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="product__details__content">
                                 <div class="name">
-                                    <h4><%= product.productName %></h4>
+                                    <h4>
+                                        <%= product.productName %>
+                                    </h4>
                                 </div>
                                 <div class="des">
-                                    <h6><%= product.description %></h6>
+                                    <h6>
+                                        <%= product.description %>
+                                    </h6>
                                 </div>
 
                                 <div class="rating">
-                                    <% for(let i = 0; i < 5; i++) { %>
+                                    <% for(let i=0; i < 5; i++) { %>
                                         <i class="fa fa-star<%= i < product.rating ? '' : '-o' %>"></i>
-                                    <% } %>
-                                    <span> - <%= product.rating %> Rating</span>
+                                        <% } %>
+                                            <span> - <%= product.rating %> Rating</span>
                                 </div>
 
                                 <!-- Color and Size Selection -->
                                 <div class="product__details__option">
-                                    <% 
-                                    // Check if all variants are out of stock
-                                    const allOutOfStock = product.variants.every(v => v.stock === 0);
-                                    %>
-                                    <% if (!allOutOfStock) { %>
-                                        <!-- Color Selection -->
-                                        <div class="option-section">
-                                            <div class="option-title">Select Color</div>
-                                            <div class="color-options">
-                                                <% 
-                                                // Get unique colors using Set
-                                                const uniqueColors = [...new Set(product.variants.map(v => v.color))];
-                                                
-                                                uniqueColors.forEach((color, index) => { 
-                                                    // Check if any variant with this color is available
-                                                    const hasAvailableVariant = product.variants.some(v => 
+                                    <% // Check if all variants are out of stock const
+                                        allOutOfStock=product.variants.every(v=> v.stock === 0);
+                                        %>
+                                        <% if (!allOutOfStock) { %>
+                                            <!-- Color Selection -->
+                                            <div class="option-section">
+                                                <div class="option-title">Select Color</div>
+                                                <div class="color-options">
+                                                    <% 
+                                                    // Get unique colors using Set 
+                                                     const uniqueColors=[...new Set(product.variants.map(v=> v.color))];
+                                                        uniqueColors.forEach((color, index) => {
+                                                        // Check if any variant with this color is available
+                                                        const hasAvailableVariant = product.variants.some(v =>
                                                         v.color === color && v.stock > 0
-                                                    );
-                                                    
-                                                    const colorOptionClass = [
+                                                        );
+
+                                                        const colorOptionClass = [
                                                         'color-option',
                                                         index === 0 ? 'selected' : '',
                                                         hasAvailableVariant ? 'available' : 'unavailable'
-                                                    ].filter(Boolean).join(' ');
-                                                %>
-                                                    <label class="<%= colorOptionClass %>" 
-                                                           style="background-color: <%= color %>">
-                                                        <input type="radio" 
-                                                               name="color" 
-                                                               value="<%= color %>"
-                                                               <%= index === 0 ? 'checked' : '' %>
-                                                               <%= !hasAvailableVariant ? 'disabled' : '' %>>
-                                                    </label>
-                                                <% }); %>
+                                                        ].filter(Boolean).join(' ');
+                                                        %>
+                                                        <label class="<%= colorOptionClass %>"
+                                                            style="background-color: <%= color %>">
+                                                            <input type="radio" name="color" value="<%= color %>"
+                                                                <%=index===0 ? 'checked' : '' %>
+                                                                <%= !hasAvailableVariant ? 'disabled' : '' %>>
+                                                        </label>
+                                                        <% }); %>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Size Selection -->
-                                        <div class="option-section">
-                                            <div class="option-title">Select Size</div>
-                                            <div class="size-options">
-                                                <% 
-                                                const uniqueSizes = Array.from(new Set(
-                                                    product.variants
-                                                        .filter(v => v.size)
+                                            <!-- Size Selection -->
+                                            <div class="option-section">
+                                                <div class="option-title">Select Size</div>
+                                                <div class="size-options">
+                                                    <% const uniqueSizes=Array.from(new Set( product.variants
+                                                        .filter(v=> v.size)
                                                         .map(v => v.size)
-                                                ));
-                                                
-                                                uniqueSizes.forEach((size, index) => { 
-                                                %>
-                                                    <label class="size-option <%= index === 0 ? 'selected' : '' %>">
-                                                        <%= size %>
-                                                        <input type="radio" name="size" value="<%= size %>"
-                                                               <%= index === 0 ? 'checked' : '' %>>
-                                                    </label>
-                                                <% }); %>
+                                                        ));
+
+                                                        uniqueSizes.forEach((size, index) => {
+                                                        %>
+                                                        <label class="size-option <%= index === 0 ? 'selected' : '' %>">
+                                                            <%= size %>
+                                                                <input type="radio" name="size" value="<%= size %>"
+                                                                    <%=index===0 ? 'checked' : '' %>>
+                                                        </label>
+                                                        <% }); %>
+                                                </div>
                                             </div>
-                                        </div>
-                                    <% } else { %>
-                                       
-                                    <% } %>
+                                            <% } else { %>
+
+                                                <% } %>
                                 </div>
 
                                 <!-- Price will be updated via JavaScript based on selected variant -->
                                 <div class="price">
                                     <h3>
                                         <span id="crossed-price">
-                                            ₹ <span id="original-price"><%= product.variants[0].price %></span>
+                                            ₹ <span id="original-price">
+                                                <%= product.variants[0].price %>
+                                            </span>
                                         </span>
                                         <span id="variant-price">
-                                            ₹ <%= (product.variants[0].price * (1 - Math.max(product.offer, product.category.categoryOffer) / 100)).toFixed(2) %>
+                                            ₹ <%= (product.variants[0].price * (1 - Math.max(product.offer,
+                                                product.category.categoryOffer) / 100)).toFixed(2) %>
                                         </span>
-                                        <span class="offer-badge">Offer: <%= Math.max(product.offer, product.category.categoryOffer) %>%</span>
+                                        <span class="offer-badge">Offer: <%= Math.max(product.offer,
+                                                product.category.categoryOffer) %>%</span>
                                     </h3>
                                 </div>
 
@@ -692,16 +700,9 @@
                                     <input type="hidden" name="productId" value="<%= product._id %>">
                                     <input type="hidden" name="variantId" id="selected-variant">
                                     <input type="hidden" name="price" id="variant-price-input">
-                                    <input type="number" name="quantity" value="1" min="1" max="" class="quantity-input" id="quantity-input">
+                                    <input type="number" name="quantity" value="1" min="1" max="" class="quantity-input"
+                                        id="quantity-input">
                                     <button type="submit" class="add-to-cart-btn">Add to Cart</button>
-                                </form>
-
-                                <!-- Buy Now Form -->
-                                <form action="/checkoutload" method="POST">
-                                    <input type="hidden" name="productId" value="<%= product._id %>">
-                                    <input type="hidden" name="variantId" id="checkout-variant">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="primary-btn">Buy Now</button>
                                 </form>
                             </div>
 
@@ -859,26 +860,31 @@
                     </div>
                 </div>
                 <div class="row">
-                    <% relatedProducts.forEach(product => { %>
+                    <% relatedProducts.forEach(product=> { %>
                         <div class="col-lg-3 col-md-4 col-sm-6">
                             <div class="product-card">
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" data-setbg="<%= product.image1 %>">
                                         <ul class="product__hover">
                                             <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
-                                            <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a></li>
+                                            <li><a href="#"><img src="img/icon/compare.png" alt="">
+                                                    <span>Compare</span></a></li>
                                             <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
-                                        <h6><%= product.productName %></h6>
-                                        <p>Price: ₹<%= product.variants[0].price %></p>
-                                        <a href="/product-details?id=<%= product._id %>" class="add-cart">View Details</a>
+                                        <h6>
+                                            <%= product.productName %>
+                                        </h6>
+                                        <p>Price: ₹<%= product.variants[0].price %>
+                                        </p>
+                                        <a href="/product-details?id=<%= product._id %>" class="add-cart">View
+                                            Details</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <% }); %>
+                        <% }); %>
                 </div>
             </div>
         </section>
@@ -1037,8 +1043,8 @@
         </script>
 
         <script>
-            document.querySelector('.primary-btn').addEventListener('click', function() {
-                
+            document.querySelector('.primary-btn').addEventListener('click', function () {
+
                 const productId = '<%= product._id %>'; // Use string format for MongoDB ObjectId
                 const productName = '<%= product.productName %>';
                 const variantId = document.getElementById('checkout-variant').value;
@@ -1060,17 +1066,17 @@
                     },
                     body: JSON.stringify(product)
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Product added to cart');
-                    } else {
-                        alert('Failed to add product to cart');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Product added to cart');
+                        } else {
+                            alert('Failed to add product to cart');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             });
         </script>
 
@@ -1087,7 +1093,7 @@
                 const selectedSize = document.querySelector('input[name="size"]:checked')?.value;
 
                 // Get available sizes for selected color
-                const availableSizes = selectedColor ? 
+                const availableSizes = selectedColor ?
                     Array.from(new Set(product.variants
                         .filter(v => v.color === selectedColor)
                         .map(v => v.size))) : [];
@@ -1096,7 +1102,7 @@
                 document.querySelectorAll('.size-option').forEach(label => {
                     const sizeValue = label.textContent.trim();
                     const input = label.querySelector('input');
-                    
+
                     if (!availableSizes.includes(sizeValue)) {
                         label.classList.add('unavailable');
                         label.classList.remove('available', 'selected');
@@ -1134,30 +1140,30 @@
 
                 if (selectedColor && selectedSize) {
                     // Find the matching variant
-                    const variant = variants.find(v => 
-                        v.color === selectedColor && 
+                    const variant = variants.find(v =>
+                        v.color === selectedColor &&
                         v.size === selectedSize
                     );
 
                     if (variant) {
                         // Get the maximum offer percentage
-                        const maxOffer = Math.max(<%= product.offer %>, <%= product.category.categoryOffer %>);
-                        
+                        const maxOffer = Math.max(<%- product.offer %>, <%- product.category.categoryOffer %>);
+
                         // Calculate discounted price
                         const originalPrice = variant.price;
                         const discountedPrice = (originalPrice * (1 - maxOffer / 100)).toFixed(2);
-                        
+
                         // Update price display
                         document.getElementById('original-price').textContent = originalPrice;
                         document.getElementById('variant-price').textContent = `₹ ${discountedPrice}`;
-                        
+
                         // Update hidden inputs
                         document.getElementById('selected-variant').value = variant._id;
                         document.getElementById('variant-price-input').value = discountedPrice;
-                        
+
                         // Update quantity max based on stock
                         quantityInput.max = variant.stock;
-                        
+
                         // Update quantity if current value exceeds new max
                         if (parseInt(quantityInput.value) > variant.stock) {
                             quantityInput.value = variant.stock;
@@ -1168,7 +1174,7 @@
 
             // Add click handlers for options
             document.querySelectorAll('.color-option, .size-option').forEach(option => {
-                option.addEventListener('click', function(e) {
+                option.addEventListener('click', function (e) {
                     const input = this.querySelector('input');
                     if (input.disabled) {
                         e.preventDefault();
@@ -1180,11 +1186,11 @@
                         this.classList.contains('color-option') ? '.color-option' : '.size-option'
                     );
                     siblings.forEach(sib => sib.classList.remove('selected'));
-                    
+
                     // Add selected class to this option
                     this.classList.add('selected');
                     input.checked = true;
-                    
+
                     // Update variant details (which also updates available options)
                     updateVariantDetails();
                 });
@@ -1195,7 +1201,7 @@
                 const firstVariant = variants[0];
                 const colorInput = document.querySelector(`input[name="color"][value="${firstVariant.color}"]`);
                 const sizeInput = document.querySelector(`input[name="size"][value="${firstVariant.size}"]`);
-                
+
                 if (colorInput && sizeInput) {
                     colorInput.checked = true;
                     sizeInput.checked = true;
@@ -1217,8 +1223,8 @@
                 const quantity = document.querySelector('.quantity-input').value;
 
                 // Find the selected variant
-                const selectedVariant = variants.find(v => 
-                    v.color === selectedColor && 
+                const selectedVariant = variants.find(v =>
+                    v.color === selectedColor &&
                     v.size === selectedSize
                 );
 
@@ -1243,24 +1249,47 @@
 
         <!-- Add this JavaScript to handle adding to cart -->
         <script>
-            document.getElementById('add-to-cart-form').addEventListener('submit', async function(e) {
+            document.getElementById('add-to-cart-form').addEventListener('submit', async function (e) {
                 e.preventDefault();
-                
+
                 const selectedColor = document.querySelector('input[name="color"]:checked')?.value;
                 const selectedSize = document.querySelector('input[name="size"]:checked')?.value;
-                
+
+                // Check if all variants are out of stock
+                const allOutOfStock = variants.every(v => v.stock === 0);
+                if (allOutOfStock) {
+                    alert('Sorry, this product is currently out of stock');
+                    return;
+                }
+
                 if (!selectedColor || !selectedSize) {
                     alert('Please select both color and size');
                     return;
                 }
 
-                const variant = variants.find(v => 
-                    v.color === selectedColor && 
+                const variant = variants.find(v =>
+                    v.color === selectedColor &&
                     v.size === selectedSize
                 );
 
                 if (!variant) {
                     alert('Please select a valid variant');
+                    return;
+                }
+
+                // Check if selected variant is out of stock
+                if (variant.stock === 0) {
+                    alert('Sorry, this variant is currently out of stock');
+                    return;
+                }
+
+                // Get the quantity input value
+                const quantity = parseInt(document.getElementById('quantity-input').value);
+
+                // Validate quantity against stock
+                if (quantity > variant.stock) {
+                    alert(`Sorry, only ${variant.stock} items are available in stock`);
+                    document.getElementById('quantity-input').value = variant.stock;
                     return;
                 }
 
@@ -1276,8 +1305,8 @@
                 const formData = {
                     productId: '<%= product._id %>',
                     variantId: variant._id,
-                    quantity: parseInt(document.getElementById('quantity-input').value),
-                    price: price // Send the price directly
+                    quantity: quantity,
+                    price: price
                 };
 
                 try {
@@ -1289,9 +1318,9 @@
                         body: JSON.stringify(formData)
                     });
 
-                if (response.ok) {
-                    window.location.href = '/shopping-cart';
-                }
+                    if (response.ok) {
+                        window.location.href = '/shopping-cart';
+                    }
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Error adding product to cart');

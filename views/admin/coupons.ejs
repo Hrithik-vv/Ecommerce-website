@@ -276,7 +276,7 @@
                                         <td>
                                             <a href="editCoupon?id=<%= coupon._id %>"
                                                 class="btn btn-primary btn-sm">Edit</a>
-                                            <a  onclick="confirmDelete('<%= coupon._id %>')"
+                                            <a onclick="confirmDelete('<%= coupon._id %>')"
                                                 class="btn btn-danger btn-sm">Delete</a>
                                         </td>
                                     </tr>
@@ -409,32 +409,32 @@
                 },
                 body: JSON.stringify({ id: couponId }),
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Deleted!",
-                        text: "The coupon has been deleted.",
-                        confirmButtonText: "OK",
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Deleted!",
+                            text: "The coupon has been deleted.",
+                            confirmButtonText: "OK",
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error!",
+                            text: data.message || "Failed to delete the coupon. Please try again.",
+                        });
+                    }
+                })
+                .catch(() => {
                     Swal.fire({
                         icon: "error",
                         title: "Error!",
-                        text: data.message || "Failed to delete the coupon. Please try again.",
+                        text: "Failed to delete the coupon. Please try again.",
                     });
-                }
-            })
-            .catch(() => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error!",
-                    text: "Failed to delete the coupon. Please try again.",
                 });
-            });
         }
 
         function setDefultStartDate() {

@@ -35,11 +35,10 @@ const getBrandPage = async (req, res) => {
 // Add a new brand
 const addBrand = async (req, res) => {
   try {
-    const brandName = req.body.name; // Get brand name from the request
-    const findBrand = await Brand.findOne({ brandName }); // Check if the brand already exists
+    const brandName = req.body.name;
+    const findBrand = await Brand.findOne({ brandName });
 
     if (!findBrand) {
-      // Ensure file upload is valid
       if (!req.file) {
         throw new Error("Image upload is required.");
       }
