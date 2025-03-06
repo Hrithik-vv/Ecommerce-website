@@ -326,23 +326,36 @@ const logout = async (req, res) => {
 };
 const loadShoppingPage = async (req, res) => {
   try {
-    const user = req.session.user;
-    const userData = await User.findOne({ _id: user });
-    const categories = await Category.find({ isListed: true });
-    const products = await Product.find({
-      isBlocked: false,
-    }).sort({ createdAt: -1 });
+    const userId = req.session.user;
+    const user = userId ? await User.findById(userId) : null;
+    const category = await Category.find({ isListed: true });
+    const products = await Product.find({ isListed: true }).populate('category')
 
-    console.log("Fetched products:", products);
+    // Initialize filters object with default values
+    const filters = {
+      selectedCategory: 'all',
+      selectedSort: '',
+      minPrice: '',
+      maxPrice: '',
+      search: ''
+    };
+
+    // Update filters from query parameters if they exist
+    if (req.query.category) filters.selectedCategory = req.query.category;
+    if (req.query.sort) filters.selectedSort = req.query.sort;
+    if (req.query.minPrice) filters.minPrice = req.query.minPrice;
+    if (req.query.maxPrice) filters.maxPrice = req.query.maxPrice;
+    if (req.query.search) filters.search = req.query.search;
 
     res.render("shop", {
-      user: userData,
-      products: products,
-      category: categories,
+      user,
+      category,
+      products,
+      filters
     });
   } catch (error) {
-    console.error("Error loading shopping page:", error.message);
-    res.redirect("/pageNotFound");
+    console.error("Error in loadShoppingPage:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
 

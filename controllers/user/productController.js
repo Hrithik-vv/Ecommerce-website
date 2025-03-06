@@ -27,100 +27,102 @@ const productDetails = async (req, res) => {
 
 //filtter
 const getProducts = async (req, res) => {
+  console.log(req.query);
   try {
-    const { sort, minPrice, maxPrice, category, search } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 8;
+    const skip = (page - 1) * limit;
+
+    // Base query
     let query = { isBlocked: false };
-    let sortQuery = {};
 
-    // Handle search filtering
-    if (search) {
-      query.productName = { $regex: search, $options: "i" };
+    // Add category filter if category exists
+    if (req.query.category && req.query.category !== 'all') {
+      // Convert string category ID to MongoDB ObjectId
+      query.category = new mongoose.Types.ObjectId(req.query.category);
     }
 
-    // Handle price filtering
-    if (minPrice !== undefined && maxPrice !== undefined) {
-      query["variants.0.price"] = {
-        $gte: parseFloat(minPrice),
-        $lte: parseFloat(maxPrice),
-      };
+    // Add search condition if search query exists
+    if (req.query.search) {
+      query.productName = { $regex: req.query.search, $options: 'i' };
     }
 
-    // Handle category filtering
-    if (category && category !== "all") {
-      try {
-        query.category = new mongoose.Types.ObjectId(category);
-      } catch (err) {
-        console.log("Invalid category ID:", err);
+    // Add price range conditions if they exist and are not 'all'
+    if (
+      req.query.minPrice !== undefined && 
+      req.query.maxPrice !== undefined && 
+      req.query.minPrice !== 'all'
+    ) {
+      // Only add price filter if not "all"
+      const minPrice = parseInt(req.query.minPrice);
+      const maxPrice = parseInt(req.query.maxPrice);
+      
+      // Verify the numbers are valid before adding to query
+      if (!isNaN(minPrice) && !isNaN(maxPrice)) {
+        query['variants.price'] = {
+          $gte: minPrice,
+          $lte: maxPrice
+        };
       }
     }
 
-    // Handle sorting
-    switch (sort) {
-      case "priceLowHigh":
-        sortQuery = { "variants.0.price": 1 };
-        break;
-      case "priceHighLow":
-        sortQuery = { "variants.0.price": -1 };
-        break;
-      case "aToZ":
-        sortQuery = { productName: 1 };
-        break;
-      case "zToA":
-        sortQuery = { productName: -1 };
-        break;
-      case "newArrivals":
-        sortQuery = { createdAt: -1 };
-        break;
-      default:
-        sortQuery = { createdAt: -1 };
+    // Get total count for pagination
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Build sort object
+    let sortOption = {};
+    if (req.query.sort) {
+      switch (req.query.sort) {
+        case 'newArrivals':
+          sortOption = { createdAt: -1 };
+          break;
+        case 'priceLowHigh':
+        case 'priceLowToHigh':
+          sortOption = { 'variants.price': 1 };
+          break;
+        case 'priceHighLow':
+        case 'priceHighToLow':  
+          sortOption = { 'variants.price': -1 };
+          break;
+        case 'popularity':
+          sortOption = { popularity: -1 };
+          break;
+        case 'aToZ':
+          sortOption = { productName: 1 };
+          break;
+        case 'zToA':
+          sortOption = { productName: -1 };
+          break;
+        default:
+          sortOption = { createdAt: -1 };
+      }
     }
 
-    console.log("Applied Query:", query);
-    console.log("Applied Sort:", sortQuery);
-
-    // Fetch products with filters and sorting
+    // Fetch products with pagination, sorting and populate category
     const products = await Product.find(query)
-      .populate("category")
-      .sort(sortQuery)
-      .lean(); // Using lean() for better performance
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .populate('category');
 
-    // Get categories for sidebar
-    const categories = await Category.find({ isBlocked: false }).lean();
-
-    // Create filters object with current values
-    const filters = {
-      minPrice: minPrice || "",
-      maxPrice: maxPrice || "",
-      selectedCategory: category || "all",
-      selectedSort: sort || "newArrivals",
-      search: search || "",
-    };
-
-    console.log("Applied Filters:", filters);
-    console.log("Found Products:", products.length);
-
-    res.render("shop", {
+    // Send response
+    res.json({
       products,
-      category: categories,
-      filters,
-      user: req.session.user || null,
+      currentPage: page,
+      totalPages,
+      totalProducts
     });
+
   } catch (error) {
-    console.error("Error in getProducts:", error);
-    res.render("shop", {
-      products: [],
-      category: [],
-      filters: {
-        minPrice: "",
-        maxPrice: "",
-        selectedCategory: "all",
-        selectedSort: "newArrivals",
-        search: "",
-      },
-      user: req.session.user || null,
+    console.error('Error in getProducts:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: error.message 
     });
   }
-};
+  
+}
 
 module.exports = {
   productDetails,

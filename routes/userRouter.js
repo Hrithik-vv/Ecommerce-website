@@ -117,6 +117,7 @@ router.post("/cart/update", cartController.updateQuantity);
 router.post("/cart/add", userAuth, cartController.addToCart);
 //filte
 router.get("/shop", productController.getProducts);
+router.get("/shop/filter", productController.getProducts);
 
 // Checkout Routes
 router.all("/checkout", userAuth, cartController.checkoutController);
