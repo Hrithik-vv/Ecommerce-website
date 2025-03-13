@@ -9,7 +9,9 @@ const mongoose = require("mongoose");
 //Add to cart Controller
 const addToCart = async (req, res) => {
   try {
-    const userId = req.user._id;
+   
+    
+    const userId = req.user?._id || req.session.user._id;
     const { productId, variantId, quantity, price } = req.body;
     const missingFields = [];
     if (!productId) missingFields.push("productId");
@@ -78,7 +80,7 @@ module.exports = { addToCart };
 
 const viewCart = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user?._id || req.session.user._id
     const cart = await Cart.findOne({ userId }).populate(
       "items.productId",
       "productName price image1 image2 image3 image4 variants status"
@@ -143,7 +145,7 @@ const viewCart = async (req, res) => {
 // Add this removeFromCart function
 const removeFromCart = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user?._id || req.session.user._id
     const productId = req.params.productId;
 
     const cart = await Cart.findOne({ userId });
@@ -231,10 +233,15 @@ const updateQuantity = async (req, res) => {
 
 const checkoutController = async (req, res) => {
   try {
-    const userId = req.user._id || req.session.user._id;
+    const userId = req.user?._id || req.session.user._id;
+    
+    if (!userId) {
+      req.flash("error", "User not authenticated");
+      return res.redirect("/login");
+    }
+
     if (req.method === "POST") {
-      const { selectedAddressId, paymentMethod, couponCode, cartItems } =
-        req.body;
+      const { selectedAddressId, paymentMethod, couponCode, cartItems } = req.body;
 
       // Validate cart
       const cart = await Cart.findOne({ userId }).populate("items.productId");

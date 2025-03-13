@@ -1,42 +1,190 @@
 <!DOCTYPE html>
 <html lang="zxx">
 <style>
-    .container {
-  display: flex;
-  justify-content: flex-end;
-}
+    /* Modern Reset and Base Styles */
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --background-color: #f8f9fa;
+        --text-color: #2c3e50;
+        --border-radius: 12px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-.btn {
-  display: inline-block;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
+    /* Header Redesign */
+    .checkout-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        padding: 25px 0;
+        box-shadow: var(--box-shadow);
+    }
 
-.btn-primary {
-  background-color: #000;
-  color: #fff;
-}
+    .logo {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #fff, #e0e0e0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+    }
 
-.btn-primary:hover {
-  background-color: #333;
-}
+    /* Breadcrumb Redesign */
+    .wishlist-breadcrumb {
+        background: white;
+        padding: 15px 30px;
+        border-radius: var(--border-radius);
+        margin: 20px auto;
+        max-width: 1200px;
+        box-shadow: var(--box-shadow);
+    }
 
-.btn-primary:active {
-  transform: scale(0.95);
-}
+    .wishlist-breadcrumb a {
+        color: var(--secondary-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
 
-.w {
-  width: 100%;
-  max-width: 200px; /* Adjust as needed */
-}
+    .wishlist-breadcrumb a:hover {
+        color: var(--accent-color);
+    }
 
+    /* Checkout Form Container */
+    .checkout__form {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 30px;
+        margin-top: 30px;
+    }
+
+    /* Coupon Section Redesign */
+    .coupon-application {
+        background: var(--background-color);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .coupon-item {
+        background: white;
+        border: 2px dashed var(--secondary-color);
+        border-radius: var(--border-radius);
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .coupon-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--box-shadow);
+        border-color: var(--accent-color);
+    }
+
+    /* Address Section Redesign */
+    .address-option {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .address-option:hover {
+        border-color: var(--secondary-color);
+        transform: translateY(-3px);
+        box-shadow: var(--box-shadow);
+    }
+
+    .address-option.selected-address {
+        border-color: var(--accent-color);
+        background: rgba(231, 76, 60, 0.05);
+    }
+
+    /* Order Summary Redesign */
+    .checkout__order {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 30px;
+        box-shadow: var(--box-shadow);
+    }
+
+    .order__title {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--secondary-color);
+    }
+
+    /* Product List Redesign */
+    .checkout_total_products li {
+        padding: 15px;
+        margin-bottom: 10px;
+        background: var(--background-color);
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+    }
+
+    .checkout_total_products li:hover {
+        transform: translateX(5px);
+    }
+
+    /* Payment Options Redesign */
+    .payment-options {
+        background: var(--background-color);
+        border-radius: var(--border-radius);
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .payment-options label {
+        display: block;
+        padding: 15px;
+        margin: 10px 0;
+        background: white;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .payment-options label:hover {
+        background: rgba(52, 152, 219, 0.1);
+    }
+
+    /* Button Redesign */
+    .site-btn {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 15px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+
+    .site-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .checkout__form {
+            padding: 20px;
+        }
+        
+        .checkout__order {
+            margin-top: 30px;
+        }
+        
+        .logo {
+            font-size: 2rem;
+        }
+    }
 </style>
 <head>
     <meta charset="UTF-8">

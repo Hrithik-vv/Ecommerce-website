@@ -125,7 +125,7 @@ const createOrder = async (req, res) => {
   try {
     console.log("Create order request received:", req.body);
     const { totalAmount, selectedAddressId, couponCode } = req.body;
-    const userId = req.user._id;
+    const userId = req.user?._id || req.session.user._id
 
     if (!totalAmount || !selectedAddressId) {
       return res.status(400).json({
@@ -380,8 +380,8 @@ const cancelOrder = async (req, res) => {
     order.status = "Cancelled";
     await order.save();
 
-    // Check if the payment method is Razorpay and the payment status is paid
-    if (order.paymentMethod === "Razorpay" && order.paymentStatus === "Paid") {
+    // Check if the payment method is Razorpay and the payment status is completed
+    if (order.paymentMethod === "Razorpay" && order.paymentStatus === "completed") {
       const userId = order.userId;
       const refundAmount = order.totalAmount;
 

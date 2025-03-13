@@ -23,28 +23,14 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       secure: false,
       httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false, // Set to true if using https
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
-
-
 
 // Initialize Passport and restore authentication state
 app.use(passport.initialize());
@@ -55,7 +41,7 @@ app.use(nocache());
 
 // Middleware to Set `res.locals.user`
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || "a"; // Assign user to locals for templates
+  res.locals.user = req.session.user || null;
   next();
 });
 app.use((req, res, next) => {
@@ -126,5 +112,20 @@ app.use((req, res) => {
   res.render("page-404");	
 });
 
+const logout = async (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        console.log("Session destruction error:", err.message);
+        return res.redirect("/pageNotFound");
+      }
+      res.clearCookie("connect.sid");
+      return res.redirect("/login");
+    });
+  } catch (error) {
+    console.log("Logout error", error);
+    res.redirect("/pageNotFound");
+  }
+};
 
 module.exports = app;
