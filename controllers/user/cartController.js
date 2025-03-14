@@ -257,10 +257,13 @@ const checkoutController = async (req, res) => {
       }
 
       // Calculate total amount from cart items
-      const totalAmount = cart.items.reduce(
+      const subtotal = cart.items.reduce(
         (sum, item) => sum + item.totalPrice,
         0
       );
+
+      // Add delivery charge
+      const totalAmount = subtotal + 40;
 
       if (paymentMethod === "razorpay") {
         return res.json({
@@ -270,6 +273,12 @@ const checkoutController = async (req, res) => {
           couponCode,
           cartItems: cart.items,
         });
+      }
+
+      // For COD, validate order amount
+      if (paymentMethod === "cod" && totalAmount > 1000) {
+        req.flash("error", "Cash on Delivery is not available for orders above ₹1,000. Please choose online payment.");
+        return res.redirect("/checkout");
       }
 
       // For COD, continue with order creation
@@ -284,7 +293,8 @@ const checkoutController = async (req, res) => {
           color: item.color,
           size: item.size,
         })),
-        totalAmount: totalAmount,
+        totalAmount: totalAmount, // This now includes delivery charge
+        deliveryCharge: 40,
         shippingAddress: selectedAddressId,
         paymentMethod: "COD",
         status: "Pending",
@@ -325,9 +335,9 @@ const checkoutController = async (req, res) => {
     const userData = await User.findById(userId);
 
     // Calculate total amount from cart items
-    let totalAmount = 0;
+    let subtotal = 0;
     if (cart && cart.items) {
-      totalAmount = cart.items.reduce((total, item) => {
+      subtotal = cart.items.reduce((total, item) => {
         return total + item.totalPrice;
       }, 0);
     }
@@ -346,8 +356,8 @@ const checkoutController = async (req, res) => {
       cartItems: cart ? cart.items : [],
       selectedAddress: req.session.selectedAddress,
       coupons: coupons,
-      totalAmount: totalAmount,
-      total: totalAmount,
+      totalAmount: subtotal + 40,
+      total: subtotal,
       messages: {
         success: req.flash("success"),
         error: req.flash("error"),

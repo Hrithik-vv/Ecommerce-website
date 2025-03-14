@@ -185,6 +185,22 @@
             font-size: 2rem;
         }
     }
+
+    .disabled-payment-option {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: #f5f5f5;
+    }
+
+    .disabled-payment-option input {
+        cursor: not-allowed;
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
 </style>
 <head>
     <meta charset="UTF-8">
@@ -553,19 +569,17 @@
                                             </div>
                                             <% }) %>
                                     </div>
-                                    <button type="button" class="site-btn mt-4" data-toggle="modal"
-                                        data-target="#addAddressModal">
+                                    <a href="/addAddress" class="site-btn mt-4">
                                         Add New Address
-                                    </button>
+                                    </a>
                                     <input type="hidden" id="selectedAddressId" name="selectedAddressId">
                                 </div>
                                 <% } else { %>
                                     <div class="no-addresses">
                                         <p>No addresses found. Please add a new address.</p>
-                                        <button type="button" class="site-btn" data-toggle="modal"
-                                            data-target="#addAddressModal">
+                                        <a href="/addAddress" class="site-btn">
                                             Add New Address
-                                        </button>
+                                        </a>
                                     </div>
                                     <% } %>
                         </div>
@@ -605,20 +619,26 @@
                                 </ul>
                                 <ul class="checkout__total__all">
                                     <li>Subtotal <span>₹<%= total.toFixed(2) %></span></li>
+                                    <li>Delivery Charge <span>₹40.00</span></li>
                                     <li class="coupon-discount" style="display: none;">
                                         Discount <span id="discountAmount">₹0.00</span>
                                     </li>
-                                    <li>Total <span id="totalAmount">₹<%= total.toFixed(2) %></span>
+                                    <li>Total <span id="totalAmount">₹<%= (total + 40).toFixed(2) %></span>
                                     </li>
                                 </ul>
                                 <input type="hidden" name="couponCode" id="couponCodeInput">
                                 <div class="payment-options">
-                                    <label>
-                                        <input type="radio" name="payment" value="cod" required>
+                                    <label id="codLabel" class="<%= (total + 40) > 1000 ? 'disabled-payment-option' : '' %>">
+                                        <input type="radio" name="payment" value="cod" required 
+                                               <%= (total + 40) > 1000 ? 'disabled' : '' %>>
                                         Cash on Delivery
+                                        <% if ((total + 40) > 1000) { %>
+                                            <small class="text-danger d-block">Not available for orders above ₹1,000</small>
+                                        <% } %>
                                     </label>
                                     <label>
-                                        <input type="radio" name="payment" value="razorpay" required>
+                                        <input type="radio" name="payment" value="razorpay" required 
+                                               <%= (total + 40) > 1000 ? 'checked' : '' %>>
                                         Razorpay
                                     </label>
                                 </div>
@@ -633,73 +653,6 @@
             </div>
         </div>
     </section>
-    <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="/addAddress" method="POST">
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <!-- Address Type -->
-                                <div class="checkout__input">
-                                    <label>Address Type<span>*</span></label>
-                                    <select name="addressType" class="form-control" required>
-                                        <option value="Home">Home</option>
-                                        <option value="Work">Work</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-
-                                <!-- Existing Fields -->
-                                <div class="checkout__input">
-                                    <label>Full Name<span>*</span></label>
-                                    <input type="text" name="name" required>
-                                </div>
-                                <div class="checkout__input">
-                                    <label>Street Address</label>
-                                    <input type="text" name="landMark" class="checkout_input_add">
-                                </div>
-                                <div class="checkout__input">
-                                    <label>City<span>*</span></label>
-                                    <input type="text" name="city" required>
-                                </div>
-                                <div class="checkout__input">
-                                    <label>State<span>*</span></label>
-                                    <input type="text" name="state" required>
-                                </div>
-                                <div class="checkout__input">
-                                    <label>Postcode<span>*</span></label>
-                                    <input type="number" name="pincode" min="100000" max="999999" required>
-                                </div>
-                                <div class="checkout__input">
-                                    <label>Phone<span>*</span></label>
-                                    <input type="text" name="phone" pattern="[0-9]{10}" title="10 digit phone number"
-                                        required>
-                                </div>
-                                <!-- New Alt Phone Field -->
-                                <div class="checkout__input">
-                                    <label>Alternative Phone<span>*</span></label>
-                                    <input type="text" name="altPhone" pattern="[0-9]{10}" title="10 digit phone number"
-                                        required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Address</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
 
     <script src="js/jquery-3.3.1.min.js"></script>
@@ -717,6 +670,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const addressOptions = document.querySelectorAll('.address-option');
+            const orderTotal = parseFloat('<%= total %>') + 40; // Add delivery charge to total
+
+            // Check if order total is above 1000 and handle payment options
+            if (orderTotal > 1000) {
+                const codInput = document.querySelector('input[value="cod"]');
+                const razorpayInput = document.querySelector('input[value="razorpay"]');
+                if (codInput) codInput.disabled = true;
+                if (razorpayInput) razorpayInput.checked = true;
+            }
 
             addressOptions.forEach(option => {
                 option.addEventListener('click', function () {
@@ -824,7 +786,7 @@
                 document.getElementById('couponCodeInput').value = code;
                 document.querySelector('.coupon-discount').style.display = 'block';
                 document.getElementById('discountAmount').textContent = `₹${result.discount.toFixed(2)}`;
-                document.getElementById('totalAmount').textContent = `₹${result.newTotal.toFixed(2)}`;
+                document.getElementById('totalAmount').textContent = `₹${(result.newTotal + 40).toFixed(2)}`;
                 document.getElementById('removeCoupon').style.display = 'block';
 
                 document.querySelectorAll('.coupon-item').forEach(item => {
@@ -836,7 +798,8 @@
                 document.getElementById('couponCode').value = '';
                 document.getElementById('couponCodeInput').value = '';
                 document.querySelector('.coupon-discount').style.display = 'none';
-                document.getElementById('totalAmount').textContent = document.querySelector('.checkout__total__all li:first-child span').textContent;
+                const subtotal = parseFloat(document.querySelector('.checkout__total__all li:first-child span').textContent.replace('₹', ''));
+                document.getElementById('totalAmount').textContent = `₹${(subtotal + 40).toFixed(2)}`;
                 document.getElementById('removeCoupon').style.display = 'none';
                 document.querySelectorAll('.coupon-item').forEach(item => item.classList.remove('selected'));
                 document.getElementById('couponMessage').textContent = '';

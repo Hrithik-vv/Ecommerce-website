@@ -620,47 +620,52 @@
         return '<p>No products found</p>';
       }
 
-      return products.map(product => `
-        <div class="product-card" data-category="${product.category}" data-price="${product.salePrice}" 
-             data-rating="${product.rating}" data-name="${product.productName.toLowerCase()}" 
-             data-date="${product.createdAt}">
-          
-          <div class="wishlist-btn ${product.isInWishlist ? 'active' : ''}" 
-               onclick="toggleWishlist(this, '${product._id}')">
-            <i class="fa ${product.isInWishlist ? 'fa-heart' : 'fa-heart-o'}"></i>
-          </div>
-
-          <div class="product__item" onclick="window.location.href='/productDetails?id=${product._id}'">
-            <div class="product__item__pic set-bg" data-setbg="${product.image1 || 'default-image.jpg'}">
-              ${product.label ? `<span class="label">${product.label}</span>` : ''}
+      const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
+      
+      return products.map(product => {
+        const isInWishlist = wishlistItems.includes(product._id);
+        return `
+          <div class="product-card" data-category="${product.category}" data-price="${product.salePrice}" 
+               data-rating="${product.rating}" data-name="${product.productName.toLowerCase()}" 
+               data-date="${product.createdAt}">
+            
+            <div class="wishlist-btn ${isInWishlist ? 'active' : ''}" 
+                 onclick="toggleWishlist(this, '${product._id}')">
+              <i class="fa ${isInWishlist ? 'fa-heart' : 'fa-heart-o'}"></i>
             </div>
 
-            <div class="product__item__text">
-              <h6>
-                <p onclick="window.location.href='/productDetails?id=${product._id}'">
-                  ${product.productName}
-                </p>
-              </h6>
-              <a href="shopping-cart" class="add-cart">
-                <form action="shopping-cart" method="POST" class="simple-cart-form">
-                  <input type="hidden" name="productId" value="${product._id}">
-                  <input type="hidden" name="quantity" value="1">
-                </form>
-              </a>
-              <div class="rating">
-                ${Array(5).fill(0).map((_, i) => 
-                  `<i class="fa ${i < product.rating ? 'fa-star' : 'fa-star-o'}"></i>`
-                ).join('')}
+            <div class="product__item" onclick="window.location.href='/productDetails?id=${product._id}'">
+              <div class="product__item__pic set-bg" data-setbg="${product.image1 || 'default-image.jpg'}">
+                ${product.label ? `<span class="label">${product.label}</span>` : ''}
               </div>
-              <p>
-                ${product.variants && product.variants[0] 
-                  ? `Price: ₹${product.variants[0].price}` 
-                  : ''}
-              </p>
+
+              <div class="product__item__text">
+                <h6>
+                  <p onclick="window.location.href='/productDetails?id=${product._id}'">
+                    ${product.productName}
+                  </p>
+                </h6>
+                <a href="shopping-cart" class="add-cart">
+                  <form action="shopping-cart" method="POST" class="simple-cart-form">
+                    <input type="hidden" name="productId" value="${product._id}">
+                    <input type="hidden" name="quantity" value="1">
+                  </form>
+                </a>
+                <div class="rating">
+                  ${Array(5).fill(0).map((_, i) => 
+                    `<i class="fa ${i < product.rating ? 'fa-star' : 'fa-star-o'}"></i>`
+                  ).join('')}
+                </div>
+                <p>
+                  ${product.variants && product.variants[0] 
+                    ? `Price: ₹${product.variants[0].price}` 
+                    : ''}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // Update pagination UI
@@ -708,6 +713,7 @@
     // Initial load
     document.addEventListener('DOMContentLoaded', () => {
       updateProducts(1);
+      initializeWishlistStates();
     });
 
     function toggleWishlist(button, productId) {
@@ -719,22 +725,82 @@
         body: JSON.stringify({ productId }),
         credentials: 'include'
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => {
           if (data.status) {
             const icon = button.querySelector('i');
             if (data.action === 'add') {
+              // Add to wishlist
               icon.classList.remove('fa-heart-o');
               icon.classList.add('fa-heart');
               button.classList.add('active');
+              
+              // Show success message
+              Swal.fire({
+                icon: 'success',
+                title: 'Added to Wishlist!',
+                text: 'Product has been added to your wishlist',
+                showConfirmButton: false,
+                timer: 1500
+              });
             } else {
+              // Remove from wishlist
               icon.classList.remove('fa-heart');
               icon.classList.add('fa-heart-o');
               button.classList.remove('active');
+              
+              // Show remove message
+              Swal.fire({
+                icon: 'success',
+                title: 'Removed from Wishlist!',
+                text: 'Product has been removed from your wishlist',
+                showConfirmButton: false,
+                timer: 1500
+              });
             }
+            
+            // Update localStorage to maintain state
+            let wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
+            if (data.action === 'add') {
+              wishlistItems.push(productId);
+            } else {
+              wishlistItems = wishlistItems.filter(id => id !== productId);
+            }
+            localStorage.setItem('wishlistItems', JSON.stringify(wishlistItems));
           }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Something went wrong! Please try again.',
+          });
+        });
+    }
+
+    // Add this function to initialize wishlist states on page load
+    function initializeWishlistStates() {
+      const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
+      document.querySelectorAll('.wishlist-btn').forEach(button => {
+        const productId = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const icon = button.querySelector('i');
+        
+        if (wishlistItems.includes(productId)) {
+          icon.classList.remove('fa-heart-o');
+          icon.classList.add('fa-heart');
+          button.classList.add('active');
+        } else {
+          icon.classList.remove('fa-heart');
+          icon.classList.add('fa-heart-o');
+          button.classList.remove('active');
+        }
+      });
     }
 
     function handlePriceFilter(min, max) {

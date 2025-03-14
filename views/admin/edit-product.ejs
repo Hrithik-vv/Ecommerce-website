@@ -731,7 +731,6 @@
           if (1) {
             const formData = new FormData(this);
             const productId = new URLSearchParams(window.location.search).get("id");
-            alert(productId)
             const formDataObject = {};
 
             formData.forEach((value, key) => {
@@ -762,13 +761,16 @@
               const data = await response.json();
 
               if (data.success) {
-
-
-
-
-                window.location.href = "/admin/product";
-
-
+                // Add success SweetAlert
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success!',
+                  text: 'Product updated successfully',
+                  showConfirmButton: false,
+                  timer: 1500
+                }).then(() => {
+                  window.location.href = "/admin/product";
+                });
               } else {
                 throw new Error(data.message);
               }

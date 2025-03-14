@@ -49,7 +49,10 @@ const handleReturn = async (req, res) => {
     console.log('Received return request:', { orderId, productId, action });
 
     // Find the order and update the return status
-    const order = await Order.findById(orderId).populate("userId");
+    const order = await Order.findById(orderId)
+      .populate("userId")
+      .populate("products.productId");
+    
     console.log('Found order:', order ? 'Yes' : 'No');
     
     if (!order) {
@@ -61,7 +64,7 @@ const handleReturn = async (req, res) => {
 
     // Find the specific product in the order
     const productIndex = order.products.findIndex(
-      (p) => p.productId.toString() === productId
+      (p) => p.productId._id.toString() === productId
     );
     console.log('Product index in order:', productIndex);
 
@@ -81,57 +84,98 @@ const handleReturn = async (req, res) => {
 
     // If approved, process refund to wallet
     if (action === "Approved") {
-      const refundAmount = product.totalPrice;
-      console.log('Processing refund amount:', refundAmount);
+      try {
+        // Calculate refund amount - use totalPrice directly from the product
+        const refundAmount = parseFloat(product.totalPrice || 0);
+        console.log('Processing refund amount:', refundAmount);
 
-      // Find or create wallet
-      let wallet = await Wallet.findOne({ userId: order.userId._id });
-      console.log('Found existing wallet:', wallet ? 'Yes' : 'No');
+        if (isNaN(refundAmount) || refundAmount <= 0) {
+          throw new Error('Invalid refund amount');
+        }
 
-      if (!wallet) {
-        console.log('Creating new wallet for user');
-        wallet = new Wallet({
-          userId: order.userId._id,
-          balance: 0,
-          transactions: [],
+        // Find or create wallet
+        let wallet = await Wallet.findOne({ userId: order.userId._id });
+        console.log('Found existing wallet:', wallet ? 'Yes' : 'No');
+
+        if (!wallet) {
+          console.log('Creating new wallet for user');
+          wallet = new Wallet({
+            userId: order.userId._id,
+            balance: 0,
+            transactions: []
+          });
+        }
+
+        // Add refund amount to wallet
+        const currentBalance = parseFloat(wallet.balance || 0);
+        wallet.balance = currentBalance + refundAmount;
+        
+        wallet.transactions.push({
+          amount: refundAmount,
+          type: "credit",
+          description: `Refund for returned product from order ${order._id}`,
+          date: new Date()
+        });
+
+        await wallet.save();
+        console.log('Wallet updated successfully');
+
+        // Update product stock if needed
+        if (product.productId) {
+          const productDoc = await Product.findById(product.productId._id);
+          if (productDoc && productDoc.variants && productDoc.variants.length > 0) {
+            // Find the variant by matching color and size
+            const variant = productDoc.variants.find(v => 
+              v.color === product.color && v.size === product.size
+            );
+            
+            if (variant) {
+              variant.stock += product.quantity;
+              await productDoc.save();
+              console.log('Product stock updated successfully');
+            }
+          }
+        }
+
+        // Update order product status
+        product.isRefunded = true;
+        product.returnStatus = "Approved";
+        
+        // Check if all products in order are returned
+        const allReturned = order.products.every(p => p.isRefunded || p.returnStatus === "Approved");
+        if (allReturned) {
+          order.status = "Returned";
+        }
+
+        await order.save();
+        console.log('Order saved successfully');
+
+        return res.json({
+          success: true,
+          message: "Return request approved and refund processed"
+        });
+      } catch (error) {
+        console.error("Error processing refund:", error);
+        return res.status(500).json({
+          success: false,
+          message: "Error processing refund: " + error.message
         });
       }
-
-      // Add refund amount to wallet
-      wallet.balance += refundAmount;
-      wallet.transactions.push({
-        amount: refundAmount,
-        type: "credit",
-        description: `Refund for returned product from order ${order.orderId}`,
-        date: new Date(),
+    } else {
+      // For rejection
+      product.returnStatus = "Rejected";
+      await order.save();
+      return res.json({
+        success: true,
+        message: "Return request rejected"
       });
-
-      await wallet.save();
-      console.log('Wallet updated successfully');
-
-      // Update order status
-      product.isRefunded = true;
-      order.status = "Returned";
-      console.log('Order status updated to Returned');
     }
 
-    await order.save();
-    console.log('Order saved successfully');
-
-    res.json({
-      success: true,
-      message: `Return request ${action.toLowerCase()}${
-        action === "Approved" ? " and refund processed" : ""
-      }`,
-    });
   } catch (error) {
     console.error("Error handling return:", error);
-    console.error("Error stack:", error.stack);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false, 
-      message: "Internal server error",
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: "Internal server error: " + error.message
     });
   }
 };

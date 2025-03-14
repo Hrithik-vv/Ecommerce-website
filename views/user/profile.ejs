@@ -127,6 +127,26 @@
     .breadcrumb a:hover::after {
       transform: scaleX(1);
     }
+
+    .pagination-buttons .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .transaction-history {
+      min-height: 400px;
+      position: relative;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .table td {
+      vertical-align: middle;
+    }
   </style>
 
   <main class="main">
@@ -340,21 +360,21 @@
                                   <th>Amount</th>
                                 </tr>
                               </thead>
-                              <tbody>
-                                <% wallet.transactions.forEach(transaction => { %>
-                                  <tr>
-                                    <td><%= new Date(transaction.date).toLocaleDateString() %></td>
-                                    <td><%= transaction.description %></td>
-                                    <td>
-                                      <span class="badge <%= transaction.type === 'credit' ? 'bg-success' : 'bg-danger' %>">
-                                        <%= transaction.type.toUpperCase() %>
-                                      </span>
-                                    </td>
-                                    <td>₹<%= transaction.amount %></td>
-                                  </tr>
-                                <% }) %>
+                              <tbody id="transactionTableBody">
+                                <!-- Table body will be populated by JavaScript -->
                               </tbody>
                             </table>
+
+                            <!-- Pagination -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                              <div class="text-muted">
+                                Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> entries
+                              </div>
+                              <div class="pagination-buttons">
+                                <button id="prevPage" class="btn btn-sm btn-outline-primary me-2">&laquo; Previous</button>
+                                <button id="nextPage" class="btn btn-sm btn-outline-primary">Next &raquo;</button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -457,6 +477,65 @@
   function confirmReturnOrder(orderId) {
       // ... existing return order code ...
   }
+
+  // Pagination configuration
+  const itemsPerPage = 5;
+  let currentPage = 1;
+  
+  // Get all transactions from your EJS data
+  const allTransactions = <%- JSON.stringify(wallet.transactions) %>;
+  const totalPages = Math.ceil(allTransactions.length / itemsPerPage);
+
+  function displayTransactions(page) {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, allTransactions.length);
+    const transactionsToShow = allTransactions.slice(startIndex, endIndex);
+
+    const tableBody = document.getElementById('transactionTableBody');
+    tableBody.innerHTML = '';
+
+    transactionsToShow.forEach(transaction => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${new Date(transaction.date).toLocaleDateString()}</td>
+        <td>${transaction.description}</td>
+        <td>
+          <span class="badge ${transaction.type === 'credit' ? 'bg-success' : 'bg-danger'}">
+            ${transaction.type.toUpperCase()}
+          </span>
+        </td>
+        <td>₹${transaction.amount}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    // Update pagination info
+    document.getElementById('startIndex').textContent = startIndex + 1;
+    document.getElementById('endIndex').textContent = endIndex;
+    document.getElementById('totalItems').textContent = allTransactions.length;
+
+    // Update button states
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+  }
+
+  // Event listeners for pagination buttons
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      displayTransactions(currentPage);
+    }
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      displayTransactions(currentPage);
+    }
+  });
+
+  // Initialize the display
+  displayTransactions(1);
   </script>
 
   <%- include("../../views/partials/user/footer") %>

@@ -371,18 +371,24 @@
 
                             <!-- Order Summary -->
                             <div class="col-md-3 text-center">
-                                <span class="order-id d-block">Order #<%= order.orderId %></span>
+                                
                                 <span class="status-badge badge <%= 
                                     order.status === 'Pending' ? 'bg-warning text-dark' : 
                                     order.status === 'Delivered' ? 'bg-success' : 
                                     order.status === 'Cancelled' ? 'bg-danger' :
                                     order.status === 'Processing' ? 'bg-primary' :
-                                    order.status === 'Return Request' ? 'bg-secondary' : 
+                                    order.status === 'Returned' ? 'bg-secondary' : 
                                     'bg-secondary' %>">
                                     <%= order.status %>
                                 </span>
                                 <% if (product.returnStatus) { %>
-                                    <span class="badge bg-secondary mt-2">Return <%= product.returnStatus %></span>
+                                    <span class="badge <%= 
+                                        product.returnStatus === 'Rejected' ? 'bg-danger' :
+                                        product.returnStatus === 'Approved' ? 'bg-success' :
+                                        product.returnStatus === 'Pending' ? 'bg-warning text-dark' :
+                                        'bg-secondary' %> mt-2">
+                                        Return <%= product.returnStatus %>
+                                    </span>
                                 <% } %>
                             </div>
 
@@ -391,11 +397,19 @@
                                 <a href="/order-view?orderId=<%= order.orderId %>" class="btn btn-primary view-btn">
                                     View Details
                                 </a>
-                                <% if (order.status === 'Delivered' && !product.isReturned) { %>
-                                    <button class="btn btn-warning view-btn" data-bs-toggle="modal" 
-                                        data-bs-target="#returnModal<%= order._id %>_<%= product.productId._id %>">
-                                        Return
-                                    </button>
+                                <% if (order.status === 'Delivered') { %>
+                                    <% if (product.returnStatus === 'Rejected') { %>
+                                        <span class="badge bg-danger">Return Rejected</span>
+                                    <% } else if (product.returnStatus === 'Approved') { %>
+                                        <span class="badge bg-success">Return Approved</span>
+                                    <% } else if (product.returnStatus === 'Pending') { %>
+                                        <span class="badge bg-warning text-dark">Return Pending</span>
+                                    <% } else if (!product.isReturned) { %>
+                                        <button class="btn btn-warning view-btn" data-bs-toggle="modal" 
+                                            data-bs-target="#returnModal<%= order._id %>_<%= product.productId._id %>">
+                                            Return
+                                        </button>
+                                    <% } %>
                                 <% } %>
                             </div>
                         </div>

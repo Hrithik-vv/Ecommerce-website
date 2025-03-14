@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Add SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body class="bg-gray-100">
@@ -85,21 +87,54 @@
 
                 <% if (order.status==='Pending' ) { %>
                     <div id="aaa" class="mt-4">
-                        <button onclick="confirmCancelOrder('<%= order._id %>')"
+                        <button type="button"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#cancelOrderModal"
                             class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
                             Cancel Order
                         </button>
                     </div>
                     <% } %>
 
-                        <% if (order.status==='Delivered' ) { %>
+                        <% if (order.status === 'Delivered') { %>
                             <div class="mt-4">
-                                <button data-bs-toggle="modal" data-bs-target="#returnModal<%= order._id %>"
-                                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                                    Return Order
-                                </button>
+                                <% if (product.returnStatus === 'Rejected') { %>
+                                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg flex items-center">
+                                        <i class="fas fa-times-circle mr-2"></i>
+                                        Return Request Rejected
+                                    </div>
+                                <% } else if (product.returnStatus === 'Approved') { %>
+                                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg flex items-center">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        Return Request Approved
+                                    </div>
+                                <% } else if (product.returnStatus === 'Pending') { %>
+                                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded-lg flex items-center">
+                                        <i class="fas fa-clock mr-2"></i>
+                                        Return Request Pending
+                                    </div>
+                                <% } else if (product.isReturned) { %>
+                                    <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-2 rounded-lg flex items-center">
+                                        <i class="fas fa-undo mr-2"></i>
+                                        Order Returned
+                                    </div>
+                                <% } else { %>
+                                    <button data-bs-toggle="modal" 
+                                            data-bs-target="#returnModal<%= order._id %>" 
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                                        <i class="fas fa-undo mr-2"></i>
+                                        Return Order
+                                    </button>
+                                <% } %>
+                                <div class="mt-4">
+                                    <button onclick="generateInvoice()" 
+                                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                                        <i class="fas fa-file-pdf mr-2"></i>
+                                        Download Invoice
+                                    </button>
+                                </div>
                             </div>
-                            <% } %>
+                        <% } %>
 
                                 <!-- Return Modal -->
                                 <div class="modal fade" id="returnModal<%= order._id %>" tabindex="-1"
@@ -172,6 +207,47 @@
                                     </div>
                                 </div>
 
+                                <!-- Add this new Cancel Modal right after your return modal -->
+                                <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Cancel Order</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="cancelReason" class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Cancellation Reason
+                                                    </label>
+                                                    <select class="form-select w-full rounded-lg border-gray-300" 
+                                                            id="cancelReason" 
+                                                            required>
+                                                        <option value="">Select a reason</option>
+                                                        <option value="Changed my mind">Changed my mind</option>
+                                                        <option value="Found better price elsewhere">Found better price elsewhere</option>
+                                                        <option value="Ordered by mistake">Ordered by mistake</option>
+                                                        <option value="Shipping time too long">Shipping time too long</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" 
+                                                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
+                                                        data-bs-dismiss="modal">
+                                                    Close
+                                                </button>
+                                                <button type="button" 
+                                                        onclick="proceedWithCancellation()"
+                                                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                                                    Confirm Cancellation
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Shipping Information -->
                                 <div class="mt-4">
                                     <h3 class="text-lg font-medium text-gray-800 mb-2">Shipping Information</h3>
@@ -210,6 +286,27 @@
 
     <!-- Add success/error toast notifications -->
     <script>
+        let currentOrderId = '';
+
+        function proceedWithCancellation() {
+            const reason = document.getElementById('cancelReason').value;
+            if (!reason) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please select a cancellation reason'
+                });
+                return;
+            }
+
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('cancelOrderModal'));
+            modal.hide();
+
+            // Proceed with the existing cancel confirmation
+            confirmCancelOrder('<%= order._id %>');
+        }
+
         function confirmCancelOrder(orderId) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -236,17 +333,26 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Order cancelled successfully');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Cancelled',
+                            text: 'Your order has been cancelled successfully',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
                         document.getElementById('aaa').style.display = 'none';
                         document.getElementById(`order-status`).innerText = 'Order Status: Cancelled';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to cancel order. Please try again.'
+                    });
                 });
         }
-
-
 
         function showToast(type, message) {
             const toastContainer = document.createElement('div');
@@ -279,6 +385,62 @@
             toast.addEventListener('hidden.bs.toast', () => {
                 toastContainer.remove();
             });
+        }
+
+        function generateInvoice() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add company logo or name
+            doc.setFontSize(20);
+            doc.text('FASHION FEET', 105, 20, { align: 'center' });
+            
+            // Add invoice details
+            doc.setFontSize(12);
+            doc.text('INVOICE', 20, 40);
+            doc.text(`Order ID: <%= order.orderId %>`, 20, 50);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 60);
+
+            // Add customer details
+            doc.text('Bill To:', 20, 80);
+            doc.setFontSize(10);
+            doc.text(`Name: <%= address.name %>`, 20, 90);
+            doc.text(`Address: <%= address.landMark %>, <%= address.city %>`, 20, 100);
+            doc.text(`<%= address.state %> - <%= address.pincode %>`, 20, 110);
+            doc.text(`Phone: <%= address.phone %>`, 20, 120);
+
+            // Add product details table
+            const tableColumn = ['Product', 'Quantity', 'Price'];
+            const tableRows = [
+                [
+                    '<%= product.productName %>',
+                    '<%= product.quantity %>',
+                    'Rs. <%= order.totalAmount %>'
+                ]
+            ];
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 140,
+                theme: 'grid',
+                headStyles: { fillColor: [76, 115, 121] }
+            });
+
+            // Add total amount
+            const finalY = doc.lastAutoTable.finalY || 140;
+            doc.text(`Total Amount: Rs. <%= order.totalAmount %>`, 20, finalY + 20);
+
+            // Add payment information
+            doc.text(`Payment Method: <%= order.paymentMethod %>`, 20, finalY + 30);
+            doc.text('Payment Status: Paid', 20, finalY + 40);
+
+            // Add footer
+            doc.setFontSize(8);
+            doc.text('Thank you for shopping with us!', 105, finalY + 60, { align: 'center' });
+
+            // Save the PDF
+            doc.save(`invoice-<%= order.orderId %>.pdf`);
         }
     </script>
 
