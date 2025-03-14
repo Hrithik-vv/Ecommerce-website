@@ -66,26 +66,33 @@ const adminOrderView = async (req, res) => {
 // Update order status using form submission
 const updateOrderStatus = async (req, res) => {
   try {
-    const { orderId, newStatus } = req.body;
-    if (!orderId || !newStatus) {
+    const { orderId, productId, newStatus } = req.body;
+    if (!orderId || !productId || !newStatus) {
       return res.status(400).send("Missing required fields");
     }
 
-    // Find order and update status
-    const order = await Order.findByIdAndUpdate(
-      orderId,
-      { status: newStatus },
+    // Find order and update specific product's status
+    const order = await Order.findOneAndUpdate(
+      { 
+        _id: orderId,
+        "products.productId": productId 
+      },
+      { 
+        $set: { 
+          "products.$.status": newStatus 
+        } 
+      },
       { new: true }
     );
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(404).send("Order or product not found");
     }
 
     // Redirect back to the order management page
     res.redirect("/admin/ordermanage");
   } catch (error) {
-    console.error("Error updating order status:", error);
+    console.error("Error updating product status:", error);
     res.status(500).send("Internal Server Error");
   }
 };

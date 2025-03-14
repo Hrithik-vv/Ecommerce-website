@@ -371,15 +371,14 @@
 
                             <!-- Order Summary -->
                             <div class="col-md-3 text-center">
-                                
                                 <span class="status-badge badge <%= 
-                                    order.status === 'Pending' ? 'bg-warning text-dark' : 
-                                    order.status === 'Delivered' ? 'bg-success' : 
-                                    order.status === 'Cancelled' ? 'bg-danger' :
-                                    order.status === 'Processing' ? 'bg-primary' :
-                                    order.status === 'Returned' ? 'bg-secondary' : 
+                                    product.status === 'Pending' ? 'bg-warning text-dark' : 
+                                    product.status === 'Delivered' ? 'bg-success' : 
+                                    product.status === 'Cancelled' ? 'bg-danger' :
+                                    product.status === 'Processing' ? 'bg-primary' :
+                                    product.status === 'Returned' ? 'bg-secondary' : 
                                     'bg-secondary' %>">
-                                    <%= order.status %>
+                                    <%= product.status %>
                                 </span>
                                 <% if (product.returnStatus) { %>
                                     <span class="badge <%= 
@@ -397,14 +396,16 @@
                                 <a href="/order-view?orderId=<%= order.orderId %>" class="btn btn-primary view-btn">
                                     View Details
                                 </a>
-                                <% if (order.status === 'Delivered') { %>
+                                <% if (['Pending', 'Processing', 'Shipped'].includes(product.status)) { %>
+                                    <button class="btn btn-danger view-btn" onclick="cancelOrder('<%= order._id %>', '<%= product.productId._id %>')">
+                                        Cancel
+                                    </button>
+                                <% } else if (product.status === 'Delivered') { %>
                                     <% if (product.returnStatus === 'Rejected') { %>
                                         <span class="badge bg-danger">Return Rejected</span>
                                     <% } else if (product.returnStatus === 'Approved') { %>
                                         <span class="badge bg-success">Return Approved</span>
-                                    <% } else if (product.returnStatus === 'Pending') { %>
-                                        <span class="badge bg-warning text-dark">Return Pending</span>
-                                    <% } else if (!product.isReturned) { %>
+                                    <% } else if (!product.returnStatus && !product.isReturned) { %>
                                         <button class="btn btn-warning view-btn" data-bs-toggle="modal" 
                                             data-bs-target="#returnModal<%= order._id %>_<%= product.productId._id %>">
                                             Return
@@ -590,6 +591,39 @@
                 toastContainer.remove();
             });
         }
+    </script>
+
+    <script>
+    function cancelOrder(orderId, productId) {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            fetch('/cancel-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    productId: productId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Order cancelled successfully');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showToast('error', data.message || 'Failed to cancel order');
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                
+                showToast('error', 'An error occurred while cancelling the order');
+            });
+        }
+    }
     </script>
 </body>
 

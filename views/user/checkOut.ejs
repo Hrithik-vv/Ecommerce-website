@@ -12,15 +12,28 @@
         --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
+    /* Responsive Container */
+    .container {
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 1200px;
+    }
+
     /* Header Redesign */
     .checkout-header {
         background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        padding: 25px 0;
+        padding: 15px 0;
         box-shadow: var(--box-shadow);
+        margin-bottom: 10px;
+        width: 100%;
+        position: relative;
     }
 
     .logo {
-        font-size: 2.5rem;
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
         font-weight: 800;
         background: linear-gradient(to right, #fff, #e0e0e0);
         -webkit-background-clip: text;
@@ -31,11 +44,14 @@
     /* Breadcrumb Redesign */
     .wishlist-breadcrumb {
         background: white;
-        padding: 15px 30px;
+        padding: 10px 15px;
         border-radius: var(--border-radius);
-        margin: 20px auto;
-        max-width: 1200px;
-        box-shadow: var(--box-shadow);
+        margin: 10px 15px;
+        font-size: clamp(0.8rem, 2vw, 1rem);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
     }
 
     .wishlist-breadcrumb a {
@@ -48,71 +64,88 @@
         color: var(--accent-color);
     }
 
+    /* Checkout Section Spacing */
+    .checkout.spad {
+        padding-top: 20px;
+        padding-bottom: 50px;
+    }
+
     /* Checkout Form Container */
     .checkout__form {
         background: white;
         border-radius: var(--border-radius);
         box-shadow: var(--box-shadow);
-        padding: 30px;
-        margin-top: 30px;
+        padding: clamp(15px, 3vw, 25px);
+        margin-top: 15px;
     }
 
     /* Coupon Section Redesign */
     .coupon-application {
-        background: var(--background-color);
-        border-radius: var(--border-radius);
-        padding: 20px;
-        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 10px 0 20px 0;
+    }
+
+    #couponCode {
+        width: 100%;
+        max-width: 300px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
     }
 
     .coupon-item {
-        background: white;
-        border: 2px dashed var(--secondary-color);
+        padding: 12px;
+        border: 1px dashed #ddd;
         border-radius: var(--border-radius);
-        padding: 15px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         transition: all 0.3s ease;
     }
 
-    .coupon-item:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--box-shadow);
-        border-color: var(--accent-color);
+    .coupon-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 0.9em;
     }
 
     /* Address Section Redesign */
     .address-option {
-        background: white;
-        border: 2px solid #e0e0e0;
-        border-radius: var(--border-radius);
-        padding: 20px;
+        padding: clamp(12px, 2vw, 20px);
         margin-bottom: 15px;
+        border: 2px solid #e1e1e1;
+        border-radius: var(--border-radius);
         transition: all 0.3s ease;
-        cursor: pointer;
     }
 
-    .address-option:hover {
-        border-color: var(--secondary-color);
-        transform: translateY(-3px);
-        box-shadow: var(--box-shadow);
+    .address-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
     }
 
-    .address-option.selected-address {
-        border-color: var(--accent-color);
-        background: rgba(231, 76, 60, 0.05);
+    .address-type {
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: clamp(0.7rem, 1.5vw, 0.9rem);
     }
 
     /* Order Summary Redesign */
     .checkout__order {
         background: white;
         border-radius: var(--border-radius);
-        padding: 30px;
+        padding: clamp(15px, 3vw, 30px);
+        margin-top: clamp(15px, 3vw, 30px);
         box-shadow: var(--box-shadow);
     }
 
     .order__title {
         color: var(--primary-color);
-        font-size: 1.8rem;
+        font-size: clamp(1.2rem, 3vw, 1.8rem);
         margin-bottom: 25px;
         padding-bottom: 15px;
         border-bottom: 2px solid var(--secondary-color);
@@ -120,72 +153,155 @@
 
     /* Product List Redesign */
     .checkout_total_products li {
-        padding: 15px;
-        margin-bottom: 10px;
-        background: var(--background-color);
-        border-radius: var(--border-radius);
-        transition: all 0.3s ease;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
     }
 
-    .checkout_total_products li:hover {
-        transform: translateX(5px);
+    .product-details {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .variant-details {
+        font-size: clamp(0.8rem, 1.5vw, 0.9rem);
     }
 
     /* Payment Options Redesign */
     .payment-options {
-        background: var(--background-color);
-        border-radius: var(--border-radius);
-        padding: 20px;
         margin: 20px 0;
     }
 
     .payment-options label {
         display: block;
-        padding: 15px;
+        padding: clamp(10px, 2vw, 15px);
         margin: 10px 0;
-        background: white;
         border-radius: var(--border-radius);
-        cursor: pointer;
+        background: #f8f9fa;
         transition: all 0.3s ease;
     }
 
     .payment-options label:hover {
-        background: rgba(52, 152, 219, 0.1);
+        background: #f0f0f0;
     }
 
     /* Button Redesign */
     .site-btn {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        width: 100%;
+        padding: clamp(10px, 2vw, 15px);
+        font-size: clamp(0.9rem, 2vw, 1rem);
+        background: var(--primary-color);
         color: white;
         border: none;
         border-radius: var(--border-radius);
-        padding: 15px 30px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
         transition: all 0.3s ease;
     }
 
     .site-btn:hover {
+        background: var(--secondary-color);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 
     /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .checkout__form {
-            padding: 20px;
-        }
-        
-        .checkout__order {
-            margin-top: 30px;
-        }
-        
-        .logo {
-            font-size: 2rem;
+    @media (max-width: 1200px) {
+        .container {
+            max-width: 95%;
         }
     }
 
+    @media (max-width: 991px) {
+        .checkout__form {
+            margin: 15px;
+        }
+        
+        .checkout__order {
+            margin: 15px;
+        }
+        
+        .product-details {
+            min-width: 150px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .coupon-details {
+            flex-direction: column;
+        }
+        
+        .coupon-details span {
+            padding-right: 0;
+            border-right: none;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .address-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .product-details {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .checkout__total__all li {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .wishlist-breadcrumb {
+            margin: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .checkout__form {
+            padding: 12px;
+        }
+        
+        .address-type {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+        }
+        
+        .coupon-application {
+            flex-direction: column;
+        }
+        
+        #couponCode {
+            max-width: 100%;
+        }
+        
+        .product-details {
+            min-width: 100%;
+        }
+    }
+
+    /* Touch-friendly elements */
+    @media (hover: none) {
+        .site-btn,
+        .coupon-item,
+        .address-option {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+    }
+
+    /* Accessibility Improvements */
+    .site-btn:focus,
+    .coupon-item:focus,
+    .address-option:focus {
+        outline: 2px solid var(--secondary-color);
+        outline-offset: 2px;
+    }
+
+    /* Maintain existing functionality classes */
     .disabled-payment-option {
         opacity: 0.6;
         cursor: not-allowed;
@@ -485,9 +601,7 @@
     <span>Checkout</span>
 </div>
 <div class="container">
-    <a href="/addAddress">
-      <button class="btn btn-primary w">Add address</button>
-    </a>
+    
   </div>
   
 

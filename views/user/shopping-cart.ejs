@@ -33,6 +33,51 @@
             vertical-align: middle;
         }
 
+        /* Responsive table styles */
+        @media (max-width: 768px) {
+            .shopping__cart__table {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .shopping__cart__table table {
+                min-width: 600px; /* Minimum width to ensure content is readable */
+            }
+
+            .cart-container {
+                padding: 1rem;
+            }
+
+            .shopping-cart {
+                padding: 2rem 0;
+            }
+        }
+
+        /* Product cell responsive styles */
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 576px) {
+            .product-cell {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-image {
+                width: 60px;
+                height: 60px;
+            }
+
+            .product-details {
+                width: 100%;
+            }
+        }
+
+        /* Quantity controls responsive styles */
         .quantity-controls {
             display: flex;
             align-items: center;
@@ -71,12 +116,20 @@
             border-color: #000000;
         }
 
-        /* Updated action buttons styles */
+        /* Action buttons responsive styles */
         .action-buttons {
             display: flex;
             gap: 0.5rem;
             align-items: center;
             justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 576px) {
+            .action-buttons {
+                justify-content: flex-start;
+                margin-top: 0.5rem;
+            }
         }
 
         .btn-update {
@@ -89,6 +142,7 @@
             transition: all 0.2s;
             font-size: 0.9rem;
             height: 35px;
+            white-space: nowrap;
         }
 
         .btn-update:hover {
@@ -108,18 +162,32 @@
             height: 35px;
             display: flex;
             align-items: center;
+            white-space: nowrap;
         }
 
         .remove-link:hover {
             background: #f30808;
         }
 
-        /* Rest of the existing styles */
+        /* Cart summary responsive styles */
         .cart-summary {
             background: white;
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 991px) {
+            .cart-summary {
+                margin-top: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .cart-summary {
+                padding: 1.5rem;
+            }
         }
 
         .cart-total {
@@ -148,16 +216,35 @@
             transform: translateY(-1px);
         }
 
+        /* Empty cart responsive styles */
         .empty-cart {
             text-align: center;
             padding: 3rem;
             color: #6b7280;
         }
 
+        @media (max-width: 576px) {
+            .empty-cart {
+                padding: 2rem;
+            }
+
+            .empty-cart h3 {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Header responsive styles */
         .wishlist-header {
             background: linear-gradient(135deg, #5052a7 0%, #000000 100%);
             padding: 2rem 0;
             margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .wishlist-header {
+                padding: 1.5rem 0;
+                margin-bottom: 2rem;
+            }
         }
 
         .wishlist-title {
@@ -167,12 +254,25 @@
             margin: 0;
         }
 
+        @media (max-width: 576px) {
+            .wishlist-title {
+                font-size: 1.5rem;
+            }
+        }
+
         .wishlist-breadcrumb {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
             margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 576px) {
+            .wishlist-breadcrumb {
+                font-size: 0.875rem;
+            }
         }
 
         .wishlist-breadcrumb a {
@@ -180,30 +280,19 @@
             text-decoration: none;
         }
 
-        /* Add these styles for the product image and name layout */
-        .product-cell {
+        /* Product details responsive styles */
+        .product-details {
             display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .product-image {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+            min-width: 0;
         }
 
         .product-name {
             font-weight: 500;
             color: #1f2937;
-        }
-
-        .product-details {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
+            word-break: break-word;
         }
 
         .product-variants {
@@ -214,6 +303,42 @@
         .variant-info {
             display: inline-block;
             margin-right: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .variant-info {
+                display: block;
+                margin-bottom: 0.25rem;
+            }
+        }
+
+        /* Touch-friendly buttons */
+        .qty-minus,
+        .qty-plus,
+        .btn-update,
+        .remove-link,
+        .checkout-btn {
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        /* Ensure proper spacing in mobile view */
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .row {
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+            }
+
+            .col-lg-8,
+            .col-lg-4 {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
         }
     </style>
 
@@ -259,10 +384,7 @@
                                         <% } else { %>
                                             <% cartItems.forEach((item)=> { %>
                                                 <tr data-item-id="<%= item.productId %>">
-
-
                                                     <td>
-
                                                         <div class="product-cell">
                                                             <img class="product-image"
                                                                 src="/<%= item.productId.image1 %>" alt="Product image">

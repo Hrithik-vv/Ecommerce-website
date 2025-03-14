@@ -25,6 +25,12 @@ const orderSchema = new Schema({
         totalPrice: { type: Number, required: true },
         color: { type: String },
         size: { type: String },
+        status: { 
+            type: String,
+            required: true,
+            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
+            default: 'Pending'
+        },
         isReturned: {
             type: Boolean,
             default: false
@@ -48,12 +54,6 @@ const orderSchema = new Schema({
     totalAmount: { type: Number, required: true },
     shippingAddress: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
     paymentMethod: { type: String, required: true },
-    status: { 
-        type: String,
-        required: true,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
-        default: 'Pending'
-    },
     paymentStatus: {
         type: String,
         enum: ['pending', 'completed', 'failed'],

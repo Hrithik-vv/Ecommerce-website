@@ -7,212 +7,286 @@
   <meta name="keywords" content="Male_Fashion, unica, creative, html" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Oxyboo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
-    rel="stylesheet" />
+  <title>Oxyboo - Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
-  <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
-  <link rel="stylesheet" href="css/elegant-icons.css" type="text/css" />
-  <link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
-  <link rel="stylesheet" href="css/nice-select.css" type="text/css" />
-  <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css" />
-  <link rel="stylesheet" href="css/slicknav.min.css" type="text/css" />
-  <link rel="stylesheet" href="css/style.css" type="text/css" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <style>
-    .header__nav__option .sign-in-link {
-      font-size: 16px;
-      color: #333;
-      margin-right: 15px;
-      text-decoration: none;
-      font-weight: 600;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
     }
 
-    .header__nav__option .sign-in-link:hover {
-      color: #ff7f50;
-    }
-
-    .signup-section {
+    body {
+      min-height: 100vh;
+      background: #f8f9fa;
       display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    .signup-form,
-    .signup-image {
-      flex: 1;
-      padding: 10px;
+    .signup-container {
+      max-width: 1200px;
+      width: 100%;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .signup-content {
+      display: flex;
+      align-items: center;
     }
 
     .signup-form {
-      max-width: 50%;
+      flex: 1;
+      padding: 40px;
+      max-width: 600px;
     }
 
     .signup-image {
+      flex: 1;
+      background: linear-gradient(135deg, #6366f1 0%, #4e46e584 100%);
+      padding: 40px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      max-width: 40%;
+      color: white;
+      text-align: center;
+      position: relative;
+      min-height: 600px;
+    }
+
+    .signup-image::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('/img/1_WebBanner_1920x1080_3_dd3a03a7-c104-4da1-9db2-b3a8eea7e9b7_1400x.jpg');
+      opacity: 0.1;
     }
 
     .signup-image img {
-      max-width: 100%;
+      max-width: 80%;
       height: auto;
+      margin-bottom: 30px;
+      position: relative;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
 
-    .social-btns {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 10px;
+    .form-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
     }
 
-    .social-btns button {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-
-    .spacer {
-      height: 30px;
-      /* Adjust the height as needed */
+    .form-group {
+      margin-bottom: 20px;
     }
 
     .form-group label {
-      font-size: 0.875rem;
-      /* Decrease label size */
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+      font-size: 14px;
     }
 
     .form-control {
-      font-size: 0.875rem;
-      /* Decrease input text size */
-      padding: 0.5rem;
-      /* Decrease padding */
+      width: 100%;
+      height: 48px;
+      padding: 0 15px;
+      border: 2px solid #e1e1e1;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
     }
 
-    .btn-primary {
-      padding: 0.5rem 1rem;
-      /* Decrease button padding */
-      font-size: 0.875rem;
-      /* Decrease button text size */
-    }
-
-    .card-title {
-      font-size: 1.25rem;
-      /* Decrease card title size */
-    }
-
-    .signup-image .sign-in-link {
-      color: #333;
-      text-decoration: none;
-    }
-
-    .signup-image .sign-in-link:hover {
-      color: #ff7f50;
+    .form-control:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     .error-message {
-      color: red;
-      font-size: 0.75rem;
-      display: none;
+      color: #dc2626;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      height: 48px;
+      background: #6366f1;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 500;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #4f46e5;
+      transform: translateY(-2px);
+    }
+
+    .social-signup {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .social-signup p {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      border: 2px solid #e1e1e1;
+      border-radius: 8px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    .google-btn:hover {
+      background: #f8f9fa;
+      transform: translateY(-2px);
+    }
+
+    .google-btn img {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .login-link a {
+      color: #6366f1;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .alert-danger {
+      background-color: #fee2e2;
+      border-left: 4px solid #dc2626;
+      color: #dc2626;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 992px) {
+      .signup-content {
+        flex-direction: column;
+      }
+
+      .signup-image {
+        min-height: 300px;
+        padding: 20px;
+      }
+
+      .signup-form {
+        padding: 30px 20px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="container mt-5 mb-1">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-body signup-section">
-            <div class="signup-form">
-              <h3 class="card-title text-center">Sign Up</h3>
-
-              <form id="signform" method="post" action="/signup">
-                <div class="form-group">
-                  <label for="name">Full Name</label>
-                  <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" />
-                  <div id="error1" class="error-message"></div>
-                </div>
-                <div class="form-group">
-                  <label for="email">Email address</label>
-                  <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" />
-                  <div id="error2" class="error-message"></div>
-                </div>
-                <!-- <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name = "phone"
-                      id="phone"
-                      placeholder="Enter phone number"
-                    />
-                    <div id="error3" class="error-message"></div>
-                  </div> -->
-                <div class="form-group">
-                  <label for="password">Password</label>
-                  <input type="password" class="form-control" name="password" id="password" placeholder="Password" />
-                  <div id="error4" class="error-message"></div>
-                </div>
-                <div class="form-group">
-                  <label for="confirm-password">Confirm Password</label>
-                  <input type="password" class="form-control" name="cPassword" id="confirm-password"
-                    placeholder="Confirm Password" />
-                  <div id="error5" class="error-message"></div>
-                </div>
-                <%if(locals.message && message.length>0){%>
-                  <div class="alert alert-danger text-center">
-                    <%=message%>
-                  </div>
-                  <%}%>
-                    <div class="d-flex justify-content-between align-items-center">
-
-                      <button type="submit" class="btn btn-primary">
-                        Sign Up
-                      </button>
-                      <div class="mt-2px">
-                        <p>or sign up with</p>
-                      </div>
-                      <div class="social-btns">
-                        <a href="/auth/google" type="button" class="btn btn-outline-danger">
-                          <img src="/img/googlesignup.png" alt="Google Logo" style="width: 24px; height: 24px" />
-                        </a>
-                      </div>
-                    </div>
-              </form>
-            </div>
-            <div class="signup-image">
-              <a href="/">
-                <img src="/img/1_WebBanner_1920x1080_3_dd3a03a7-c104-4da1-9db2-b3a8eea7e9b7_1400x.jpg"
-                  alt="Example Image" />
-
-              </a>
-              <div class="text-center mt-2">
-                <a href="/login" class="sign-in-link">Already registered? Log in</a>
-              </div>
-            </div>
+  <div class="signup-container">
+    <div class="signup-content">
+      <div class="signup-form">
+        <h2 class="form-title">Create Account</h2>
+        
+        <form id="signform" method="post" action="/signup">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="Enter your full name" />
+            <div id="error1" class="error-message"></div>
           </div>
-        </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" />
+            <div id="error2" class="error-message"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" id="password" placeholder="Create a password" />
+            <div id="error4" class="error-message"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" class="form-control" name="cPassword" id="confirm-password" placeholder="Confirm your password" />
+            <div id="error5" class="error-message"></div>
+          </div>
+
+          <%if(locals.message && message.length>0){%>
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-circle"></i> <%=message%>
+            </div>
+          <%}%>
+
+          <button type="submit" class="btn btn-primary">Create Account</button>
+
+          <div class="social-signup">
+            <p>Or sign up with</p>
+            <a href="/auth/google" class="google-btn">
+              <img src="/img/googlesignup.png" alt="Google Logo" />
+              <span>Google</span>
+            </a>
+          </div>
+
+          <div class="login-link">
+            Already have an account? <a href="/login">Log in</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="signup-image">
+       
+        <h3>Welcome to Oxyboo</h3>
+        <p>Join our community and discover amazing products</p>
       </div>
     </div>
   </div>
-  <div class="spacer"></div>
+
   <script>
-    // validatetion 
+    // Keep the existing JavaScript validation code
     const nameid = document.getElementById("name");
     const emailid = document.getElementById("email");
-    const phoneid = document.getElementById("phone");
     const passid = document.getElementById("password");
     const cpassid = document.getElementById("confirm-password");
     const error1 = document.getElementById("error1");
     const error2 = document.getElementById("error2");
-    const error3 = document.getElementById("error3");
     const error4 = document.getElementById("error4");
     const error5 = document.getElementById("error5");
     const signform = document.getElementById("signform");
@@ -246,47 +320,28 @@
       }
     }
 
-    // function phoneValidateChecking(e) {
-    //   const phoneval = phoneid.value;
-
-    //   if (phoneval.trim() === "") {
-    //     error3.style.display = "block";
-    //     error3.innerHTML = "Enter a valid phone number";
-    //   } else if (phoneval.length !== 10) {
-    //     error3.style.display = "block";
-    //     error3.innerHTML = "Enter 10 digits";
-    //   } else if (/^(.)\1{9}$/.test(phoneval)) {
-    //     error3.style.display = "block";
-    //     error3.innerHTML = "Phone number cannot be all identical digits";
-    //   } else {
-    //     error3.style.display = "none";
-    //     error3.innerHTML = "";
-    //   }}
     function passValidateChecking(e) {
       const passval = passid.value;
       const cpassval = cpassid.value;
       const alpha = /[a-zA-Z]/;
       const digit = /\d/;
 
-      // Check password length
       if (passval.length < 8) {
         error4.style.display = "block";
         error4.innerHTML = "Should contain at least 8 characters";
-        return; // Exit early if validation fails
+        return;
       } else {
         error4.style.display = "none";
       }
 
-      // Check for alphabets and numbers
       if (!(alpha.test(passval) && digit.test(passval))) {
         error4.style.display = "block";
         error4.innerHTML = "Should contain numbers and alphabets";
-        return; // Exit early if validation fails
+        return;
       } else {
         error4.style.display = "none";
       }
 
-      // Check if passwords match
       if (passval !== cpassval) {
         error5.style.display = "block";
         error5.innerHTML = "Passwords do not match";
@@ -295,20 +350,15 @@
       }
     }
 
-
-
-    // Event listener for form submission
     document.addEventListener("DOMContentLoaded", function () {
       signform.addEventListener("submit", function (e) {
         nameValidateChecking();
         emailValidateChecking();
-        // phoneValidateChecking();
         passValidateChecking();
 
         if (
           error1.innerHTML ||
           error2.innerHTML ||
-          error3.innerHTML ||
           error4.innerHTML ||
           error5.innerHTML
         ) {
@@ -316,9 +366,6 @@
         }
       });
     });
-
-
-
   </script>
 </body>
 

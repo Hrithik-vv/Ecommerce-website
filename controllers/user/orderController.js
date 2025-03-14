@@ -355,79 +355,108 @@ const loadOrderHistory = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.params.orderId;
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid Order ID" });
+  
+    
+    // Convert string IDs to ObjectId
+    const { orderId, productId } = req.body; // Changed from req.params to req.body based on client-side code
+    
+    if (!orderId || !productId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID and Product ID are required"
+      });
     }
 
-    const order = await Order.findById(orderId);
+    
+    const orderObjectId = new mongoose.Types.ObjectId(orderId);
+    const productObjectId = new mongoose.Types.ObjectId(productId);
+
+    const order = await Order.findById(orderObjectId);
     if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "Order not found" 
+      });
     }
 
-    // If order is already cancelled, prevent duplicate actions
-    if (order.status === "Cancelled") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Order is already cancelled" });
+    // Find the specific product in the order
+    const productToCancel = order.products.find(
+      product => product.productId.toString() === productObjectId.toString()
+    );
+
+    if (!productToCancel) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found in this order"
+      });
     }
 
-    // Cancel the order first
-    order.status = "Cancelled";
-    await order.save();
+    // Check if product is already cancelled
+    if (productToCancel.status === "Cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "Product is already cancelled"
+      });
+    }
 
-    // Check if the payment method is Razorpay and the payment status is completed
+    // Calculate refund amount for this specific product
+    const refundAmount = productToCancel.totalPrice;
+
+    // Update only the specific product's status
+    productToCancel.status = "Cancelled";
+    
+    // If payment was made through Razorpay and completed, process refund to wallet
     if (order.paymentMethod === "Razorpay" && order.paymentStatus === "completed") {
       const userId = order.userId;
-      const refundAmount = order.totalAmount;
 
       if (typeof refundAmount !== "number") {
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid refund amount" });
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid refund amount" 
+        });
       }
 
       let wallet = await Wallet.findOne({ userId });
 
       if (!wallet) {
-        // Create a new wallet only if it doesn't exist
         wallet = new Wallet({
           userId,
           balance: refundAmount,
-          transactions: [
-            {
-              amount: refundAmount,
-              type: "credit",
-              date: new Date(),
-              description: `Refund for cancelled order ${orderId}`,
-            },
-          ],
+          transactions: [{
+            amount: refundAmount,
+            type: "credit",
+            date: new Date(),
+            description: `Refund for cancelled product in order ${orderObjectId}`
+          }]
         });
       } else {
-        // Update existing wallet balance
         wallet.balance += refundAmount;
         wallet.transactions.push({
           amount: refundAmount,
           type: "credit",
           date: new Date(),
-          description: `Refund for cancelled order ${orderId}`,
+          description: `Refund for cancelled product in order ${orderObjectId}`
         });
       }
 
       await wallet.save();
     }
 
-    res.json({ success: true, message: "Order cancelled successfully" });
+    // Save the updated order
+    await order.save();
+
+    res.json({ 
+      success: true, 
+      message: "Product cancelled successfully",
+      refundAmount: refundAmount
+    });
+
   } catch (error) {
-    console.error("Error cancelling order:", error);
+    console.error("Error cancelling product:", error);
     res.status(500).json({
       success: false,
-      message: "Order cancellation failed",
-      error: error.message,
+      message: "Product cancellation failed",
+      error: error.message
     });
   }
 };

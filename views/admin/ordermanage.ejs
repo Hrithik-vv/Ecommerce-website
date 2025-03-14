@@ -367,92 +367,73 @@
                                 <th>Order ID</th>
                                 <th>Customer</th>
                                 <th>Products</th>
-                                <th>Total</th>
+                                <th>Product Price</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% orders.forEach(order=> { %>
-                                <% if (order.products && order.products.length> 0) { %>
-                                    <% order.products.forEach((item, index)=> { %>
+                            <% orders.forEach(order => { %>
+                                <% if (order.products && order.products.length > 0) { %>
+                                    <% order.products.forEach((item) => { %>
                                         <tr class="border-bottom">
-                                            <% if (index===0) { %>
-                                                <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                    <span class="font-medium text-gray-800">
-                                                        <%= order._id %>
-                                                    </span>
-                                                </td>
-                                                <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                    <span class="font-medium">
-                                                        <%= order.userId && order.userId.name ? order.userId.name
-                                                            : 'Guest User' %>
-                                                    </span>
-                                                </td>
-                                                <% } %>
-                                                    <td class="align-middle">
-                                                        <div class="d-flex align-items-center">
-                                                            <% if (item.productId && item.productId.image1) { %>
-                                                                <img src="<%= item.productId.image1 %>"
-                                                                    alt="<%= item.productId.productName %>"
-                                                                    class="img-thumbnail me-3"
-                                                                    style="width: 60px; height: 60px; object-fit: cover;"
-                                                                    onerror="this.src='/images/placeholder.png'">
-                                                                <% } else { %>
-                                                                    <div class="image-placeholder me-3">
-                                                                        <i class="fas fa-image"></i>
-                                                                    </div>
-                                                                    <% } %>
-                                                                        <div class="product-info">
-                                                                            <h6 class="mb-0">
-                                                                                <%= item.productId ?
-                                                                                    item.productId.productName
-                                                                                    : 'Product Unavailable' %>
-                                                                            </h6>
-                                                                            <small class="text-muted">Quantity: <%=
-                                                                                    item.quantity %></small>
-                                                                        </div>
+                                            <td class="align-middle">
+                                                <span class="font-medium text-gray-800">
+                                                    <%= order._id %>
+                                                </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="font-medium">
+                                                    <%= order.userId && order.userId.name ? order.userId.name : 'Guest User' %>
+                                                </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center">
+                                                    <% if (item.productId && item.productId.image1) { %>
+                                                        <img src="<%= item.productId.image1 %>"
+                                                            alt="<%= item.productId.productName %>"
+                                                            class="img-thumbnail me-3"
+                                                            style="width: 60px; height: 60px; object-fit: cover;"
+                                                            onerror="this.src='/images/placeholder.png'">
+                                                    <% } else { %>
+                                                        <div class="image-placeholder me-3">
+                                                            <i class="fas fa-image"></i>
                                                         </div>
-                                                    </td>
-                                                    <% if (index===0) { %>
-                                                        <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                            <span class="font-medium">₹<%= order.totalAmount.toFixed(2)
-                                                                    %></span>
-                                                        </td>
-                                                        <td class="align-middle" rowspan="<%= order.products.length %>">
-                                                            <form action="/admin/update-order-status" method="POST"
-                                                                class="d-inline">
-                                                                <input type="hidden" name="orderId"
-                                                                    value="<%= order._id %>">
-                                                                <select name="newStatus"
-                                                                    class="form-select form-select-sm"
-                                                                    onchange="this.form.submit()">
-                                                                    <option value="Pending" <%=order.status==='Pending'
-                                                                        ? 'selected' : '' %>>Pending</option>
-                                                                    <option value="Shipped" <%=order.status==='Shipped'
-                                                                        ? 'selected' : '' %>>Shipped</option>
-                                                                    <option value="Delivered"
-                                                                        <%=order.status==='Delivered' ? 'selected' : ''
-                                                                        %>>Delivered</option>
-                                                                    <option value="Cancelled"
-                                                                        <%=order.status==='Cancelled' ? 'selected' : ''
-                                                                        %>>Cancelled</option>
-                                                                </select>
-                                                            </form>
-                                                        </td>
-
-                                                        <% } %>
+                                                    <% } %>
+                                                    <div class="product-info">
+                                                        <h6 class="mb-0">
+                                                            <%= item.productId ? item.productId.productName : 'Product Unavailable' %>
+                                                        </h6>
+                                                        <small class="text-muted">Quantity: <%= item.quantity %></small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="font-medium">₹<%=item.totalPrice  %></span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <form action="/admin/update-order-status" method="POST" class="d-inline">
+                                                    <input type="hidden" name="orderId" value="<%= order._id %>">
+                                                    <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                                                    <select name="newStatus" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                        <option value="Pending" <%= item.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                                        <option value="Shipped" <%= item.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                        <option value="Delivered" <%= item.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                        <option value="Cancelled" <%= item.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                                    </select>
+                                                </form>
+                                            </td>
                                         </tr>
-                                        <% }) %>
-                                            <% } %>
-                                                <% }) %>
+                                    <% }) %>
+                                <% } %>
+                            <% }) %>
 
-                                                    <% if (orders.length===0) { %>
-                                                        <tr>
-                                                            <td colspan="6" class="text-center py-4">
-                                                                <div class="text-muted">No orders found</div>
-                                                            </td>
-                                                        </tr>
-                                                        <% } %>
+                            <% if (orders.length === 0) { %>
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <div class="text-muted">No orders found</div>
+                                    </td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
                 </div>

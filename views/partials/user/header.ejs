@@ -33,38 +33,16 @@
   <!-- Offcanvas Menu Begin -->
   <div class="offcanvas-menu-overlay"></div>
   <div class="offcanvas-menu-wrapper">
-    <div class="mobile-menu-header">
-        <div class="mobile-menu-close">
-            <span class="close-btn"><i class="fa fa-times"></i></span>
-        </div>
-    </div>
     <div class="offcanvas__nav__option">
         <div class="mobile-menu-links">
-            <div class="mobile-nav-item">
-                <a href="/" class="mobile-link">
-                    <i class="fa fa-home"></i>
-                    <span>Home</span>
-                </a>
-            </div>
-            <div class="mobile-nav-item">
-                <a href="/shop" class="mobile-link">
-                    <i class="fa fa-shopping-bag"></i>
-                    <span>Shop</span>
-                </a>
-            </div>
-            <div class="mobile-nav-item">
-                <a href="/shopping-cart" class="mobile-link">
-                    <i class="fa fa-shopping-cart"></i>
-                    <span>Cart</span>
-                </a>
-            </div>
+            <a href="/" class="mobile-link">Home</a>
+            <a href="/shop" class="mobile-link">Shop</a>
+            <a href="/shopping-cart" class="mobile-link">Cart</a>
+            <a href="/wishlist" class="mobile-link">Wishlist</a>
         </div>
         <% if (user) { %>
             <div class="mobile-user-menu">
-                <a href="#" class="mobile-user">
-                    <i class="fa fa-user"></i>
-                    <%= locals.user.name %>
-                </a>
+                <a href="#" class="mobile-user"><%= locals.user.name %></a>
                 <div class="mobile-dropdown">
                     <a href="/userProfile">Profile</a>
                     <a href="/logout">Logout</a>
@@ -72,14 +50,8 @@
             </div>
         <% } else { %>
             <div class="mobile-auth">
-                <a href="/signup" class="mobile-link">
-                    <i class="fa fa-user-plus"></i>
-                    Sign Up
-                </a>
-                <a href="/login" class="mobile-link">
-                    <i class="fa fa-sign-in"></i>
-                    Log in
-                </a>
+                <a href="/signup" class="mobile-link">Sign Up</a>
+                <a href="/login" class="mobile-link">Log in</a>
             </div>
         <% } %>
     </div>
@@ -243,13 +215,13 @@
 .offcanvas-menu-wrapper {
     position: fixed;
     top: 0;
-    right: -280px;
-    width: 280px;
+    right: -300px;
+    width: 300px;
     height: 100%;
     background: #ffffff;
-    padding: 0;
+    padding: 30px;
     z-index: 9999;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.5s;
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -275,189 +247,151 @@
     opacity: 1;
 }
 
-.mobile-menu-header {
-    background: #f8f9fa;
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.mobile-menu-close {
-    cursor: pointer;
-    padding: 5px;
-}
-
-.close-btn i {
-    font-size: 20px;
-    color: #333;
-}
-
-.mobile-nav-item {
-    padding: 15px 20px;
-    border-bottom: 1px solid #f5f5f5;
-}
-
-.mobile-nav-item:hover {
-    background-color: #f8f9fa;
+.mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .mobile-link {
-    font-weight: 500;
+    color: #333;
+    font-size: 18px;
+    text-decoration: none;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s;
+}
+
+.mobile-link:hover {
+    color: #000;
+    padding-left: 10px;
 }
 
 .mobile-user-menu {
-    background: #f8f9fa;
     margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
 }
 
 .mobile-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: block;
     color: #333;
     font-size: 16px;
-    font-weight: 500;
-    text-decoration: none;
-    margin-bottom: 15px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .mobile-dropdown {
-    padding-left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .mobile-dropdown a {
-    display: block;
-    padding: 10px 0;
     color: #666;
+    font-size: 14px;
     text-decoration: none;
-    transition: all 0.3s ease;
+    padding: 5px 0;
+    transition: all 0.3s;
 }
 
 .mobile-dropdown a:hover {
     color: #000;
-    padding-left: 5px;
+    padding-left: 10px;
 }
 
 .mobile-auth {
-    padding: 20px;
+    margin-top: 20px;
+    padding-top: 20px;
     border-top: 1px solid #eee;
-}
-
-.mobile-auth .mobile-link {
-    padding: 10px 0;
-}
-
-/* Size bar for mobile */
-.size-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #fff;
-    padding: 15px 0;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    z-index: 999;
-    display: none;
-}
-
-.size-bar-content {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.size-bar-item {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    color: #333;
-    text-decoration: none;
-    padding: 8px 15px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    gap: 15px;
 }
 
-.size-bar-item:hover {
-    background-color: #f8f9fa;
-    transform: translateY(-2px);
-}
-
-.size-bar-item i {
-    font-size: 22px;
-    margin-bottom: 5px;
-    color: #333;
-}
-
-.size-bar-item span {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: 2px;
-}
-
-.size-bar-item.active {
-    color: #000;
-    background-color: #f8f9fa;
+@media (min-width: 769px) {
+    .canvas__open {
+        display: none;
+    }
 }
 
 @media (max-width: 768px) {
-    .size-bar {
-        display: block;
+    .header .container {
+        padding: 15px;
+        position: relative;
     }
-    
+
     .canvas__open {
         display: block;
         position: fixed;
         right: 20px;
         top: 20px;
         z-index: 9999;
-        background: #fff;
-        padding: 10px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .canvas__open i {
-        font-size: 20px;
-        color: #333;
-    }
-
-    body {
-        padding-bottom: 70px;
-    }
-
-    .header .container {
-        padding: 15px;
     }
 
     .log-1 h1 {
+        position: static;
         font-size: 2rem;
         text-align: center;
         margin: 10px 0;
     }
-}
 
-@media (max-width: 480px) {
-    .size-bar-item {
-        padding: 8px 10px;
+    .header__menu {
+        display: none;
     }
 
-    .size-bar-item i {
-        font-size: 20px;
-    }
-
-    .size-bar-item span {
-        font-size: 11px;
+    .header__nav__option {
+        display: none;
     }
 }
 
-/* Add active state for current page */
-.size-bar-item.active i,
-.size-bar-item.active span {
-    color: #000;
+.canvas__open {
+    display: none;
+    cursor: pointer;
+    z-index: 999;
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.canvas__open i {
+    font-size: 24px;
+    color: #333;
+}
+
+/* Add styles for the mobile menu icon */
+.fa-bars {
+    display: inline-block;
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.fa-bars:before,
+.fa-bars:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
+
+.fa-bars:before {
+    top: -8px;
+}
+
+.fa-bars:after {
+    bottom: -8px;
+}
+
+/* Adjust the mobile menu wrapper */
+.offcanvas-menu-wrapper {
+    padding-top: 60px;
 }
   </style>
 
@@ -521,16 +455,16 @@
               <a href="/login" class="sign-in-link" style="color: black">Log in</a>
               <% } %>
                 <a href="#" class="search-switch">
-                  <!-- <img src="img/icon/search.png" alt="" /> -->
+                  <img src="img/icon/search.png" alt="" />
                 </a>
                  <!-- Cart Icon -->
                 <a href="/shopping-cart" class="cart-icon">
-                  <!-- <img src="img/icon/cart.png" alt="Cart" /> -->
+                  <img src="img/icon/cart.png" alt="Cart" />
                   <span class="cart-count"></span> <!-- Optional: Add a dynamic cart count -->
                 </a>
 
                 <a href="wishlist" class="wishlist-icon">
-                  <!-- <img src="img/icon/heart.png" alt="Wishlist" /> -->
+                  <img src="img/icon/heart.png" alt="Wishlist" />
                   <span class="wishlist-count"></span> <!-- Add dynamic count if needed -->
                 </a>
         </div>
@@ -553,69 +487,18 @@
         const canvasOpen = document.querySelector('.canvas__open');
         const canvasWrapper = document.querySelector('.offcanvas-menu-wrapper');
         const canvasOverlay = document.querySelector('.offcanvas-menu-overlay');
-        const closeBtn = document.querySelector('.mobile-menu-close');
-        const sizeBarItems = document.querySelectorAll('.size-bar-item');
 
-        // Set active state based on current page
-        const currentPath = window.location.pathname;
-        sizeBarItems.forEach(item => {
-            const itemPath = item.getAttribute('href');
-            if (currentPath === itemPath) {
-                item.classList.add('active');
-            }
-        });
-
-        // Handle menu open/close
-        canvasOpen.addEventListener('click', function(e) {
-            e.stopPropagation();
+        canvasOpen.addEventListener('click', function() {
             canvasWrapper.classList.add('active');
             canvasOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
         });
 
-        function closeMenu() {
+        canvasOverlay.addEventListener('click', function() {
             canvasWrapper.classList.remove('active');
             canvasOverlay.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
-        }
-
-        canvasOverlay.addEventListener('click', closeMenu);
-        closeBtn.addEventListener('click', closeMenu);
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!canvasWrapper.contains(e.target) && !canvasOpen.contains(e.target)) {
-                closeMenu();
-            }
-        });
-
-        // Handle size bar item clicks
-        sizeBarItems.forEach(item => {
-            item.addEventListener('click', function() {
-                sizeBarItems.forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-            });
         });
     });
     </script>
-
-    <!-- Add Size Bar -->
-    <div class="size-bar">
-        <div class="size-bar-content">
-            <a href="/" class="size-bar-item">
-                <i class="fa fa-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="/shop" class="size-bar-item">
-                <i class="fa fa-shopping-bag"></i>
-                <span>Shop</span>
-            </a>
-            <a href="/shopping-cart" class="size-bar-item">
-                <i class="fa fa-shopping-cart"></i>
-                <span>Cart</span>
-            </a>
-        </div>
-    </div>
   </body>
 </body>
 

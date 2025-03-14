@@ -143,7 +143,7 @@ router.post("/apply-coupon", couponController.applyCoupon);
 
 //order
 router.get("/order-history", userAuth, loadOrderHistory);
-router.post("/cancel-order/:orderId", userAuth, cancelOrder);
+router.post("/cancel-order", userAuth, cancelOrder);
 router.post("/return-order/:orderId", userAuth, returnOrder);
 router.get("/order-view", userAuth, cartController.orderView);
 
