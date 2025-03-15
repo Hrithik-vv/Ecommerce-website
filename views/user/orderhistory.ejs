@@ -398,7 +398,7 @@
                                 </a>
                                 
                                 <% if (order.paymentStatus === 'failed' && order.paymentMethod === 'Razorpay') { %>
-                                    <button class="btn btn-warning view-btn" onclick="retryPayment('<%= order._id %>')">
+                                    <button class="btn btn-warning view-btn" onclick="retryPayment('<%= order._id %>', <%= order.totalAmount %>)">
                                         Retry Payment
                                     </button>
                                 <% } else if (['Pending', 'Processing', 'Shipped'].includes(product.status)) { %>
@@ -631,30 +631,63 @@
     }
     </script>
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-    function retryPayment(orderId) {
+    function retryPayment(orderId, totalAmount) {
         if (confirm('Would you like to retry the payment?')) {
-            fetch('/retry-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            // Initialize Razorpay payment directly with available data
+            const options = {
+                key: 'rzp_test_zzoNHcSLnHEEZ7', // Replace with your actual Razorpay key
+                amount: totalAmount * 100, // Convert to paise/cents
+                currency: 'INR',
+                name: "Oxyboo",
+                description: "Order Payment Retry",
+                handler: function (response) {
+                    // Check if we have all required fields from Razorpay response
+                    if (!response.razorpay_payment_id || !response.razorpay_order_id || !response.razorpay_signature) {
+                        showToast('error', 'Invalid payment response');
+                        return;
+                    }
+
+                    // On successful payment, update order status
+                    fetch('/update-payment-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            orderId: orderId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            showToast('success', 'Payment successful!');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showToast('error', result.message || 'Payment verification failed');
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        showToast('error', 'Error updating payment status');
+                    });
                 },
-                body: JSON.stringify({
-                    orderId: orderId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Redirect to payment page or handle Razorpay integration
-                    window.location.href = data.redirectUrl;
-                } else {
-                    showToast('error', data.message || 'Failed to initiate payment');
+                modal: {
+                    ondismiss: function() {
+                        showToast('error', 'Payment cancelled');
+                    }
                 }
-            })
-            .catch(error => {
-                console.log(error);
-                showToast('error', 'An error occurred while processing payment');
+            };
+
+            const razorpayInstance = new Razorpay(options);
+            razorpayInstance.open();
+
+            // Handle payment failure
+            razorpayInstance.on('payment.failed', function(response) {
+                showToast('error', 'Payment failed. Please try again.');
             });
         }
     }
