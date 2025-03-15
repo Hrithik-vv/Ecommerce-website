@@ -16,13 +16,13 @@ const {
 } = require("../controllers/user/orderController");
 const auth = require("../middlewares/auth");
 const couponController = require("../controllers/admin/couponController");
-const orderController = require('../controllers/user/orderController');
+const orderController = require("../controllers/user/orderController");
 
 // Make sure all required functions are exported from cartController
 const {
-    loadCheckoutPage,
-    processCheckout,
-    // ... other functions
+  loadCheckoutPage,
+  processCheckout,
+  // ... other functions
 } = require("../controllers/user/cartController");
 
 // Error and Home
@@ -41,30 +41,44 @@ router.post("/verify-otp", already, userController.verifyOtp);
 router.post("/resend-otp", already, userController.resendOtp);
 
 // Google Authentication
-router.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-// Google callback route
+
+const preventAuthPageAccess = (req, res, next) => {
+  if (req.session.user) {
+    return res.redirect('/'); 
+  }
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+};
+
+router.get("/auth/google", preventAuthPageAccess, passport.authenticate("google", { scope: ["profile", "email"] }));
+
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/signup", 
-  }),
-  (req, res) => {
+  passport.authenticate("google", { failureRedirect: "/signup" }),
+  async (req, res) => {
     req.login(req.user, (err) => {
       if (err) {
-        return res.redirect("/signup"); 
+        return res.redirect("/signup");
       }
       req.session.user = {
         _id: req.user._id,
         name: req.user.name,
         email: req.user.email,
       };
-      res.redirect("/");
+
+      // Prevent caching of authenticated pages
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+
+      return res.redirect("/");
     });
   }
 );
+
+
 
 //Product management
 router.get("/productDetails", productController.productDetails);
@@ -148,17 +162,23 @@ router.post("/return-order/:orderId", userAuth, returnOrder);
 router.get("/order-view", userAuth, cartController.orderView);
 
 // Add this route to your userRouter.js file
-router.post('/process-payment', userAuth, orderController.processPayment);
+router.post("/process-payment", userAuth, orderController.processPayment);
 
 // Return product route
-router.post('/return-product', userAuth, async (req, res) => {
-    try {
-        await orderController.returnProduct(req, res);
-    } catch (error) {
-        console.error('Error in return product route:', error);
-        req.flash('error', 'An error occurred while processing your return request');
-        res.redirect('/order-history');
-    }
+router.post("/return-product", userAuth, async (req, res) => {
+  try {
+    await orderController.returnProduct(req, res);
+  } catch (error) {
+    console.error("Error in return product route:", error);
+    req.flash(
+      "error",
+      "An error occurred while processing your return request"
+    );
+    res.redirect("/order-history");
+  }
 });
 
+
+router.post('/payment-failed',orderController.paymentFailed);
+router.post('/retry-payment',orderController.retryPayment);
 module.exports = router;

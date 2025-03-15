@@ -286,6 +286,7 @@ const checkoutController = async (req, res) => {
         couponId: couponCode,
         userId: userId,
         products: cart.items.map((item) => ({
+          name: item.productId.productName,
           productId: item.productId._id,
           variantId: item.variantId,
           quantity: item.quantity,

@@ -20,6 +20,7 @@ const orderSchema = new Schema({
             ref: 'Product', 
             required: true 
         },
+        name: { type: String, required: true },
         variantId: { type: String },
         quantity: { type: Number, required: true },
         totalPrice: { type: Number, required: true },

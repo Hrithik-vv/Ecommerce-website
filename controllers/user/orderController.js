@@ -278,9 +278,12 @@ const processPayment = async (req, res) => {
 
     // Create order in database with valid enum values
     const newOrder = new Order({
+
+      
       couponId: couponCode,
       userId: userId,
       products: cart.items.map((item) => ({
+        name: item.productId.productName,
         productId: item.productId._id,
         variantId: item.variantId,
         quantity: item.quantity,
@@ -543,7 +546,66 @@ const returnProduct = async (req, res) => {
   }
 };
 
+const paymentFailed = async (req, res) => {
+  try {
+    const userId = req.user?._id || req.session.user._id;
+    
+    // Get cart items
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Your cart is empty"
+      });
+    }
+
+    // Calculate total amount from cart items
+    const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+
+    // Create failed order document
+    const failedOrder = new Order({
+      userId: userId,
+      products: cart.items.map(item => ({
+        name: item.productId.productName,
+        productId: item.productId._id,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice,
+        color: item.color,
+        size: item.size
+      })),
+      totalAmount: totalAmount, // Set the calculated total amount
+      shippingAddress: req.body.selectedAddressId,
+      paymentMethod: "Razorpay",
+      status: "Failed",
+      paymentStatus: "failed"
+    });
+
+    await failedOrder.save();
+
+    return res.status(200).json({
+      success: false,
+      message: "Payment failed",
+      orderId: failedOrder._id
+    });
+
+  } catch (error) {
+    console.error("Error handling failed payment:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error handling failed payment",
+      error: error.message
+    });
+  }
+};
+
+const retryPayment = async (req, res) => {
+  res.render("orderPlaced");
+};
+
 module.exports = {
+  retryPayment,
+  paymentFailed,
   cancelOrder,
   returnOrder,
   loadOrderHistory,

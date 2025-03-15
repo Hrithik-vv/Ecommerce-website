@@ -396,7 +396,12 @@
                                 <a href="/order-view?orderId=<%= order.orderId %>" class="btn btn-primary view-btn">
                                     View Details
                                 </a>
-                                <% if (['Pending', 'Processing', 'Shipped'].includes(product.status)) { %>
+                                
+                                <% if (order.paymentStatus === 'failed' && order.paymentMethod === 'Razorpay') { %>
+                                    <button class="btn btn-warning view-btn" onclick="retryPayment('<%= order._id %>')">
+                                        Retry Payment
+                                    </button>
+                                <% } else if (['Pending', 'Processing', 'Shipped'].includes(product.status)) { %>
                                     <button class="btn btn-danger view-btn" onclick="cancelOrder('<%= order._id %>', '<%= product.productId._id %>')">
                                         Cancel
                                     </button>
@@ -621,6 +626,35 @@
                 console.log(error);
                 
                 showToast('error', 'An error occurred while cancelling the order');
+            });
+        }
+    }
+    </script>
+
+    <script>
+    function retryPayment(orderId) {
+        if (confirm('Would you like to retry the payment?')) {
+            fetch('/retry-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    orderId: orderId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to payment page or handle Razorpay integration
+                    window.location.href = data.redirectUrl;
+                } else {
+                    showToast('error', data.message || 'Failed to initiate payment');
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                showToast('error', 'An error occurred while processing payment');
             });
         }
     }

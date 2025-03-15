@@ -1060,6 +1060,50 @@
                         name: 'Oxyboo',
                         description: 'Purchase from Oxyboo',
                         order_id: data.order.id,
+                        modal: {
+                            ondismiss: function() {
+                                console.log("Modal dismissed");
+                                alert("Payment failed");
+                                
+                                // Get the products data
+                                const products = Array.from(document.querySelectorAll('.checkout_total_products li')).map(li => ({
+                                    productId: li.dataset.productId,
+                                    variantId: li.dataset.variantId,
+                                    quantity: parseInt(li.dataset.quantity),
+                                    color: li.querySelector('input[name="color"]').value,
+                                    size: li.querySelector('input[name="size"]').value
+                                }));
+
+                                fetch('/payment-failed', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        reason: 'Modal closed by user',
+                                        orderId: data.order.receipt,
+                                        selectedAddressId: selectedAddressId,
+                                        couponCode: couponCode,
+                                        products: products,
+                                        totalAmount: totalAmount
+                                    })
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.text();
+                                })
+                                .then(htmlContent => {
+                                    document.documentElement.innerHTML = htmlContent;
+                                    window.history.pushState({}, '', '/payment-failed');
+                                })
+                                .catch(error => {
+                                    console.error('Error handling modal close:', error);
+                                    alert('Error processing payment cancellation');
+                                });
+                            }
+                        },
                         handler: async function (response) {
                             try {
                                 console.log('Razorpay payment successful:', response);

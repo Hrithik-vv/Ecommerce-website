@@ -9,6 +9,7 @@ const { options } = require("../../routes/userRouter");
 const address = require("../../models/addressSchema");
 
 const Wallet = require("../../models/walletSchema");
+const Order = require("../../models/orderSchema");
 
 // otp global  fuction
 function generateOtp() {
@@ -156,19 +157,38 @@ const postNewPassword = async (req, res) => {
 
 const userProfile = async (req, res) => {
   try {
-    const userId = req.session.user;
+    const userId = req.session.user._id;
+    
+    // Fetch user data
     const userData = await User.findById(userId);
-    const addressData = await Address.findOne({ userId: userId });
-    const walletData = await Wallet.findOne({ userId: userId });
+    
+    // Fetch wallet data with default empty values if not found
+    const wallet = await Wallet.findOne({ userId }) || {
+      balance: 0,
+      transactions: []
+    };
 
-    res.render("profile", {
+    // Fetch address data
+    const addresses = await address.find({ userId });
+    
+    // Fetch orders
+    const orders = await Order.find({ userId })
+      .populate('products.productId')
+      .sort({ createdAt: -1 });
+
+    res.render('profile', {
       user: userData,
-      userAddress: addressData,
-      wallet: walletData,
+      wallet: wallet,  // This will now always have a value
+      addresses: addresses,
+      orders: orders
     });
+
   } catch (error) {
-    console.error("Error for retrieve profile data", error);
-    res.redirect("/pageNotFound");
+    console.error('Error in userProfile:', error);
+    res.status(500).render('error', {
+      message: 'Error loading profile',
+      error: error
+    });
   }
 };
 
