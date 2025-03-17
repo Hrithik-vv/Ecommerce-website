@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff6b6b 0%, #dc2626 100%);
+            perspective: 1000px;
+        }
+
+        .failed-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            animation: containerFloat 1s ease-out forwards;
+        }
+
+        .icon-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 2rem;
+            transform-style: preserve-3d;
+            animation: iconRotate 1.2s ease-out;
+        }
+
+        .failed-icon {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #ff4444, #dc2626);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(220, 38, 38, 0.3);
+        }
+
+        .cross {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+        }
+
+        .cross::before,
+        .cross::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 10px;
+            background: white;
+            border-radius: 5px;
+            animation: crossDraw 0.8s ease-out 0.6s forwards;
+            opacity: 0;
+        }
+
+        .cross::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .cross::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .message-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            animation: cardSlideUp 0.8s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ff4444, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .error-message {
+            color: #4a5568;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .details {
+            color: #718096;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .retry-button {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(to right, #ff4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .retry-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(220, 38, 38, 0.4);
+        }
+
+        .retry-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                transparent,
+                rgba(255,255,255,0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: buttonShine 3s infinite;
+        }
+
+        @keyframes containerFloat {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes iconRotate {
+            from {
+                transform: rotateY(-180deg);
+            }
+            to {
+                transform: rotateY(0);
+            }
+        }
+
+        @keyframes crossDraw {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) rotate(45deg) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) rotate(45deg) scale(1);
+            }
+        }
+
+        @keyframes cardSlideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes buttonShine {
+            from { transform: translateX(-100%) rotate(45deg); }
+            to { transform: translateX(100%) rotate(45deg); }
+        }
+
+        @media (max-width: 480px) {
+            .failed-container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .icon-container {
+                width: 120px;
+                height: 120px;
+            }
+
+            .cross {
+                width: 60px;
+                height: 60px;
+            }
+
+            .cross::before,
+            .cross::after {
+                width: 60px;
+                height: 8px;
+            }
+
+            .retry-button {
+                padding: 1rem 2.5rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="failed-container">
+        <div class="icon-container">
+            <div class="failed-icon">
+                <div class="cross"></div>
+            </div>
+        </div>
+        
+        <div class="message-card">
+            <h1>Payment Failed!</h1>
+            <p class="error-message">Something went wrong with your payment</p>
+            <p class="details">Please check your payment details and try again</p>
+        </div>
+        <a href="/order-history" class="retry-button">Try Again</a>
+    </div>
+</body>
+</html> 

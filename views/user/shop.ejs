@@ -213,8 +213,7 @@
       border-radius: 12px;
       padding: 15px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;      width: 100%;
     }
 
     .product-card img {
@@ -225,13 +224,39 @@
 
     .wishlist-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      background-color: rgba(237, 247, 247, 0.8);
-      color: #fff;
-      padding: 8px;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 2;
+    }
+
+    .wishlist-btn i {
+      color: #666;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .wishlist-btn:hover {
+      transform: scale(1.1);
+      background: white;
+    }
+
+    .wishlist-btn.active i {
+      color: #ff4444;
+    }
+
+    .wishlist-btn:hover i {
+      color: #ff4444;
     }
 
     .add-to-cart-btn {
@@ -323,177 +348,61 @@
     }
 
     .product__item__text {
-      padding: 10px 0;
+      padding: 10px 0 40px;
+      position: relative;
+    }
+
+    .name-heart-container {
+      display: block;
     }
 
     .product__item__text h6 {
       margin-bottom: 8px;
       font-size: 14px;
       font-weight: 600;
-    }
-
-    .simple-cart-form {
-      display: inline-block;
-    }
-
-    .wishlist-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      border: none;
-      background: none;
-      /* Remove background */
-      cursor: pointer;
-      z-index: 2;
-    }
-
-    .wishlist-btn i {
-      color: #2e2626;
-      font-size: 20px;
-      transition: color 0.3s ease, transform 0.2s ease;
-    }
-
-    .wishlist-btn:hover i {
-      color: #ff4444;
-      transform: scale(1.1);
-    }
-
-    .wishlist-btn.active i {
-      color: #ff4444;
-    }
-
-    .wishlist-btn.active:hover i {
-      color: #cc0000;
-    }
-
-    .simple-cart-form {
-      display: inline-block;
-    }
-
-    .add-to-cart-btn {
-      display: inline-flex;
-      margin-left: 30px;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #030603 0%, #030b04 100%);
-      color: white;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .add-to-cart-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
-    }
-
-    .add-to-cart-btn:active {
-      transform: translateY(0);
-      scale: 0.98;
-    }
-
-    .add-to-cart-btn i {
-      font-size: 16px;
-      transition: transform 0.2s ease;
-    }
-
-    .add-to-cart-btn:hover i {
-      transform: rotate(90deg);
-    }
-
-    /* Pulse animation on click */
-    @keyframes pulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
-      }
-
-      70% {
-        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-      }
-
-      100% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-      }
-    }
-
-    .add-to-cart-btn:focus {
-      outline: none;
-      animation: pulse 1s;
-      box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 480px) {
-      .add-to-cart-btn {
-        padding: 10px 20px;
-        font-size: 13px;
-      }
-
-      .add-to-cart-btn i {
-        font-size: 14px;
-      }
-    }
-
-    .pagination-container {
-      margin-top: 30px;
-      padding: 20px 0;
-    }
-
-    .pagination-container button {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: none;
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .pagination-container button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .pagination-container button:not(:disabled):hover {
-      background: #0056b3;
-      transform: translateY(-2px);
-    }
-
-    .search-bar {
-      max-width: 100%;
-      margin: 0 auto 20px;
-    }
-
-    .search-input {
       width: 100%;
-      padding: 12px 20px;
-      border-radius: 25px;
-      border: 1px solid #ddd;
-      transition: all 0.3s ease;
     }
 
-    .search-input:focus {
-      border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    .simple-cart-form {
+      display: inline-block;
     }
 
-    .sort-options select {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid #ddd;
-      background-color: white;
+    .product-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      transition: color 0.3s ease;
+    }
+
+    .product-card:hover .product-name {
+      color: #000000;  /* Change to red on hover */
+    }
+
+    /* Update the product link style */
+    .product-name p {
+      color: inherit;
+      text-decoration: none;
       cursor: pointer;
+    }
+
+    /* Ensure text remains visible during hover */
+    .product__item__text h6 p {
+      color: #333;
+      transition: color 0.3s ease;
+    }
+
+    .product-card:hover .product__item__text h6 p {
+      color: #ff4444;  /* Change to red on hover */
     }
   </style>
   <div class="main-container">
+    
     <section class="shop-page container">
       <div class="shop-topbar">
         <!-- ... (keep breadcrumb unchanged) ... -->
@@ -555,20 +464,16 @@
           </div>
         </aside>
 
-
+     
         <main class="product-grid" id="product-grid">
+        
           <% if (products && products.length> 0) { %>
+          
             <% products.forEach(product=> { %>
+              
               <div class="product-card" data-category="<%= product.category %>" data-price="<%= product.salePrice %>"
                 data-rating="<%= product.rating %>" data-name="<%= product.productName.toLowerCase() %>"
                 data-date="<%= product.createdAt %>">
-
-                <div
-                  class="wishlist-btn <%= user && user.wishlist && user.wishlist.includes(product._id.toString()) ? 'active' : '' %>"
-                  onclick="toggleWishlist(this, '<%= product._id %>')">
-                  <i
-                    class="fa <%= user && user.wishlist && user.wishlist.includes(product._id.toString()) ? 'fa-heart' : 'fa-heart-o' %>"></i>
-                </div>
 
                 <div class="product__item" onclick="window.location.href='/productDetails?id=<%= product._id %>'">
                   <div class="product__item__pic set-bg" data-setbg="<%= product.image1 || 'default-image.jpg' %>">
@@ -577,33 +482,32 @@
                         <%= product.label %>
                       </span>
                       <% } %>
+                    <button class="wishlist-btn ${isInWishlist ? 'active' : ''}" 
+                            onclick="event.stopPropagation(); toggleWishlist(this, '${product._id}')">
+                      <i class="fa ${isInWishlist ? 'fa-heart' : 'fa-heart-o'}"></i>
+                    </button>
                   </div>
 
                   <div class="product__item__text">
                     <h6>
-                      <p onclick="window.location.href='/productDetails?id=<%=product._id %>'">
-                        <%= product.productName %>
+                      <p onclick="window.location.href='/productDetails?id=${product._id}'">
+                        ${product.productName}
                       </p>
                     </h6>
-                    <a href="shopping-cart" class="add-cart">
-                      <form action="shopping-cart" method="POST" class="simple-cart-form">
-                        <input type="hidden" name="productId" value="<%= product._id %>">
-                        <input type="hidden" name="quantity" value="1"> <!-- Default quantity set to 1 -->
-                      </form>
-                    </a>
                     <div class="rating">
-                      <% for (let i=0; i < 5; i++) { %>
-                        <i class="fa <%= i < product.rating ? 'fa-star' : 'fa-star-o' %>"></i>
-                        <% } %>
+                      ${Array(5).fill(0).map((_, i) => 
+                        `<i class="fa ${i < product.rating ? 'fa-star' : 'fa-star-o'}"></i>`
+                      ).join('')}
                     </div>
                     <p>
-                      <% if (product.variants && product.variants[0]) { %>
-                        Price: ₹<%= product.variants[0].price %>
-                          <% } %>
+                      ${product.variants && product.variants[0] 
+                        ? `Price: ₹${product.variants[0].price}` 
+                        : ''}
                     </p>
                   </div>
                 </div>
               </div>
+              
               <% }); %>
                 <% } else { %>
                   <p>No products found</p>
@@ -694,41 +598,26 @@
         const isInWishlist = wishlistItems.includes(product._id);
         return `
           <div class="product-card" data-category="${product.category}" data-price="${product.salePrice}" 
-               data-rating="${product.rating}" data-name="${product.productName.toLowerCase()}" 
-               data-date="${product.createdAt}">
+               data-name="${product.productName.toLowerCase()}" data-date="${product.createdAt}">
             
-            <div class="wishlist-btn ${isInWishlist ? 'active' : ''}" 
-                 onclick="toggleWishlist(this, '${product._id}')">
-              <i class="fa ${isInWishlist ? 'fa-heart' : 'fa-heart-o'}"></i>
-            </div>
-
             <div class="product__item" onclick="window.location.href='/productDetails?id=${product._id}'">
               <div class="product__item__pic set-bg" data-setbg="${product.image1 || 'default-image.jpg'}">
                 ${product.label ? `<span class="label">${product.label}</span>` : ''}
+                <button class="wishlist-btn ${isInWishlist ? 'active' : ''}" 
+                        onclick="event.stopPropagation(); toggleWishlist(this, '${product._id}')">
+                  <i class="fa ${isInWishlist ? 'fa-heart' : 'fa-heart-o'}"></i>
+                </button>
               </div>
 
               <div class="product__item__text">
-                <h6>
-                  <p onclick="window.location.href='/productDetails?id=${product._id}'">
-                    ${product.productName}
-                  </p>
+                <h6 class="product-name">
+                  ${product.productName}
                 </h6>
-                <a href="shopping-cart" class="add-cart">
-                  <form action="shopping-cart" method="POST" class="simple-cart-form">
-                    <input type="hidden" name="productId" value="${product._id}">
-                    <input type="hidden" name="quantity" value="1">
-                  </form>
-                </a>
-                <div class="rating">
-                  ${Array(5).fill(0).map((_, i) => 
-                    `<i class="fa ${i < product.rating ? 'fa-star' : 'fa-star-o'}"></i>`
-                  ).join('')}
-                </div>
-                <p>
+                <div class="product-price">
                   ${product.variants && product.variants[0] 
-                    ? `Price: ₹${product.variants[0].price}` 
+                    ? `₹${product.variants[0].price}` 
                     : ''}
-                </p>
+                </div>
               </div>
             </div>
           </div>

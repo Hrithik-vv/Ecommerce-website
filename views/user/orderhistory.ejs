@@ -661,6 +661,7 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
     function retryPayment(orderId, totalAmount) {
+        
         if (confirm('Would you like to retry the payment?')) {
             // Initialize Razorpay payment directly with available data
             const options = {
@@ -671,7 +672,8 @@
                 description: "Order Payment Retry",
                 handler: function (response) {
                     // Check if we have all required fields from Razorpay response
-                    if (!response.razorpay_payment_id || !response.razorpay_order_id || !response.razorpay_signature) {
+                    console.log(response);
+                    if (!response.razorpay_payment_id) {
                         showToast('error', 'Invalid payment response');
                         return;
                     }

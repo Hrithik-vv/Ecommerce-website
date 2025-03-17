@@ -411,6 +411,7 @@
                                                                 value="<%= item.quantity %>" min="1"
                                                                 data-product-id="<%= item.productId._id %>"
                                                                 data-price="<%= item.productPrice %>"
+                                                                data-stock="<%= item.productStock %>"
                                                                 onchange="updateQuantityInCart(this)">
                                                             <button type="button" class="qty-plus"
                                                                 onclick="updateQuantity(this, 1, <%= item.productStock %>)">+</button>
@@ -466,6 +467,7 @@
         </div>
     </section>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function validateNumber(input) {
             if (input.value < 1) input.value = 1;
@@ -485,9 +487,33 @@
             const productId = input.dataset.productId;
             const quantity = parseInt(input.value);
             const price = parseFloat(input.dataset.price);
+            const maxStock = parseInt(input.dataset.stock);
 
+            // Validate quantity
             if (isNaN(quantity) || quantity < 1) {
                 input.value = 1;
+                Swal.fire({
+                    toast: true,
+                    icon: 'warning',
+                    title: 'Minimum quantity is 1',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
+            }
+
+            // Check stock limit
+            if (quantity > maxStock) {
+                input.value = maxStock;
+                Swal.fire({
+                    toast: true,
+                    icon: 'warning',
+                    title: `Maximum available stock is ${maxStock}`,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
                 return;
             }
 
@@ -513,12 +539,36 @@
 
                     // Update the cart total
                     document.getElementById('cart-total').textContent = data.cartTotal;
+
+                    // Show success toast
+                    Swal.fire({
+                        toast: true,
+                        icon: 'success',
+                        title: 'Cart updated successfully',
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
                 } else {
-                    alert('Failed to update quantity');
+                    Swal.fire({
+                        toast: true,
+                        icon: 'error',
+                        title: 'Failed to update quantity',
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 }
             } catch (error) {
                 console.error('Error updating quantity:', error);
-                alert('Error updating quantity');
+                Swal.fire({
+                    toast: true,
+                    icon: 'error',
+                    title: 'Error updating quantity',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
             }
         }
 
@@ -527,8 +577,28 @@
             const input = row.querySelector('.qty-input');
             let newVal = parseInt(input.value) + change;
 
-            if (newVal < 1) newVal = 1;
-            if (max && newVal > max) newVal = max;
+            if (newVal < 1) {
+                newVal = 1;
+                Swal.fire({
+                    toast: true,
+                    icon: 'warning',
+                    title: 'Minimum quantity is 1',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+            if (max && newVal > max) {
+                newVal = max;
+                Swal.fire({
+                    toast: true,
+                    icon: 'warning',
+                    title: `Maximum available stock is ${max}`,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
 
             input.value = newVal;
             updateQuantityInCart(input);

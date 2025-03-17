@@ -181,4 +181,5 @@ router.post("/return-product", userAuth, async (req, res) => {
 
 router.post('/payment-failed',orderController.paymentFailed);
 router.post('/retry-payment',orderController.retryPayment);
+router.post('/update-payment-status',orderController.updatePaymentStatus);
 module.exports = router;

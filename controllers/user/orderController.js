@@ -583,9 +583,7 @@ const paymentFailed = async (req, res) => {
 
     await failedOrder.save();
 
-    return res.status(200).json({
-      success: false,
-      message: "Payment failed",
+    return res.render('paymentFailed', {
       orderId: failedOrder._id
     });
 
@@ -603,7 +601,16 @@ const retryPayment = async (req, res) => {
   res.render("orderPlaced");
 };
 
+
+const updatePaymentStatus = async (req, res) => {
+  const { orderId } = req.body;
+  const order = await Order.findById(orderId);
+  order.paymentStatus = "completed";
+  await order.save();
+  res.json({ success: true, message: "Payment status updated successfully" });
+};
 module.exports = {
+  updatePaymentStatus,
   retryPayment,
   paymentFailed,
   cancelOrder,
