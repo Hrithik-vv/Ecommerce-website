@@ -1,250 +1,449 @@
 <%- include("../partials/admin/adminHeader.ejs") %>
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         .content-main {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 30px;
-            background: #f8f9fa;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
             margin-left: 330px;
             margin-top: 80px;
-            min-height: calc(100vh - 80px);
-            position: relative;
-            z-index: 1;
         }
-
-        .welcome-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-weight: 700;
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-
-        .welcome-subtitle {
-            font-size: 1.2rem;
-            color: #7f8c8d;
+        
+        .time-filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .time-filter {
+            padding: 8px 16px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .time-filter.active {
+            background-color: #4a6cf7;
+            color: #fff;
+            border-color: #4a6cf7;
+        }
+        
+        .chart-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
             margin-bottom: 20px;
         }
 
         .stats-container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            justify-content: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
-            background: #fff;
+            background-color: #fff;
             border-radius: 8px;
-            padding: 25px;
-            width: calc(25% - 20px);
-            min-width: 200px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 1rem;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .quick-links {
-            background: #fff;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .quick-links h3 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .links-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .link-card {
-            background: #f8f9fa;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             padding: 20px;
-            border-radius: 8px;
-            width: calc(33.333% - 15px);
-            min-width: 180px;
-            text-align: center;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: #2c3e50;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
-
-        .link-card:hover {
-            background: #e9ecef;
-            transform: scale(1.03);
-        }
-
-        .link-icon {
-            font-size: 2rem;
+        
+        .stat-card h3 {
+            font-size: 16px;
+            color: #666;
             margin-bottom: 10px;
         }
+        
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .top-lists-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .top-list {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+        
+        .top-list h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            font-weight: 500;
+        }
+        
+        .item-value {
+            font-weight: bold;
+            color: #4a6cf7;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #eee;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #4a6cf7;
+        }
 
-        .link-text {
-            font-weight: 600;
+        .item-details {
+            font-size: 0.8rem;
+            color: #666;
+            margin: 4px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sales-count {
+            color: #4a6cf7;
+            font-weight: 500;
+        }
+
+        .sales-percentage {
+            color: #666;
+        }
+
+        .item-stats {
+            text-align: right;
+        }
+
+        .item-count {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4px;
         }
 
         @media (max-width: 768px) {
             .content-main {
                 margin-left: 0;
-                padding: 15px;
             }
 
-            .stat-card {
-                width: calc(50% - 15px);
+            .stats-container {
+                grid-template-columns: 1fr;
             }
 
-            .link-card {
-                width: calc(50% - 15px);
+            .top-lists-container {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 
     <section class="content-main">
-        <div class="welcome-card">
-            <h1 class="welcome-title">Welcome to Oxyboo Admin Dashboard</h1>
+        <div class="dashboard">
+            <div class="dashboard-header">
+                <h1>Sales Dashboard</h1>
+                <div class="time-filters">
+                    <div class="time-filter" onclick="changeTimeFilter('weekly')">Weekly</div>
+                    <div class="time-filter active" onclick="changeTimeFilter('monthly')">Monthly</div>
+                    <div class="time-filter" onclick="changeTimeFilter('yearly')">Yearly</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
         </div>
 
-        <!-- <div class="stats-container" id="dashboard-stats">
+            <div class="stats-container">
         <div class="stat-card">
-            <i class="icon material-icons md-shopping_cart stat-icon" style="color: #3498db;"></i>
-            <div class="stat-value" id="total-orders">0</div>
-            <div class="stat-label">Total Orders</div>
+                    <h3>Total Orders</h3>
+                    <p id="total-orders">0</p>
         </div>
         <div class="stat-card">
-            <i class="icon material-icons md-attach_money stat-icon" style="color: #2ecc71;"></i>
-            <div class="stat-value" id="total-revenue">₹0</div>
-            <div class="stat-label">Revenue</div>
+                    <h3>Total Revenue</h3>
+                    <p id="total-revenue">₹0</p>
         </div>
         <div class="stat-card">
-            <i class="icon material-icons md-person stat-icon" style="color: #9b59b6;"></i>
-            <div class="stat-value" id="total-customers">0</div>
-            <div class="stat-label">Customers</div>
+                    <h3>Total Customers</h3>
+                    <p id="total-customers">0</p>
         </div>
         <div class="stat-card">
-            <i class="icon material-icons md-shopping_bag stat-icon" style="color: #e74c3c;"></i>
-            <div class="stat-value" id="total-products">0</div>
-            <div class="stat-label">Products</div>
+                    <h3>Total Products</h3>
+                    <p id="total-products">0</p>
+                </div>
         </div>
-    </div> -->
-
-        <!-- <div class="quick-links">
-        <h3>Quick Actions</h3>
-        <div class="links-container">
-            <a href="/admin/sales-report" class="link-card">
-                <i class="icon material-icons md-assessment link-icon"></i>
-                <span class="link-text">Sales Reports</span>
-            </a>
-            <a href="/admin/addproduct" class="link-card">
-                <i class="icon material-icons md-add_box link-icon"></i>
-                <span class="link-text">Add Product</span>
-            </a>
-            <a href="/admin/ordermanage" class="link-card">
-                <i class="icon material-icons md-receipt link-icon"></i>
-                <span class="link-text">Manage Orders</span>
-            </a>
-            <a href="/admin/users" class="link-card">
-                <i class="icon material-icons md-people link-icon"></i>
-                <span class="link-text">View Customers</span>
-            </a>
-            <a href="/admin/coupon" class="link-card">
-                <i class="icon material-icons md-card_giftcard link-icon"></i>
-                <span class="link-text">Manage Coupons</span>
-            </a>
-            <a href="/admin/banner" class="link-card">
-                <i class="icon material-icons md-photo_size_select_actual link-icon"></i>
-                <span class="link-text">Update Banners</span>
-            </a>
+            
+            <div class="top-lists-container">
+                <div class="top-list">
+                    <h2>Best Selling Products</h2>
+                    <div id="top-products-list">
+                        <!-- Will be populated by JavaScript -->
         </div>
     </div>
-</section> -->
+                
+                <div class="top-list">
+                    <h2>Best Selling Categories</h2>
+                    <div id="top-categories-list">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', async function () {
-                try {
-                    // Get today's date range
-                    const today = new Date();
-                    const startDate = new Date(today);
-                    startDate.setHours(0, 0, 0, 0);
-                    const endDate = new Date(today);
-                    endDate.setHours(23, 59, 59, 999);
+            let salesChart = null;
+            let currentTimeFilter = 'monthly';
 
-                    // Fetch dashboard data
-                    const response = await fetch('/admin/dashboard/stats', {
-                        method: 'POST',
+            // Move all initialization code inside this function
+            function initializeDashboard() {
+                if (!document.getElementById('salesChart')) {
+                    console.error('Sales chart canvas not found');
+                    return;
+                }
+
+                // Rest of your initialization code...
+                fetchDashboardData('monthly');
+            }
+
+            // Wait for DOM to be fully loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeDashboard);
+            } else {
+                initializeDashboard();
+            }
+
+            async function fetchDashboardData(period) {
+                try {
+                    // Show loading state
+                    const elements = ['total-orders', 'total-revenue', 'total-customers', 'total-products'];
+                    elements.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) element.textContent = 'Loading...';
+                    });
+                    
+                    console.log('Fetching data for period:', period);
+                    const response = await fetch(`/admin/dashboard-data/${period}`, {
                         headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            startDate: startDate.toISOString(),
-                            endDate: endDate.toISOString()
-                        })
+                            'Accept': 'application/json'
+                        }
                     });
 
                     if (!response.ok) {
-                        throw new Error('Failed to fetch dashboard data');
+                        const text = await response.text();
+                        console.error('Response not OK:', text);
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
                     const data = await response.json();
+                    console.log('Received data:', data);
 
                     if (data.success) {
-                        // Update dashboard stats
-                        document.getElementById('total-orders').textContent = data.data.totalOrders || 0;
-                        document.getElementById('total-revenue').textContent = '₹' + (data.data.totalRevenue || 0).toFixed(2);
-                        document.getElementById('total-customers').textContent = data.data.totalCustomers || 0;
-                        document.getElementById('total-products').textContent = data.data.totalProducts || 0;
-                    } else {
-                        console.error('Error fetching dashboard data:', data.message);
+                        updateChart(data.data.labels, data.data.salesData);
+                        
+                        // Update statistics safely
+                        elements.forEach(id => {
+                            const element = document.getElementById(id);
+                            if (!element) return;
+                            
+                            switch(id) {
+                                case 'total-orders':
+                                    element.textContent = data.data.stats.totalOrders.toLocaleString();
+                                    break;
+                                case 'total-revenue':
+                                    element.textContent = '₹' + data.data.stats.totalRevenue.toLocaleString();
+                                    break;
+                                case 'total-customers':
+                                    element.textContent = data.data.stats.totalCustomers.toLocaleString();
+                                    break;
+                                case 'total-products':
+                                    element.textContent = data.data.stats.totalProducts.toLocaleString();
+                                    break;
+                            }
+                        });
+                        
+                        // Update lists safely
+                        updateProductsList(data.data.topProducts);
+                        updateCategoriesList(data.data.topCategories);
                     }
                 } catch (error) {
-                    console.error('Error loading dashboard stats:', error);
+                    console.error('Error:', error);
+                    // Show error state
+                    const elements = ['total-orders', 'total-revenue', 'total-customers', 'total-products'];
+                    elements.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) element.textContent = 'Error loading data';
+                    });
                 }
-            });
+            }
+
+            function updateProductsList(products) {
+                const list = document.getElementById('top-products-list');
+                if (!list) return;
+                
+                if (!products || products.length === 0) {
+                    list.innerHTML = '<div class="list-item">No products data available</div>';
+                    return;
+                }
+
+                list.innerHTML = products.map(product => `
+                    <div class="list-item">
+                        <div>
+                            <div class="item-name">${product.name}</div>
+                            <div class="item-details">
+                                <span class="sales-count">Sold ${product.quantity} times</span>
+                               
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${product.salesPercentage}%"></div>
+                            </div>
+                        </div>
+                        <div class="item-stats">
+                            <div class="item-value">₹${product.revenue.toLocaleString()}</div>
+                            <div class="item-count">${product.salesCount} orders</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function updateCategoriesList(categories) {
+                const list = document.getElementById('top-categories-list');
+                if (!list) return;
+                
+                if (!categories || categories.length === 0) {
+                    list.innerHTML = '<div class="list-item">No categories data available</div>';
+                    return;
+                }
+
+                list.innerHTML = categories.map(category => `
+                    <div class="list-item">
+                        <div>
+                            <div class="item-name">${category.name}</div>
+                            <div class="item-details">
+                                <span class="sales-count">Sold ${category.quantity} items</span>
+                               
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${category.salesPercentage}%"></div>
+                            </div>
+                        </div>
+                        <div class="item-stats">
+                            <div class="item-value">₹${category.revenue.toLocaleString()}</div>
+                            <div class="item-count">${category.salesCount} orders</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function updateChart(labels, data) {
+                const ctx = document.getElementById('salesChart');
+                if (!ctx) return;
+
+                if (salesChart) {
+                    salesChart.destroy();
+                }
+
+                salesChart = new Chart(ctx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Sales',
+                            data: data,
+                            backgroundColor: 'rgba(74, 108, 247, 0.1)',
+                            borderColor: 'rgba(74, 108, 247, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(74, 108, 247, 1)',
+                            pointRadius: 4,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Sales: ₹${context.raw.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function changeTimeFilter(filter) {
+                if (!filter) return;
+                
+                currentTimeFilter = filter;
+                fetchDashboardData(filter);
+                
+                document.querySelectorAll('.time-filter').forEach(elem => {
+                    elem.classList.remove('active');
+                });
+                
+                const activeFilter = document.querySelector(`.time-filter[onclick="changeTimeFilter('${filter}')"]`);
+                if (activeFilter) {
+                    activeFilter.classList.add('active');
+                }
+            }
         </script>
 
         <%- include("../partials/admin/adminFooter.ejs") %>

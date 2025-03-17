@@ -92,6 +92,10 @@ router.get(
 router.get('/return-management', adminAuth, returnController.returnManagement);
 router.post('/handle-return', adminAuth, returnController.handleReturn);
 
+
+//sales dashboard 
+router.get('/dashboard-data/:period', adminAuth, salesReportController.getDashboardData);
+
 module.exports = router;
 
 

@@ -14,18 +14,44 @@
 </head>
 
 <body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Product Details</h1>
-
-        <div class="container">
-            <div class="wishlist-breadcrumb">
-                <a href="/userProfile">Profile</a>
-                <span>›</span>
-                <a href="/order-history">Order History</a>
-                <span>›</span>
-                <span>Order View</span>
+    <!-- New Header Section -->
+    <div class="bg-white shadow-md mb-8">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Order History</h1>
+                    <nav class="flex mt-2" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-2 text-sm text-gray-500">
+                            <li>
+                                <a href="/userProfile" class="hover:text-blue-600 transition-colors">
+                                    <i class="fas fa-user mr-1"></i>Profile
+                                </a>
+                            </li>
+                            <li>
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </li>
+                            <li>
+                                <a href="/order-history" class="hover:text-blue-600 transition-colors">
+                                    <i class="fas fa-shopping-bag mr-1"></i>Order History
+                                </a>
+                            </li>
+                            <li>
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </li>
+                            <li class="text-blue-600">
+                                <i class="fas fa-eye mr-1"></i>Order Details
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="mt-4 md:mt-0">
+                  
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="container mx-auto px-4">
         <!-- Product Card -->
         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 mb-6">
             <div class="p-6 border-b border-gray-200">
@@ -68,9 +94,25 @@
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <h3 class="text-lg font-medium text-blue-800 mb-2">Price Information</h3>
                     <p class="text-gray-700 font-medium">
-
                         Price: ₹<%= (order.totalAmount) %>
                     </p>
+                </div>
+
+                <!-- Add Customer Address Section -->
+                <div class="bg-gray-50 p-4 rounded-lg mt-4">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">
+                        <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>
+                        Delivery Address
+                    </h3>
+                    <div class="text-gray-700">
+                        <p class="font-medium"><%= address.name %></p>
+                        <p><%= address.landMark %></p>
+                        <p><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                        <p class="mt-1">
+                            <i class="fas fa-phone text-blue-500 mr-2"></i>
+                            <%= address.phone %>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,7 +127,7 @@
                     Order ID: <%= order.orderId %>
                 </p>
 
-                <% if (order.status==='Pending' ) { %>
+                <% if (order.status === 'Pending') { %>
                     <div id="aaa" class="mt-4">
                         <button type="button"
                             data-bs-toggle="modal" 
@@ -94,189 +136,57 @@
                             Cancel Order
                         </button>
                     </div>
-                    <% } %>
+                <% } %>
 
-                        <% if (order.status === 'Delivered') { %>
-                            <div class="mt-4">
-                                <% if (product.returnStatus === 'Rejected') { %>
-                                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg flex items-center">
-                                        <i class="fas fa-times-circle mr-2"></i>
-                                        Return Request Rejected
-                                    </div>
-                                <% } else if (product.returnStatus === 'Approved') { %>
-                                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg flex items-center">
-                                        <i class="fas fa-check-circle mr-2"></i>
-                                        Return Request Approved
-                                    </div>
-                                <% } else if (product.returnStatus === 'Pending') { %>
-                                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded-lg flex items-center">
-                                        <i class="fas fa-clock mr-2"></i>
-                                        Return Request Pending
-                                    </div>
-                                <% } else if (product.isReturned) { %>
-                                    <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-2 rounded-lg flex items-center">
-                                        <i class="fas fa-undo mr-2"></i>
-                                        Order Returned
-                                    </div>
-                                <% } else { %>
-                                    <button data-bs-toggle="modal" 
-                                            data-bs-target="#returnModal<%= order._id %>" 
-                                            class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                                        <i class="fas fa-undo mr-2"></i>
-                                        Return Order
-                                    </button>
-                                <% } %>
-                                <div class="mt-4">
-                                    <button onclick="generateInvoice()" 
-                                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                                        <i class="fas fa-file-pdf mr-2"></i>
-                                        Download Invoice
-                                    </button>
-                                </div>
+                <% if (order.status === 'Delivered') { %>
+                    <div class="mt-4 flex gap-4">
+                        <!-- Return button section -->
+                        <% if (product.returnStatus === 'Rejected') { %>
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-times-circle mr-2"></i>
+                                Return Request Rejected
                             </div>
+                        <% } else if (product.returnStatus === 'Approved') { %>
+                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Return Request Approved
+                            </div>
+                        <% } else if (product.returnStatus === 'Pending') { %>
+                            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-clock mr-2"></i>
+                                Return Request Pending
+                            </div>
+                        <% } else if (product.isReturned) { %>
+                            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-undo mr-2"></i>
+                                Order Returned
+                            </div>
+                        <% } else { %>
+                            <button data-bs-toggle="modal" 
+                                    data-bs-target="#returnModal<%= order._id %>" 
+                                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                                <i class="fas fa-undo mr-2"></i>
+                                Return Order
+                            </button>
                         <% } %>
 
-                                <!-- Return Modal -->
-                                <div class="modal fade" id="returnModal<%= order._id %>" tabindex="-1"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Return Request</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <form action="/return-product" method="POST">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="orderId" value="<%= order._id %>">
-                                                    <input type="hidden" name="productId" value="<%= product._id %>">
-
-                                                    <div class="mb-4">
-                                                        <h6 class="mb-3">Product Details:</h6>
-                                                        <div class="flex items-center">
-                                                            <img src="<%= product.image1 %>"
-                                                                alt="<%= product.productName %>"
-                                                                class="w-16 h-16 object-cover rounded-lg mr-3">
-                                                            <div>
-                                                                <p class="font-medium text-gray-800 mb-1">
-                                                                    <%= product.productName %>
-                                                                </p>
-                                                                <p class="text-gray-600 text-sm">Quantity: <%=
-                                                                        product.quantity %>
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label for="returnReason<%= order._id %>"
-                                                            class="block text-sm font-medium text-gray-700 mb-2">Return
-                                                            Reason</label>
-                                                        <select class="form-select w-full rounded-lg border-gray-300"
-                                                            id="returnReason<%= order._id %>" name="returnReason"
-                                                            required>
-                                                            <option value="">Select a reason</option>
-                                                            <option value="Wrong Size">Wrong Size</option>
-                                                            <option value="Damaged Product">Damaged Product</option>
-                                                            <option value="Not as Described">Not as Described</option>
-                                                            <option value="Quality Issues">Quality Issues</option>
-                                                            <option value="Other">Other</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label for="returnComments<%= order._id %>"
-                                                            class="block text-sm font-medium text-gray-700 mb-2">Additional
-                                                            Comments</label>
-                                                        <textarea class="form-control w-full rounded-lg border-gray-300"
-                                                            id="returnComments<%= order._id %>" name="returnComments"
-                                                            rows="3"
-                                                            placeholder="Please provide additional details about your return request"></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button"
-                                                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
-                                                        data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="submit"
-                                                        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">Submit
-                                                        Return Request</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Add this new Cancel Modal right after your return modal -->
-                                <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Cancel Order</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label for="cancelReason" class="block text-sm font-medium text-gray-700 mb-2">
-                                                        Cancellation Reason
-                                                    </label>
-                                                    <select class="form-select w-full rounded-lg border-gray-300" 
-                                                            id="cancelReason" 
-                                                            required>
-                                                        <option value="">Select a reason</option>
-                                                        <option value="Changed my mind">Changed my mind</option>
-                                                        <option value="Found better price elsewhere">Found better price elsewhere</option>
-                                                        <option value="Ordered by mistake">Ordered by mistake</option>
-                                                        <option value="Shipping time too long">Shipping time too long</option>
-                                                        <option value="Other">Other</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" 
-                                                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300"
-                                                        data-bs-dismiss="modal">
-                                                    Close
-                                                </button>
-                                                <button type="button" 
-                                                        onclick="proceedWithCancellation()"
-                                                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                                                    Confirm Cancellation
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Shipping Information -->
-                                <div class="mt-4">
-                                    <h3 class="text-lg font-medium text-gray-800 mb-2">Shipping Information</h3>
-                                    <% if (address) { %>
-                                        <p class="text-gray-700">Name: <%= address.name %>
-                                        </p>
-                                        <p class="text-gray-700">
-                                            Address: <%= address.landMark %>, <%= address.city %>, <%= address.state %>
-                                                        - <%= address.pincode %>
-                                        </p>
-                                        <p class="text-gray-700">Phone: <%= address.phone %>
-                                        </p>
-                                        <p class="text-gray-700">Alternate Phone: <%= address.altPhone %>
-                                        </p>
-                                        <% } else { %>
-                                            <p class="text-gray-700">No shipping address available.</p>
-                                            <% } %>
-                                </div>
-
-
-                                <!-- Payment Information -->
-                                <div class="mt-4">
-                                    <h3 class="text-lg font-medium text-gray-800 mb-2">Payment Information</h3>
-                                    <p class="text-gray-700">Payment Method: <%= order.paymentMethod %>
-                                    </p>
-                                    <p class="text-gray-700 font-medium">
-                                        Total: ₹<%= (order.totalAmount) %>
-                                    </p>
-                                </div>
+                        <!-- Invoice download button - Always show for delivered orders -->
+                        <button onclick="generateInvoice()" 
+                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i>
+                            Download Invoice
+                        </button>
+                    </div>
+                <% } else if (order.status !== 'Pending' && order.status !== 'Cancelled') { %>
+                    <!-- Show only invoice button for other completed statuses -->
+                    <div class="mt-4">
+                        <button onclick="generateInvoice()" 
+                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i>
+                            Download Invoice
+                        </button>
+                    </div>
+                <% } %>
             </div>
         </div>
     </div>
@@ -388,59 +298,116 @@
         }
 
         function generateInvoice() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-            // Add company logo or name
-            doc.setFontSize(20);
-            doc.text('FASHION FEET', 105, 20, { align: 'center' });
-            
-            // Add invoice details
-            doc.setFontSize(12);
-            doc.text('INVOICE', 20, 40);
-            doc.text(`Order ID: <%= order.orderId %>`, 20, 50);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 60);
+                // Change company name from FASHION FEET to OXYBOO
+                doc.setFontSize(24);
+                doc.setTextColor(74, 108, 247); // Blue color
+                doc.text('OXYBOO', 105, 20, { align: 'center' });
+                
+                // Add invoice title
+                doc.setFontSize(16);
+                doc.setTextColor(0, 0, 0);
+                doc.text('INVOICE', 105, 35, { align: 'center' });
 
-            // Add customer details
-            doc.text('Bill To:', 20, 80);
-            doc.setFontSize(10);
-            doc.text(`Name: <%= address.name %>`, 20, 90);
-            doc.text(`Address: <%= address.landMark %>, <%= address.city %>`, 20, 100);
-            doc.text(`<%= address.state %> - <%= address.pincode %>`, 20, 110);
-            doc.text(`Phone: <%= address.phone %>`, 20, 120);
+                // Add horizontal line
+                doc.setLineWidth(0.5);
+                doc.line(20, 40, 190, 40);
 
-            // Add product details table
-            const tableColumn = ['Product', 'Quantity', 'Price'];
-            const tableRows = [
-                [
-                    '<%= product.productName %>',
-                    '<%= product.quantity %>',
-                    'Rs. <%= order.totalAmount %>'
-                ]
-            ];
+                // Add invoice details
+                doc.setFontSize(12);
+                doc.text('Order Details:', 20, 55);
+                doc.setFontSize(10);
+                doc.text(`Order ID: <%= order.orderId %>`, 20, 65);
+                doc.text(`Order Date: ${new Date('<%= order.createdAt %>').toLocaleDateString()}`, 20, 75);
+                doc.text(`Payment Method: <%= order.paymentMethod %>`, 20, 85);
 
-            doc.autoTable({
-                head: [tableColumn],
-                body: tableRows,
-                startY: 140,
-                theme: 'grid',
-                headStyles: { fillColor: [76, 115, 121] }
-            });
+                // Add customer details
+                doc.setFontSize(12);
+                doc.text('Customer Details:', 120, 55);
+                doc.setFontSize(10);
+                doc.text(`Name: <%= address.name %>`, 120, 65);
+                doc.text(`Address: <%= address.landMark %>`, 120, 75);
+                doc.text(`<%= address.city %>, <%= address.state %> - <%= address.pincode %>`, 120, 85);
+                doc.text(`Phone: <%= address.phone %>`, 120, 95);
 
-            // Add total amount
-            const finalY = doc.lastAutoTable.finalY || 140;
-            doc.text(`Total Amount: Rs. <%= order.totalAmount %>`, 20, finalY + 20);
+                // Add product details table
+                const tableColumn = ['Product', 'Quantity', 'Price per Unit', 'Total'];
+                const tableRows = [
+                    [
+                        '<%= product.productName %>',
+                        '<%= product.quantity %>',
+                        'Rs. <%= (order.totalAmount / product.quantity).toFixed(2) %>',
+                        'Rs. <%= order.totalAmount %>'
+                    ]
+                ];
 
-            // Add payment information
-            doc.text(`Payment Method: <%= order.paymentMethod %>`, 20, finalY + 30);
-            doc.text('Payment Status: Paid', 20, finalY + 40);
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 110,
+                    theme: 'grid',
+                    headStyles: { 
+                        fillColor: [74, 108, 247],
+                        fontSize: 10,
+                        halign: 'center'
+                    },
+                    bodyStyles: {
+                        fontSize: 10,
+                        halign: 'center'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 80 },
+                        1: { cellWidth: 30 },
+                        2: { cellWidth: 40 },
+                        3: { cellWidth: 40 }
+                    }
+                });
 
-            // Add footer
-            doc.setFontSize(8);
-            doc.text('Thank you for shopping with us!', 105, finalY + 60, { align: 'center' });
+                // Add total amount
+                const finalY = doc.lastAutoTable.finalY || 140;
+                doc.setDrawColor(74, 108, 247);
+                doc.setLineWidth(0.5);
+                doc.line(20, finalY + 10, 190, finalY + 10);
 
-            // Save the PDF
-            doc.save(`invoice-<%= order.orderId %>.pdf`);
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('Total Amount:', 140, finalY + 20);
+                doc.text(`Rs. <%= order.totalAmount %>`, 190, finalY + 20, { align: 'right' });
+
+                // Add footer
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor(128, 128, 128);
+                doc.text('Thank you for shopping with Oxyboo!', 105, finalY + 40, { align: 'center' });
+                
+
+                // Add timestamp
+                doc.setFontSize(8);
+                doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 280);
+
+                // Save the PDF
+                doc.save(`Oxyboo-Invoice-<%= order.orderId %>.pdf`);
+
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Invoice downloaded successfully!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+            } catch (error) {
+                console.error('Error generating invoice:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to generate invoice. Please try again.'
+                });
+            }
         }
     </script>
 

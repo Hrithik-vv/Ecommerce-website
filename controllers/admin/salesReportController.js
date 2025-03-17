@@ -1,6 +1,7 @@
 const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
 const Product = require("../../models/productSchema");
+const Category = require("../../models/categorySchema");
 
 const salesReportController = {
   // Get basic dashboard stats for the main dashboard
@@ -72,109 +73,187 @@ const salesReportController = {
   // Get Dashboard Data for sales report page
   getDashboardData: async (req, res) => {
     try {
-      let { startDate, endDate, page = 1, limit = 10 } = req.body;
+      const period = req.params.period || 'monthly';
+      const today = new Date();
+      let startDate, endDate;
+      let labels = [];
+      let salesData = [];
 
-      // Ensure we have valid dates
-      startDate = new Date(startDate);
-      endDate = new Date(endDate);
+      // Set up date ranges and labels
+      switch (period) {
+        case 'weekly':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 6);
+          endDate = new Date(today);
+          
+          // Generate last 7 days
+          for (let i = 0; i < 7; i++) {
+            let date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+            salesData.push(0); // Initialize with zeros
+          }
+          break;
 
-      // Set time to start and end of day
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
+        case 'monthly':
+          startDate = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+          endDate = new Date(today);
+          
+          // Generate last 12 months
+          for (let i = 0; i < 12; i++) {
+            let date = new Date(startDate);
+            date.setMonth(startDate.getMonth() + i);
+            labels.push(date.toLocaleDateString('en-US', { month: 'short' }));
+            salesData.push(0); // Initialize with zeros
+          }
+          break;
 
-      // Convert page and limit to numbers
-      page = Number(page);
-      limit = Number(limit);
-      const skip = (page - 1) * limit;
+        case 'yearly':
+          startDate = new Date(today.getFullYear() - 4, 0, 1);
+          endDate = new Date(today);
+          
+          // Generate last 5 years
+          for (let i = 0; i < 5; i++) {
+            labels.push((startDate.getFullYear() + i).toString());
+            salesData.push(0); // Initialize with zeros
+          }
+          break;
+      }
 
-      // Query orders within date range with pagination
+      // Fetch orders
       const orders = await Order.find({
-        createdAt: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        status: { $ne: "Cancelled" },
-      })
-        .populate("userId", "name email")
-        .populate("products.productId", "productName price image1")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
-
-      // Get total count for pagination
-      const totalCount = await Order.countDocuments({
-        createdAt: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        status: { $ne: "Cancelled" },
+        createdAt: { $gte: startDate, $lte: endDate },
+        status: { $ne: "Cancelled" }
+      }).populate({
+        path: 'products.productId',
+        populate: {
+          path: 'category',
+          select: 'name'
+        }
       });
 
-      // Calculate pagination info
-      const totalPages = Math.ceil(totalCount / limit);
-      const hasNextPage = page < totalPages;
-      const hasPrevPage = page > 1;
+      // Calculate sales data based on period
+      orders.forEach(order => {
+        const orderDate = new Date(order.createdAt);
+        let index;
 
-      // Calculate summary statistics
-      const allOrders = await Order.find({
-        createdAt: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        status: { $ne: "Cancelled" },
+        switch (period) {
+          case 'weekly':
+            // Calculate days difference
+            index = Math.floor((orderDate - startDate) / (1000 * 60 * 60 * 24));
+            if (index >= 0 && index < 7) {
+              salesData[index] += order.totalAmount;
+            }
+            break;
+
+          case 'monthly':
+            // Calculate months difference
+            index = (orderDate.getFullYear() - startDate.getFullYear()) * 12 
+              + (orderDate.getMonth() - startDate.getMonth());
+            if (index >= 0 && index < 12) {
+              salesData[index] += order.totalAmount;
+            }
+            break;
+
+          case 'yearly':
+            // Calculate years difference
+            index = orderDate.getFullYear() - startDate.getFullYear();
+            if (index >= 0 && index < 5) {
+              salesData[index] += order.totalAmount;
+            }
+            break;
+        }
       });
 
-      const totalOrders = allOrders.length;
-      const totalRevenue = allOrders.reduce(
-        (sum, order) => sum + order.totalAmount,
-        0
-      );
-      const productsSold = allOrders.reduce(
-        (sum, order) =>
-          sum +
-          order.products.reduce((pSum, product) => pSum + product.quantity, 0),
-        0
-      );
-      const averageOrderValue =
-        totalOrders > 0 ? totalRevenue / totalOrders : 0;
+      // Track product and category sales
+      const productSalesMap = new Map();
+      const categorySalesMap = new Map();
 
-      // Format orders for response
-      const formattedOrders = orders.map((order) => ({
-        orderId: order.orderId || order._id,
-        date: order.createdAt,
-        customerName: order.userId ? order.userId.name : "Guest User",
-        products: order.products.reduce(
-          (sum, product) => sum + product.quantity,
-          0
-        ),
-        totalAmount: order.totalAmount,
-        paymentMethod: order.paymentMethod,
-        status: order.status,
-      }));
+      // Process orders for product and category statistics
+      orders.forEach(order => {
+        order.products.forEach(product => {
+          if (!product.productId) return;
+
+          // Track product sales
+          const productId = product.productId._id.toString();
+          if (!productSalesMap.has(productId)) {
+            productSalesMap.set(productId, {
+              name: product.productId.productName,
+              quantity: 0,
+              revenue: 0,
+              salesCount: 0
+            });
+          }
+          const productData = productSalesMap.get(productId);
+          productData.quantity += product.quantity;
+          productData.revenue += product.totalPrice;
+          productData.salesCount += 1;
+
+          // Track category sales
+          if (product.productId.category) {
+            const categoryId = product.productId.category._id.toString();
+            if (!categorySalesMap.has(categoryId)) {
+              categorySalesMap.set(categoryId, {
+                name: product.productId.category.name,
+                quantity: 0,
+                revenue: 0,
+                salesCount: 0
+              });
+            }
+            const categoryData = categorySalesMap.get(categoryId);
+            categoryData.quantity += product.quantity;
+            categoryData.revenue += product.totalPrice;
+            categoryData.salesCount += 1;
+          }
+        });
+      });
+
+      // Convert to arrays and sort
+      const topProducts = Array.from(productSalesMap.values())
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 10)
+        .map(product => ({
+          ...product,
+          salesPercentage: ((product.quantity / orders.length) * 100).toFixed(1)
+        }));
+
+      const topCategories = Array.from(categorySalesMap.values())
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 10)
+        .map(category => ({
+          ...category,
+          salesPercentage: ((category.quantity / orders.length) * 100).toFixed(1)
+        }));
+
+      // Calculate totals
+      const totalOrders = orders.length;
+      const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+      const totalProducts = await Product.countDocuments({ isBlocked: false });
+      const totalCustomers = await User.countDocuments({ isBlocked: false });
+
+      console.log('Chart Data:', { labels, salesData }); // Debug log
 
       res.json({
         success: true,
         data: {
-          totalOrders,
-          totalRevenue,
-          productsSold,
-          averageOrderValue,
-          orders: formattedOrders,
-          pagination: {
-            currentPage: page,
-            totalPages,
-            hasNextPage,
-            hasPrevPage,
-            totalCount,
-          },
-        },
+          labels,
+          salesData,
+          topProducts,
+          topCategories,
+          stats: {
+            totalOrders,
+            totalRevenue,
+            totalProducts,
+            totalCustomers
+          }
+        }
       });
     } catch (error) {
-      console.error("Error in getDashboardData:", error);
+      console.error('Error in getDashboardData:', error);
       res.status(500).json({
         success: false,
-        message: "Error fetching dashboard data",
-        error: error.message,
+        message: 'Error fetching dashboard data',
+        error: error.message
       });
     }
   },

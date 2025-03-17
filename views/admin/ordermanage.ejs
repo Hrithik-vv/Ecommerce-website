@@ -350,6 +350,57 @@
         .d-inline {
             display: inline;
         }
+
+        /* Pagination Styles */
+        .pagination-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .page-item {
+            list-style: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-link {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            color: #4a5568;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(to right, #4299e1, #667eea);
+            color: white;
+            border-color: transparent;
+        }
+
+        .page-item.disabled .page-link {
+            color: #a0aec0;
+            pointer-events: none;
+            background-color: #f7fafc;
+        }
+
+        .page-link:hover:not(.disabled) {
+            background-color: #edf2f7;
+            color: #2d3748;
+        }
     </style>
 
     <section class="content-main">
@@ -441,48 +492,32 @@
         </div>
 
         <!-- Pagination -->
-        <% if (pagination && pagination.totalPages> 0) { %>
-            <div class="pagination-wrapper">
-                <div class="pagination-controls">
-                    <button class="btn btn-sm btn-outline-secondary"
-                        onclick="window.location.href='/admin/ordermanage?page=1'" <%=pagination.currentPage===1
-                        ? 'disabled' : '' %>>
-                        <i class="fas fa-angle-double-left"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary"
-                        onclick="window.location.href='/admin/ordermanage?page=<%= pagination.previousPage %>'"
-                        <%=!pagination.hasPreviousPage ? 'disabled' : '' %>>
-                        <i class="fas fa-angle-left"></i>
-                    </button>
+        <% if (pagination && pagination.totalPages > 0) { %>
+            <div class="pagination-container">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous Button -->
+                        <li class="page-item <%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= pagination.currentPage - 1 %>">Previous</a>
+                        </li>
 
-                    <% const maxVisiblePages=5; let startPage=Math.max(1, pagination.currentPage -
-                        Math.floor(maxVisiblePages / 2)); let endPage=Math.min(pagination.totalPages, startPage +
-                        maxVisiblePages - 1); if (endPage - startPage + 1 < maxVisiblePages) { startPage=Math.max(1,
-                        endPage - maxVisiblePages + 1); } if (startPage> 1) { %>
-                        <span class="btn btn-sm btn-outline-secondary disabled">...</span>
-                        <% } for (let i=startPage; i <=endPage; i++) { %>
-                            <button
-                                class="btn btn-sm <%= pagination.currentPage === i ? 'btn-primary' : 'btn-outline-secondary' %>"
-                                onclick="window.location.href='/admin/ordermanage?page=<%= i %>'">
-                                <%= i %>
-                            </button>
-                            <% } if (endPage < pagination.totalPages) { %>
-                                <span class="btn btn-sm btn-outline-secondary disabled">...</span>
-                                <% } %>
+                        <!-- Page Numbers -->
+                        <% for(let i=1; i <= pagination.totalPages; i++) { %>
+                            <li class="page-item <%= pagination.currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
 
-                                    <button class="btn btn-sm btn-outline-secondary"
-                                        onclick="window.location.href='/admin/ordermanage?page=<%= pagination.nextPage %>'"
-                                        <%=!pagination.hasNextPage ? 'disabled' : '' %>>
-                                        <i class="fas fa-angle-right"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-secondary"
-                                        onclick="window.location.href='/admin/ordermanage?page=<%= pagination.totalPages %>'"
-                                        <%=pagination.currentPage===pagination.totalPages ? 'disabled' : '' %>>
-                                        <i class="fas fa-angle-double-right"></i>
-                                    </button>
-                </div>
+                        <!-- Next Button -->
+                        <li class="page-item <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= pagination.currentPage + 1 %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-            <% } %>
+        <% } %>
     </section>
 
     <%- include("../partials/admin/adminFooter") %>
