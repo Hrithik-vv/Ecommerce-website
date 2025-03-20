@@ -213,13 +213,65 @@
       border-radius: 12px;
       padding: 15px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
     }
 
-    .product-card img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 5px;
+    .product__item {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .product__item__pic {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .product__item__text {
+      padding: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .product__item__text h6 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .product-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      transition: color 0.3s ease;
+    }
+
+    .product-price {
+      font-size: 14px;
+      color: #46698f;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .rating {
+      display: flex;
+      gap: 2px;
+      color: #ffc107;
     }
 
     .wishlist-btn {
@@ -270,24 +322,56 @@
       margin-top: 10px;
     }
 
-    .pagination {
+    .pagination-container {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin: 20px 0;
+      align-items: center;
+      gap: 15px;
+      margin: 30px 0;
+      padding: 10px;
     }
 
-    .pagination a {
-      padding: 8px 12px;
-      background-color: #f0f0f0;
-      border: 1px solid #ddd;
+    .pagination-container button {
+      padding: 8px 16px;
+      border: 2px solid #46698f;
+      background-color: white;
+      color: #46698f;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .pagination-container button:not(:disabled):hover {
+      background-color: #46698f;
+      color: white;
+    }
+
+    .pagination-container button:disabled {
+      border-color: #ccc;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    #page-info {
+      font-size: 16px;
       color: #333;
-      text-decoration: none;
+      font-weight: 500;
     }
 
-    .pagination .active {
-      background-color: #007bff;
-      color: #fff;
+    @media (max-width: 480px) {
+      .pagination-container {
+        gap: 10px;
+      }
+
+      .pagination-container button {
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+
+      #page-info {
+        font-size: 14px;
+      }
     }
 
     .price-filter {
@@ -339,59 +423,10 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
     }
 
-    .product__item__pic {
-      height: 200px;
-      background-size: cover;
-      background-position: center;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-
-    .product__item__text {
-      padding: 10px 0 40px;
-      position: relative;
-    }
-
     .name-heart-container {
       display: block;
     }
 
-    .product__item__text h6 {
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      width: 100%;
-    }
-
-    .simple-cart-form {
-      display: inline-block;
-    }
-
-    .product-name {
-      font-size: 15px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 8px;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      transition: color 0.3s ease;
-    }
-
-    .product-card:hover .product-name {
-      color: #000000;  /* Change to red on hover */
-    }
-
-    /* Update the product link style */
-    .product-name p {
-      color: inherit;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    /* Ensure text remains visible during hover */
     .product__item__text h6 p {
       color: #333;
       transition: color 0.3s ease;
@@ -529,9 +564,12 @@
 
   <script>
     let currentPage = 1;
-    const itemsPerPage = 12; // Adjust as needed
+    const itemsPerPage = 2; // Changed from 8 to 5 to match backend
 
     async function updateProducts(page = 1) {
+      // Validate page number
+      if (page < 1) return;
+      
       // Get all filter values
       const searchQuery = document.getElementById('search-input')?.value?.trim() || '';
       const sortValue = document.getElementById('sort-select')?.value || '';
@@ -565,7 +603,6 @@
         });
 
         const data = await response.json();
-        console.log(data);
         
         if (response.ok) {
           // Update product grid
@@ -574,15 +611,29 @@
           initializeProductImages();
           
           // Update pagination
+          currentPage = data.currentPage; // Update current page from response
           updatePagination(data.currentPage, data.totalPages);
           
           // Update URL without refreshing page
           window.history.pushState({}, '', `/shop?${queryString}`);
+
+          // Scroll to top of product grid smoothly
+          productGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
           console.error('Error fetching products:', data);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Failed to fetch products. Please try again.',
+          });
         }
       } catch (error) {
         console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong! Please try again.',
+        });
       }
     }
 
@@ -629,8 +680,16 @@
     function updatePagination(currentPage, totalPages) {
       document.getElementById('current-page').textContent = currentPage;
       document.getElementById('total-pages').textContent = totalPages;
-      document.getElementById('prev-page').disabled = currentPage <= 1;
-      document.getElementById('next-page').disabled = currentPage >= totalPages;
+      
+      const prevButton = document.getElementById('prev-page');
+      const nextButton = document.getElementById('next-page');
+      
+      prevButton.disabled = currentPage <= 1;
+      nextButton.disabled = currentPage >= totalPages;
+      
+      // Update button styles
+      prevButton.style.opacity = prevButton.disabled ? '0.5' : '1';
+      nextButton.style.opacity = nextButton.disabled ? '0.5' : '1';
     }
 
     // Event handlers
@@ -654,8 +713,13 @@
     }
 
     function changePage(direction) {
-      currentPage += direction;
-      updateProducts(currentPage);
+      const newPage = currentPage + direction;
+      const totalPages = parseInt(document.getElementById('total-pages').textContent);
+      
+      // Validate new page number
+      if (newPage < 1 || newPage > totalPages) return;
+      
+      updateProducts(newPage);
     }
 
     // Add debounce for search

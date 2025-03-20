@@ -429,7 +429,7 @@ const cancelOrder = async (req, res) => {
             amount: refundAmount,
             type: "credit",
             date: new Date(),
-            description: `Refund for cancelled product in order ${orderObjectId}`
+            description: `Refund for cancelled product in order ${order.orderId}`
           }]
         });
       } else {
@@ -438,7 +438,7 @@ const cancelOrder = async (req, res) => {
           amount: refundAmount,
           type: "credit",
           date: new Date(),
-          description: `Refund for cancelled product in order ${orderObjectId}`
+          description: `Refund for cancelled product in order ${order.orderId}`
         });
       }
 

@@ -60,6 +60,7 @@ router.post(
 
 router.get("/ordermanage", orderConroller.adminOrderView);
 router.post("/update-order-status", updateOrderStatus);
+router.get("/order/:orderId", adminAuth, orderConroller.viewSingleOrder);
 
 //Coupon Management
 router.get("/coupon", adminAuth, couponController.loadCoupon);

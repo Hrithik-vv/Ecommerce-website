@@ -113,7 +113,7 @@ const handleReturn = async (req, res) => {
         wallet.transactions.push({
           amount: refundAmount,
           type: "credit",
-          description: `Refund for returned product from order ${order._id}`,
+          description: `Refund for returned product from order ${order.orderId}`,
           date: new Date()
         });
 

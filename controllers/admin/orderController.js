@@ -1,6 +1,7 @@
 const Order = require("../../models/orderSchema");
 const path = require("path");
 const Product = require("../../models/productSchema");
+const Address = require("../../models/addressSchema");
 
 const adminOrderView = async (req, res) => {
   try {
@@ -97,4 +98,69 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-module.exports = { adminOrderView, updateOrderStatus };
+const viewSingleOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    
+    // Fetch the order with populated fields
+    const order = await Order.findById(orderId)
+      .populate({
+        path: "products.productId",
+        select: "productName image1 status price"
+      })
+      .populate({
+        path: "userId",
+        select: "name email"
+      });
+
+    if (!order) {
+      return res.status(404).render("admin/admin-error", {
+        message: "Order not found"
+      });
+    }
+
+    // Get the shipping address using the same method as user side
+    const addressDoc = await Address.findOne(
+      {
+        userId: order.userId,
+        "address._id": order.shippingAddress
+      },
+      { "address.$": 1 }
+    );
+
+    // Get the first product details including quantity from order
+    const orderProduct = order.products[0] || null;
+    const product = orderProduct?.productId || null;
+    
+    // Format the address properly
+    const address = addressDoc?.address?.[0] || {
+      name: 'N/A',
+      landMark: '',
+      city: '',
+      state: '',
+      pincode: '',
+      phone: 'N/A',
+      altPhone: 'N/A'
+    };
+
+    // Log the data being sent to the view
+    console.log('Order:', order);
+    console.log('Product with quantity:', orderProduct);
+    console.log('Address:', address);
+
+    res.render("orederview", {
+      order,
+      product,
+      orderProduct, // Pass the full order product info including quantity
+      address
+    });
+
+  } catch (error) {
+    console.error("Error fetching order details:", error);
+    res.status(500).render("admin/admin-error", {
+      message: "Error fetching order details"
+    });
+  }
+};
+
+module.exports = { adminOrderView, updateOrderStatus, viewSingleOrder };

@@ -331,15 +331,44 @@ const checkoutController = async (req, res) => {
     }
 
     // GET request - show checkout page
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "items.productId",
+      select: "productName price image1 image2 image3 image4 variants status offer category"
+    }).populate({
+      path: "items.productId.category",
+      select: "categoryOffer"
+    });
     const addresses = await Address.findOne({ userId });
     const userData = await User.findById(userId);
 
-    // Calculate total amount from cart items
+    // Calculate total amount from cart items and add variant details
     let subtotal = 0;
+    let cartItemsWithVariants = [];
+    
     if (cart && cart.items) {
-      subtotal = cart.items.reduce((total, item) => {
-        return total + item.totalPrice;
+      cartItemsWithVariants = await Promise.all(cart.items.map(async (item) => {
+        const variant = item.productId.variants.find(v => v._id.toString() === item.variantId);
+        const originalPrice = variant ? variant.price : item.productPrice;
+        const maxOffer = Math.max(
+          item.productId.offer || 0,
+          item.productId.category?.categoryOffer || 0
+        );
+        const discountedPrice = originalPrice * (1 - maxOffer / 100);
+        
+        return {
+          ...item.toObject(),
+          color: variant ? variant.color : '',
+          size: variant ? variant.size : '',
+          originalPrice: originalPrice,
+          offerPercentage: maxOffer,
+          discountedPrice: discountedPrice,
+          totalOriginalPrice: originalPrice * item.quantity,
+          totalDiscountedPrice: discountedPrice * item.quantity
+        };
+      }));
+      
+      subtotal = cartItemsWithVariants.reduce((total, item) => {
+        return total + item.totalDiscountedPrice;
       }, 0);
     }
 
@@ -354,7 +383,7 @@ const checkoutController = async (req, res) => {
     res.render("checkout", {
       user: userData,
       addresses: addresses ? addresses.address : [],
-      cartItems: cart ? cart.items : [],
+      cartItems: cartItemsWithVariants,
       selectedAddress: req.session.selectedAddress,
       coupons: coupons,
       totalAmount: subtotal + 40,

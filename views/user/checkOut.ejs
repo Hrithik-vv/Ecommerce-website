@@ -138,67 +138,192 @@
     .checkout__order {
         background: white;
         border-radius: var(--border-radius);
-        padding: clamp(15px, 3vw, 30px);
-        margin-top: clamp(15px, 3vw, 30px);
+        padding: 30px;
+        margin-top: 20px;
         box-shadow: var(--box-shadow);
+        position: sticky;
+        top: 20px;
     }
 
     .order__title {
         color: var(--primary-color);
-        font-size: clamp(1.2rem, 3vw, 1.8rem);
+        font-size: 1.5rem;
         margin-bottom: 25px;
         padding-bottom: 15px;
         border-bottom: 2px solid var(--secondary-color);
+        font-weight: 600;
     }
 
-    /* Product List Redesign */
+    .checkout__order__products {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        padding: 0 0 15px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 15px;
+    }
+
+    .checkout_total_products {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
     .checkout_total_products li {
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
         justify-content: space-between;
-        padding: 10px 0;
+        align-items: flex-start;
+        padding: 15px 0;
         border-bottom: 1px solid #eee;
+        gap: 15px;
+    }
+
+    .checkout_total_products li:last-child {
+        border-bottom: 2px solid #eee;
     }
 
     .product-details {
         flex: 1;
-        min-width: 200px;
+        min-width: 0;
         display: flex;
-        gap: 8px;
+        gap: 10px;
+    }
+
+    .product-number {
+        color: #888;
+        min-width: 25px;
+    }
+
+    .product-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .product-name {
+        font-weight: 500;
+        margin-bottom: 5px;
     }
 
     .variant-details {
-        font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+        font-size: 0.85rem;
+        color: #666;
+        margin: 5px 0;
     }
 
-    /* Payment Options Redesign */
+    .price-details {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 5px;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .discounted-price {
+        font-weight: 600;
+        color: #000;
+    }
+
+    .offer-badge {
+        background: #28a745;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+    }
+
+    .product-price {
+        text-align: right;
+        min-width: 100px;
+    }
+
+    .quantity {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .total-price-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .original-total {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    .discounted-total {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .checkout__total__all {
+        list-style: none;
+        padding: 20px 0 0;
+        margin: 0;
+    }
+
+    .checkout__total__all li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        color: #666;
+    }
+
+    .checkout__total__all li:last-child {
+        font-size: 1.2rem;
+        color: #000;
+        font-weight: 600;
+        border-top: 2px solid #eee;
+        margin-top: 10px;
+        padding-top: 15px;
+    }
+
     .payment-options {
-        margin: 20px 0;
+        margin: 25px 0;
     }
 
     .payment-options label {
         display: block;
-        padding: clamp(10px, 2vw, 15px);
+        padding: 15px;
         margin: 10px 0;
+        border: 1px solid #eee;
         border-radius: var(--border-radius);
-        background: #f8f9fa;
+        cursor: pointer;
         transition: all 0.3s ease;
     }
 
     .payment-options label:hover {
-        background: #f0f0f0;
+        background: var(--background-color);
     }
 
-    /* Button Redesign */
+    .payment-options input[type="radio"] {
+        margin-right: 10px;
+    }
+
     .site-btn {
         width: 100%;
-        padding: clamp(10px, 2vw, 15px);
-        font-size: clamp(0.9rem, 2vw, 1rem);
+        padding: 15px;
         background: var(--primary-color);
         color: white;
         border: none;
         border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
         transition: all 0.3s ease;
     }
 
@@ -220,7 +345,8 @@
         }
         
         .checkout__order {
-            margin: 15px;
+            position: static;
+            margin: 20px 0;
         }
         
         .product-details {
@@ -250,8 +376,8 @@
             gap: 5px;
         }
         
-        .checkout__total__all li {
-            font-size: 0.9rem;
+        .checkout__total__all li:last-child {
+            font-size: 1.1rem;
         }
     }
 
@@ -316,6 +442,52 @@
         color: #dc3545;
         font-size: 0.875rem;
         margin-top: 0.25rem;
+    }
+
+    .price-details {
+        margin-top: 5px;
+        font-size: 0.9em;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        margin-right: 8px;
+    }
+
+    .discounted-price {
+        color: #000;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+
+    .offer-badge {
+        background-color: #28a745;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.8em;
+    }
+
+    .total-price-details {
+        margin-top: 5px;
+        font-size: 0.9em;
+    }
+
+    .original-total {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 0.9em;
+    }
+
+    .discounted-total {
+        color: #000;
+        font-weight: 600;
+        font-size: 1.1em;
+    }
+
+    .checkout__total__all {
+        border-top: 1px solid #d7d7d7;
     }
 </style>
 <head>
@@ -707,52 +879,71 @@
                                             data-variant-id="<%= item.variantId %>"
                                             data-quantity="<%= item.quantity %>">
                                             <div class="product-details">
-
                                                 <span class="product-number">
                                                     <%= index + 1 %>.
                                                 </span>
                                                 <div>
                                                     <%= item.productId.productName %>
-
                                                         <div class="variant-details">
-                                                            <input type="text" name="color" value="<%= item.color %>"
-                                                                hidden>
-                                                            <input type="text" name="size" value="<%= item.size %>"
-                                                                hidden>
+                                                            <input type="text" name="color" value="<%= item.color %>" hidden>
+                                                            <input type="text" name="size" value="<%= item.size %>" hidden>
                                                             Color: <%= item.color %> | Size: <%= item.size %>
                                                         </div>
-
+                                                        <div class="price-details">
+                                                            <% if (item.offerPercentage > 0) { %>
+                                                                <span class="original-price">₹<%= item.originalPrice.toFixed(2) %></span>
+                                                                <span class="discounted-price">₹<%= item.discountedPrice.toFixed(2) %></span>
+                                                                <span class="offer-badge"><%= item.offerPercentage %>% OFF</span>
+                                                            <% } else { %>
+                                                                <span class="price">₹<%= item.originalPrice.toFixed(2) %></span>
+                                                            <% } %>
+                                                        </div>
                                                 </div>
                                             </div>
                                             <div class="product-price">
                                                 <span class="quantity">Qty: <%= item.quantity %></span>
-                                                ₹<%= item.totalPrice.toFixed(2) %>
+                                                <% if (item.offerPercentage > 0) { %>
+                                                    <div class="total-price-details">
+                                                      
+                                                        <span class="discounted-total">₹<%= item.totalDiscountedPrice.toFixed(2) %></span>
+                                                    </div>
+                                                <% } else { %>
+                                                    ₹<%= item.totalOriginalPrice.toFixed(2) %>
+                                                <% } %>
                                             </div>
                                         </li>
                                         <% }) %>
                                 </ul>
                                 <ul class="checkout__total__all">
-                                    <li>Subtotal <span>₹<%= total.toFixed(2) %></span></li>
+                                    <% 
+                                    let totalOriginalPrice = cartItems.reduce((sum, item) => sum + item.totalOriginalPrice, 0);
+                                    let totalDiscountedPrice = cartItems.reduce((sum, item) => sum + item.totalDiscountedPrice, 0);
+                                    let totalSavings = totalOriginalPrice - totalDiscountedPrice;
+                                    %>
+                                    <li>Original Subtotal <span style="color: #999; text-decoration: line-through;">₹<%= totalOriginalPrice.toFixed(2) %></span></li>
+                                    <% if (totalSavings > 0) { %>
+                                        <li style="color: #28a745;">Product Discount <span style="color: #28a745; font-weight: 600;">-₹<%= totalSavings.toFixed(2) %></span></li>
+                                    <% } %>
+                                    <li>Subtotal <span>₹<%= totalDiscountedPrice.toFixed(2) %></span></li>
                                     <li>Delivery Charge <span>₹40.00</span></li>
                                     <li class="coupon-discount" style="display: none;">
-                                        Discount <span id="discountAmount">₹0.00</span>
+                                        Coupon Discount <span id="discountAmount">₹0.00</span>
                                     </li>
-                                    <li>Total <span id="totalAmount">₹<%= (total + 40).toFixed(2) %></span>
-                                    </li>
+                                    <li style="font-weight: 700;">Total <span id="totalAmount" style="font-size: 18px;">₹<%= (totalDiscountedPrice + 40).toFixed(2) %></span></li>
                                 </ul>
                                 <input type="hidden" name="couponCode" id="couponCodeInput">
                                 <div class="payment-options">
-                                    <label id="codLabel" class="<%= (total + 40) > 1000 ? 'disabled-payment-option' : '' %>">
+                                    <label id="codLabel" class="<%= (totalDiscountedPrice + 40) > 1000 ? 'disabled-payment-option' : '' %>">
                                         <input type="radio" name="payment" value="cod" required 
-                                               <%= (total + 40) > 1000 ? 'disabled' : '' %>>
+                                               <%= (totalDiscountedPrice + 40) > 1000 ? 'disabled' : '' %>>
                                         Cash on Delivery
-                                        <% if ((total + 40) > 1000) { %>
+                                        <% if ((totalDiscountedPrice + 40) > 1000) { %>
                                             <small class="text-danger d-block">Not available for orders above ₹1,000</small>
                                         <% } %>
                                     </label>
                                     <label>
                                         <input type="radio" name="payment" value="razorpay" required 
-                                               <%= (total + 40) > 1000 ? 'checked' : '' %>>
+                                               <%= (totalDiscountedPrice + 40) > 1000 ? 'checked' : '' %>>
                                         Razorpay
                                     </label>
                                 </div>
@@ -784,7 +975,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const addressOptions = document.querySelectorAll('.address-option');
-            const orderTotal = parseFloat('<%= total %>') + 40; // Add delivery charge to total
+            const orderTotal = parseFloat('<%= totalDiscountedPrice %>') + 40; // Add delivery charge to total
 
             // Check if order total is above 1000 and handle payment options
             if (orderTotal > 1000) {
