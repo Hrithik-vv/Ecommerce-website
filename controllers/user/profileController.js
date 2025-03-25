@@ -8,8 +8,8 @@ const session = require("express-session");
 const { options } = require("../../routes/userRouter");
 const address = require("../../models/addressSchema");
 
-const Wallet = require("../../models/walletSchema");
-const Order = require("../../models/orderSchema");
+const Wallet = require("../../models/walletschema")
+  const Order = require("../../models/orderSchema");
 
 // otp global  fuction
 function generateOtp() {
