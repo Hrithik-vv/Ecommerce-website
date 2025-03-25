@@ -1,5 +1,5 @@
 const Order = require("../../models/orderSchema");
-const Wallet = require("../../models/walletSchema");
+const Wallet = require("../../models/walletschema");
 const Product = require("../../models/productSchema");
 
 const returnManagement = async (req, res) => {
