@@ -1,9 +1,9 @@
-const User = require("../../models/userSchema"); //MONGO USER SCHEMA
+const User = require("../../models/userSchema"); 
 const Address = require("../../models/addressSchema");
-const env = require("dotenv").config(); //variable configuration
-const nodemailer = require("nodemailer"); // sending email
-const bcrypt = require("bcrypt"); //hashing
-const aswinfn = require("../../utils/nodemailer"); //utilite  function for email sending
+const env = require("dotenv").config(); 
+const nodemailer = require("nodemailer"); 
+const bcrypt = require("bcrypt");
+const aswinfn = require("../../utils/nodemailer"); 
 const session = require("express-session");
 const { options } = require("../../routes/userRouter");
 const address = require("../../models/addressSchema");

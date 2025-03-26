@@ -30,7 +30,7 @@ const getProducts = async (req, res) => {
   console.log(req.query);
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
+    const limit = 4;
     const skip = (page - 1) * limit;
 
     // Base query

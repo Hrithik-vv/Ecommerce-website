@@ -1,4 +1,3 @@
-// const { options } = require("../../app");
 const User = require("../../models/userSchema");
 const product = require("../../models/productSchema");
 const env = require("dotenv").config(); 

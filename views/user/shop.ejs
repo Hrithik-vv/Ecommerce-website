@@ -567,7 +567,7 @@
     const itemsPerPage = 4;
 
     async function updateProducts(page = 1) {
-      // Validate page number
+     
       if (page < 1) return;
       
       // Get all filter values
@@ -694,12 +694,12 @@
 
     // Event handlers
     function handleSearch() {
-      currentPage = 1; // Reset to first page when searching
+      currentPage = 1; 
       updateProducts(currentPage);
     }
 
     async function handleSort(value) {
-      currentPage = 1; // Reset to first page when sorting
+      currentPage = 1; 
       await updateProducts(currentPage);
     }
 
