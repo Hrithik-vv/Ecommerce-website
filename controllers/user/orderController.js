@@ -249,7 +249,18 @@ const processPayment = async (req, res) => {
       totalAmount,
     } = req.body;
 
-    const userId = req.user._id;
+    // Get userId from either req.user or req.session.user
+    let userId;
+    if (req.user && req.user._id) {
+      userId = req.user._id;
+    } else if (req.session && req.session.user) {
+      userId = req.session.user;
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
 
     // Verify signature
     const generatedSignature = crypto
@@ -278,8 +289,6 @@ const processPayment = async (req, res) => {
 
     // Create order in database with valid enum values
     const newOrder = new Order({
-
-      
       couponId: couponCode,
       userId: userId,
       products: cart.items.map((item) => ({

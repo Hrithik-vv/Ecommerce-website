@@ -37,6 +37,8 @@ const userAuth = (req, res, next) => {
               res.redirect("/login"); // Redirect to login
             });
           } else {
+            // Set req.user for consistent access in controllers
+            req.user = user;
             next(); // Proceed to the next middleware or route
           }
         } else {
