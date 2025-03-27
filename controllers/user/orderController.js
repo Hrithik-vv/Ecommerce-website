@@ -34,8 +34,7 @@ const orderView = async (req, res) => {
         path: "shippingAddress",
         select: "name city state pincode phone altPhone",
       });
-    res.send(order);
-    return;
+    
     if (!order) {
       return res.status(404).send("Order not found.");
     }
@@ -51,6 +50,23 @@ const orderView = async (req, res) => {
       },
       { "address.$": 1 }
     );
+
+    // Ensure we have default values for checkout summary fields if they don't exist
+    if (!order.originalSubtotal) {
+      order.originalSubtotal = order.totalAmount;
+    }
+    
+    if (!order.subtotal) {
+      order.subtotal = order.totalAmount - (order.deliveryCharge || 40);
+    }
+    
+    if (!order.productDiscount) {
+      order.productDiscount = 0;
+    }
+    
+    if (!order.deliveryCharge) {
+      order.deliveryCharge = 40;
+    }
 
     res.render("orderview", { order, address: a.address[0] });
   } catch (error) {
@@ -247,6 +263,10 @@ const processPayment = async (req, res) => {
       couponCode,
       products,
       totalAmount,
+      originalSubtotal,
+      productDiscount,
+      subtotal,
+      deliveryCharge
     } = req.body;
 
     // Get userId from either req.user or req.session.user
@@ -300,13 +320,17 @@ const processPayment = async (req, res) => {
         color: item.color,
         size: item.size,
       })),
+      // Include checkout summary
+      originalSubtotal: originalSubtotal || cart.items.reduce((sum, item) => sum + (item.originalPrice * item.quantity), 0),
+      productDiscount: productDiscount || 0,
+      subtotal: subtotal || cart.items.reduce((sum, item) => sum + item.totalPrice, 0),
+      deliveryCharge: deliveryCharge || 40,
       totalAmount: totalAmount,
       shippingAddress: selectedAddressId,
       paymentMethod: "Razorpay",
-      paymentId: razorpay_payment_id,
-      orderId: razorpay_order_id,
-      status: "Pending",
       paymentStatus: "completed",
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
     });
 
     await newOrder.save();
@@ -569,7 +593,21 @@ const paymentFailed = async (req, res) => {
     }
 
     // Calculate total amount from cart items
-    const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const subtotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    
+    // Calculate original subtotal and product discount
+    const originalSubtotal = cart.items.reduce(
+      (sum, item) => {
+        const variant = item.productId.variants.find(v => v._id.toString() === item.variantId);
+        const originalPrice = variant ? variant.price : item.productPrice;
+        return sum + (originalPrice * item.quantity);
+      },
+      0
+    );
+    
+    const productDiscount = originalSubtotal - subtotal;
+    const deliveryCharge = 40;
+    const totalAmount = subtotal + deliveryCharge;
 
     // Create failed order document
     const failedOrder = new Order({
@@ -583,7 +621,11 @@ const paymentFailed = async (req, res) => {
         color: item.color,
         size: item.size
       })),
-      totalAmount: totalAmount, // Set the calculated total amount
+      originalSubtotal: originalSubtotal,
+      productDiscount: productDiscount,
+      subtotal: subtotal,
+      deliveryCharge: deliveryCharge,
+      totalAmount: totalAmount,
       shippingAddress: req.body.selectedAddressId,
       paymentMethod: "Razorpay",
       status: "Failed",

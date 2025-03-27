@@ -52,6 +52,11 @@ const orderSchema = new Schema({
             type: Date
         }
     }],
+    // Checkout summary fields
+    originalSubtotal: { type: Number, required: true },
+    productDiscount: { type: Number, required: true, default: 0 },
+    subtotal: { type: Number, required: true },
+    deliveryCharge: { type: Number, required: true, default: 40 },
     totalAmount: { type: Number, required: true },
     shippingAddress: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
     paymentMethod: { type: String, required: true },

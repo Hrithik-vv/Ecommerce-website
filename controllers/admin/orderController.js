@@ -143,6 +143,23 @@ const viewSingleOrder = async (req, res) => {
       altPhone: 'N/A'
     };
 
+    // Ensure we have default values for checkout summary fields if they don't exist
+    if (!order.originalSubtotal) {
+      order.originalSubtotal = order.totalAmount;
+    }
+    
+    if (!order.subtotal) {
+      order.subtotal = order.totalAmount - (order.deliveryCharge || 40);
+    }
+    
+    if (!order.productDiscount) {
+      order.productDiscount = 0;
+    }
+    
+    if (!order.deliveryCharge) {
+      order.deliveryCharge = 40;
+    }
+
     // Log the data being sent to the view
     console.log('Order:', order);
     console.log('Product with quantity:', orderProduct);

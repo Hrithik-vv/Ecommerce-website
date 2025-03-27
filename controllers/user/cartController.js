@@ -262,6 +262,18 @@ const checkoutController = async (req, res) => {
         0
       );
 
+      // Calculate original subtotal and product discount
+      const originalSubtotal = cart.items.reduce(
+        (sum, item) => {
+          const variant = item.productId.variants.find(v => v._id.toString() === item.variantId);
+          const originalPrice = variant ? variant.price : item.productPrice;
+          return sum + (originalPrice * item.quantity);
+        },
+        0
+      );
+      
+      const productDiscount = originalSubtotal - subtotal;
+
       // Add delivery charge
       const totalAmount = subtotal + 40;
 
@@ -272,6 +284,10 @@ const checkoutController = async (req, res) => {
           addressId: selectedAddressId,
           couponCode,
           cartItems: cart.items,
+          originalSubtotal,
+          productDiscount,
+          subtotal,
+          deliveryCharge: 40
         });
       }
 
@@ -294,8 +310,11 @@ const checkoutController = async (req, res) => {
           color: item.color,
           size: item.size,
         })),
-        totalAmount: totalAmount, // This now includes delivery charge
+        originalSubtotal: originalSubtotal,
+        productDiscount: productDiscount,
+        subtotal: subtotal,
         deliveryCharge: 40,
+        totalAmount: totalAmount,
         shippingAddress: selectedAddressId,
         paymentMethod: "COD",
         status: "Pending",

@@ -93,9 +93,35 @@
                 <!-- Price Information -->
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <h3 class="text-lg font-medium text-blue-800 mb-2">Price Information</h3>
-                    <p class="text-gray-700 font-medium">
-                        Price: ₹<%= (order.totalAmount) %>
-                    </p>
+                    
+                    <div class="checkout-summary">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-700">Original Subtotal</span>
+                            <span class="text-gray-700">₹<%= order.originalSubtotal ? order.originalSubtotal.toFixed(2) : (order.totalAmount).toFixed(2) %></span>
+                        </div>
+                        
+                        <% if (order.productDiscount && order.productDiscount > 0) { %>
+                        <div class="flex justify-between mb-2 text-green-600">
+                            <span>Product Discount</span>
+                            <span>-₹<%= order.productDiscount.toFixed(2) %></span>
+                        </div>
+                        <% } %>
+                        
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-700">Subtotal</span>
+                            <span class="text-gray-700">₹<%= order.subtotal ? order.subtotal.toFixed(2) : (order.totalAmount - 40).toFixed(2) %></span>
+                        </div>
+                        
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-700">Delivery Charge</span>
+                            <span class="text-gray-700">₹<%= order.deliveryCharge ? order.deliveryCharge.toFixed(2) : '40.00' %></span>
+                        </div>
+                        
+                        <div class="flex justify-between pt-2 border-t border-gray-300">
+                            <span class="font-bold text-gray-800">Total</span>
+                            <span class="font-bold text-gray-800">₹<%= order.totalAmount.toFixed(2) %></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Add Customer Address Section -->
@@ -372,18 +398,50 @@
                 doc.setLineWidth(0.5);
                 doc.line(20, finalY + 10, 190, finalY + 10);
 
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'bold');
-                doc.text('Total Amount:', 140, finalY + 20);
-                doc.text(`Rs. <%= order.totalAmount %>`, 190, finalY + 20, { align: 'right' });
+                // Add order summary
+                let yPosition = finalY + 20;
+                const summaryData = [
+                    { label: 'Original Subtotal:', value: 'Rs. <%= (order.originalSubtotal || order.totalAmount).toFixed(2) %>' },
+                    { label: 'Product Discount:', value: 'Rs. <%= (order.productDiscount || 0).toFixed(2) %>', color: [40, 167, 69], prefix: '-' },
+                    { label: 'Subtotal:', value: 'Rs. <%= (order.subtotal || (order.totalAmount - 40)).toFixed(2) %>' },
+                    { label: 'Delivery Charge:', value: 'Rs. <%= (order.deliveryCharge || 40).toFixed(2) %>' },
+                    { label: 'Total Amount:', value: 'Rs. <%= order.totalAmount.toFixed(2) %>', bold: true }
+                ];
+
+                // Filter out zero discount
+                const finalSummary = order.productDiscount > 0 ? 
+                    summaryData : 
+                    summaryData.filter(item => item.label !== 'Product Discount:');
+
+                finalSummary.forEach((item, i) => {
+                    if (item.color) {
+                        doc.setTextColor(item.color[0], item.color[1], item.color[2]);
+                    } else {
+                        doc.setTextColor(0, 0, 0);
+                    }
+
+                    if (item.bold) {
+                        doc.setFont(undefined, 'bold');
+                    } else {
+                        doc.setFont(undefined, 'normal');
+                    }
+
+                    doc.setFontSize(12);
+                    doc.text(item.label, 140, yPosition);
+                    
+                    // If prefix is provided, prepend it to the value
+                    const displayValue = (item.prefix || '') + item.value;
+                    doc.text(displayValue, 190, yPosition, { align: 'right' });
+                    
+                    yPosition += 10;
+                });
 
                 // Add footer
                 doc.setFont(undefined, 'normal');
                 doc.setFontSize(10);
                 doc.setTextColor(128, 128, 128);
-                doc.text('Thank you for shopping with Oxyboo!', 105, finalY + 40, { align: 'center' });
+                doc.text('Thank you for shopping with Oxyboo!', 105, yPosition + 20, { align: 'center' });
                 
-
                 // Add timestamp
                 doc.setFontSize(8);
                 doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 280);

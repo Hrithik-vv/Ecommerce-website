@@ -1321,7 +1321,12 @@
                                         selectedAddressId: selectedAddressId,
                                         couponCode: couponCode,
                                         products: products,
-                                        totalAmount: totalAmount
+                                        totalAmount: totalAmount,
+                                        // Add checkout summary details
+                                        originalSubtotal: parseFloat('<%= totalOriginalPrice.toFixed(2) %>'),
+                                        productDiscount: parseFloat('<%= totalSavings.toFixed(2) %>'),
+                                        subtotal: parseFloat('<%= totalDiscountedPrice.toFixed(2) %>'),
+                                        deliveryCharge: 40
                                     })
                                 });
 
