@@ -13,6 +13,8 @@ const {
   loadOrderHistory,
   cancelOrder,
   returnOrder,
+  processWalletPayment,
+  checkWalletBalance,
 } = require("../controllers/user/orderController");
 const auth = require("../middlewares/auth");
 const couponController = require("../controllers/admin/couponController");
@@ -163,6 +165,21 @@ router.get("/order-view", userAuth, cartController.orderView);
 
 // Add this route to your userRouter.js file
 router.post("/process-payment", userAuth, orderController.processPayment);
+
+// Wallet payment route
+router.post("/process-wallet-payment", userAuth, orderController.processWalletPayment);
+
+// Check wallet balance
+router.get("/check-wallet-balance", userAuth, async (req, res) => {
+  try {
+    const userId = req.user ? req.user._id : req.session.user;
+    const balance = await orderController.checkWalletBalance(userId);
+    res.json({ success: true, balance });
+  } catch (error) {
+    console.error("Error checking wallet balance:", error);
+    res.status(500).json({ success: false, message: "Error checking wallet balance" });
+  }
+});
 
 // Return product route
 router.post("/return-product", userAuth, async (req, res) => {

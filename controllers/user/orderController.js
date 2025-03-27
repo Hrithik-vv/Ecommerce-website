@@ -389,10 +389,149 @@ const loadOrderHistory = async (req, res) => {
   }
 };
 
+const checkWalletBalance = async (userId) => {
+  try {
+    // Find wallet or create one if it doesn't exist
+    let wallet = await Wallet.findOne({ userId });
+    
+    if (!wallet) {
+      wallet = new Wallet({
+        userId,
+        balance: 0,
+        transactions: []
+      });
+      await wallet.save();
+    }
+    
+    return wallet.balance;
+  } catch (error) {
+    console.error("Error checking wallet balance:", error);
+    throw error;
+  }
+};
+
+const processWalletPayment = async (req, res) => {
+  try {
+    console.log("Wallet payment request received:", req.body);
+    const {
+      selectedAddressId,
+      couponCode,
+      totalAmount,
+      originalSubtotal,
+      productDiscount,
+      subtotal,
+      deliveryCharge
+    } = req.body;
+
+    // Get userId from either req.user or req.session.user
+    let userId;
+    if (req.user && req.user._id) {
+      userId = req.user._id;
+    } else if (req.session && req.session.user) {
+      userId = req.session.user;
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    // Check wallet balance
+    const walletBalance = await checkWalletBalance(userId);
+    if (walletBalance < totalAmount) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient wallet balance",
+        currentBalance: walletBalance
+      });
+    }
+
+    // Get cart items
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Your cart is empty",
+      });
+    }
+
+    // Create order in database
+    const newOrder = new Order({
+      couponId: couponCode,
+      userId: userId,
+      products: cart.items.map((item) => ({
+        name: item.productId.productName,
+        productId: item.productId._id,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice,
+        color: item.color,
+        size: item.size,
+      })),
+      // Include checkout summary
+      originalSubtotal: originalSubtotal || cart.items.reduce((sum, item) => sum + (item.originalPrice * item.quantity), 0),
+      productDiscount: productDiscount || 0,
+      subtotal: subtotal || cart.items.reduce((sum, item) => sum + item.totalPrice, 0),
+      deliveryCharge: deliveryCharge || 40,
+      totalAmount: totalAmount,
+      shippingAddress: selectedAddressId,
+      paymentMethod: "Wallet",
+      paymentStatus: "completed",
+    });
+
+    await newOrder.save();
+    console.log("Order saved to database:", newOrder);
+
+    // Deduct from wallet
+    const wallet = await Wallet.findOne({ userId });
+    wallet.balance -= totalAmount;
+    wallet.transactions.push({
+      amount: totalAmount,
+      type: "debit",
+      date: new Date(),
+      description: `Payment for order #${newOrder._id}`
+    });
+    await wallet.save();
+
+    // Handle coupon if provided
+    if (couponCode) {
+      await Coupon.findOneAndUpdate(
+        { name: new RegExp("^" + couponCode + "$", "i") },
+        { $addToSet: { usedBy: userId } },
+        { new: true }
+      );
+    }
+
+    // Update product stocks
+    await Promise.all(
+      cart.items.map(async (item) => {
+        await Product.updateOne(
+          { _id: item.productId._id, "variants._id": item.variantId },
+          { $inc: { "variants.$.stock": -item.quantity } }
+        );
+      })
+    );
+
+    // Clear cart
+    await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment successful",
+      orderId: newOrder._id,
+    });
+  } catch (error) {
+    console.error("Error processing wallet payment:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error processing payment",
+      error: error.message,
+    });
+  }
+};
+
 const cancelOrder = async (req, res) => {
   try {
-  
-    
     // Convert string IDs to ObjectId
     const { orderId, productId } = req.body; // Changed from req.params to req.body based on client-side code
     
@@ -441,8 +580,8 @@ const cancelOrder = async (req, res) => {
     // Update only the specific product's status
     productToCancel.status = "Cancelled";
     
-    // If payment was made through Razorpay and completed, process refund to wallet
-    if (order.paymentMethod === "Razorpay" && order.paymentStatus === "completed") {
+    // If payment was made through Razorpay or Wallet and completed, process refund to wallet
+    if ((order.paymentMethod === "Razorpay" || order.paymentMethod === "Wallet") && order.paymentStatus === "completed") {
       const userId = order.userId;
 
       if (typeof refundAmount !== "number") {
@@ -673,5 +812,7 @@ module.exports = {
   createOrder,
   verifyPayment,
   processPayment,
+  processWalletPayment,
+  checkWalletBalance,
   returnProduct,
 };

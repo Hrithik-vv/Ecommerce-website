@@ -5,7 +5,16 @@ const walletSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        unique: true
+    },
+    walletId: {
+        type: String,
+        default: function() {
+            return this.userId ? this.userId.toString() : null;
+        },
+        unique: true,
+        sparse: true
     },
     balance: {
         type: Number,
