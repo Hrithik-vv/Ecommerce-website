@@ -1,6 +1,7 @@
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletschema");
 const Product = require("../../models/productSchema");
+const { generateTransactionId } = require("../../utils/transactionUtils");
 
 const returnManagement = async (req, res) => {
   try {
@@ -111,6 +112,7 @@ const handleReturn = async (req, res) => {
         wallet.balance = currentBalance + refundAmount;
         
         wallet.transactions.push({
+          transactionId: generateTransactionId(),
           amount: refundAmount,
           type: "credit",
           description: `Refund for returned product from order ${order.orderId}`,

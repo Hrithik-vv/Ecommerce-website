@@ -261,55 +261,72 @@ const updateEmail = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    res.render("change-password");
+    // Check if there are any success or error messages in the session
+    const successMessage = req.session.successMessage;
+    const errorMessage = req.session.errorMessage;
+    
+    // Clear the messages from session after retrieving them
+    req.session.successMessage = undefined;
+    req.session.errorMessage = undefined;
+    
+    res.render("user/change-password", { 
+      message: errorMessage,
+      successMessage: successMessage 
+    });
   } catch (error) {
+    console.error("Error loading change password page:", error);
     res.redirect("/pageNotFound");
   }
 };
 
 const changePasswordValid = async (req, res) => {
   try {
-    const { email } = req.body;
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      const otp = generateOtp();
-      const emailSent = await sendVerificationEmail(email, otp);
-      if (emailSent) {
-        req.session.userOtp = otp;
-        req.session.userData = req.body;
-        req.session.email = email;
-        res.render("change-pasword-otp");
-        console.log("OTP:", otp);
-      } else {
-        res.json({
-          success: false,
-          message: "Failed to send OTP. Please try again",
-        });
-      }
-    } else {
-      res.render("change-password");
-      message: "User with this email does not exist";
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.session.user._id;
+    
+    // Validate the passwords
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      req.session.errorMessage = "All fields are required";
+      return res.redirect("/change-password");
     }
-  } catch (error) {
-    console.log("Error in change password validation", error);
-    res.redirect("/pageNotFound");
-  }
-};
-
-const verifyChangePassOtp = async (req, res) => {
-  try {
-    const enteredOtp = req.body.otp;
-    console.log("entered", enteredOtp);
-    if (enteredOtp === req.session.userOtp) {
-      res.json({ success: true, redirectUrl: "/reset-password" });
-    } else {
-      res.json({ success: false, message: "OTP not matching" });
+    
+    if (newPassword !== confirmPassword) {
+      req.session.errorMessage = "New password and confirm password do not match";
+      return res.redirect("/change-password");
     }
+    
+    if (newPassword.length < 6) {
+      req.session.errorMessage = "Password must be at least 6 characters long";
+      return res.redirect("/change-password");
+    }
+    
+    // Get user data
+    const userData = await User.findById(userId);
+    if (!userData) {
+      return res.redirect("/login");
+    }
+    
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, userData.password);
+    if (!isMatch) {
+      req.session.errorMessage = "Current password is incorrect";
+      return res.redirect("/change-password");
+    }
+    
+    // Hash the new password
+    const hashedPassword = await securePassword(newPassword);
+    
+    // Update the password
+    await User.findByIdAndUpdate(userId, { password: hashedPassword });
+    
+    // Set success message in session and redirect
+    req.session.successMessage = "Password changed successfully!";
+    res.redirect("/change-password");
+    
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "An error occured. Pleacse try again leter",
-    });
+    console.error("Error in change password validation:", error);
+    req.session.errorMessage = "An error occurred. Please try again.";
+    res.redirect("/change-password");
   }
 };
 
@@ -498,7 +515,6 @@ module.exports = {
   updateEmail,
   changePassword,
   changePasswordValid,
-  verifyChangePassOtp,
   addAddress,
   postAddAddress,
   editAddress,

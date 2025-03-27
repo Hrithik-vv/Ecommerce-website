@@ -108,11 +108,6 @@ router.post(
   userAuth,
   profileController.changePasswordValid
 );
-router.post(
-  "/verify-changepassword-otp",
-  userAuth,
-  profileController.verifyChangePassOtp
-);
 
 //Address Management
 router.get("/addAddress", userAuth, profileController.addAddress);

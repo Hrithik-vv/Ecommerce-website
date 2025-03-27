@@ -23,6 +23,13 @@ const walletSchema = new Schema({
     },
     transactions: [
         {
+            transactionId: {
+                type: String,
+                required: true,
+                default: function() {
+                    return 'TXN' + Date.now() + Math.floor(Math.random() * 1000);
+                }
+            },
             amount: {
                 type: Number,
                 required: true

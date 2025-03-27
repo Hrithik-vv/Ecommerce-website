@@ -1,15 +1,15 @@
+const mongoose = require("mongoose");
+const Order = require("../../models/orderSchema");
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
-const Order = require("../../models/orderSchema");
-const User = require("../../models/userSchema");
-const adress = require("../../models/addressSchema");
-const mongoose = require("mongoose");
-const address = require("../../models/addressSchema");
-const razorpay = require("../../config/razorpay");
-const Wallet = require("../../models/walletschema");
-const crypto = require("crypto");
-const Razorpay = require("razorpay");
 const Coupon = require("../../models/couponSchema");
+const Razorpay = require("razorpay");
+const { generateTransactionId } = require("../../utils/transactionUtils");
+const { generateOrderId } = require("../../utils/orderUtils");
+const Wallet = require("../../models/walletschema");
+const User = require("../../models/userSchema");
+const address = require("../../models/addressSchema");
+const crypto = require("crypto");
 
 require("dotenv").config();
 
@@ -43,7 +43,7 @@ const orderView = async (req, res) => {
     console.log("Order details:", order);
 
     // Render the order details in the template
-    const a = await adress.findOne(
+    const a = await address.findOne(
       {
         userId: order.userId,
         "address._id": new mongoose.Types.ObjectId(order.shippingAddress),
@@ -486,6 +486,7 @@ const processWalletPayment = async (req, res) => {
     const wallet = await Wallet.findOne({ userId });
     wallet.balance -= totalAmount;
     wallet.transactions.push({
+      transactionId: generateTransactionId(),
       amount: totalAmount,
       type: "debit",
       date: new Date(),
@@ -598,6 +599,7 @@ const cancelOrder = async (req, res) => {
           userId,
           balance: refundAmount,
           transactions: [{
+            transactionId: generateTransactionId(),
             amount: refundAmount,
             type: "credit",
             date: new Date(),
@@ -607,6 +609,7 @@ const cancelOrder = async (req, res) => {
       } else {
         wallet.balance += refundAmount;
         wallet.transactions.push({
+          transactionId: generateTransactionId(),
           amount: refundAmount,
           type: "credit",
           date: new Date(),
