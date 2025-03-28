@@ -24,12 +24,10 @@ const salesReportController = {
       // Rest of your function remains the same
       startDate = new Date(startDate);
       endDate = new Date(endDate);
-
-      // Set time to start and end of day
+  
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      // Query orders within date range
       const orders = await Order.find({
         createdAt: {
           $gte: startDate,
@@ -38,10 +36,9 @@ const salesReportController = {
         status: { $ne: "Cancelled" },
       });
 
-      // Get total customers count
+     
       const totalCustomers = await User.countDocuments({ isBlocked: false });
 
-      // Get total products count
       const totalProducts = await Product.countDocuments({ status: "Listed" });
 
       // Calculate summary statistics
@@ -91,7 +88,7 @@ const salesReportController = {
             let date = new Date(startDate);
             date.setDate(startDate.getDate() + i);
             labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-            salesData.push(0); // Initialize with zeros
+            salesData.push(0); 
           }
           break;
 
@@ -104,7 +101,7 @@ const salesReportController = {
             let date = new Date(startDate);
             date.setMonth(startDate.getMonth() + i);
             labels.push(date.toLocaleDateString('en-US', { month: 'short' }));
-            salesData.push(0); // Initialize with zeros
+            salesData.push(0); 
           }
           break;
 
@@ -115,7 +112,7 @@ const salesReportController = {
           // Generate last 5 years
           for (let i = 0; i < 5; i++) {
             labels.push((startDate.getFullYear() + i).toString());
-            salesData.push(0); // Initialize with zeros
+            salesData.push(0); 
           }
           break;
       }
@@ -231,7 +228,7 @@ const salesReportController = {
       const totalProducts = await Product.countDocuments({ isBlocked: false });
       const totalCustomers = await User.countDocuments({ isBlocked: false });
 
-      console.log('Chart Data:', { labels, salesData }); // Debug log
+      console.log('Chart Data:', { labels, salesData }); 
 
       res.json({
         success: true,
@@ -325,7 +322,7 @@ const salesReportController = {
       const hasNextPage = page < totalPages;
       const hasPrevPage = page > 1;
 
-      // Calculate summary statistics from all matching orders (not just the paginated ones)
+
       const allOrders = await Order.find({
         createdAt: {
           $gte: startDate,
@@ -375,7 +372,7 @@ const salesReportController = {
         status: order.status,
       }));
 
-      console.log("Sending response with orders:", formattedOrders.length); // Debug log
+      console.log("Sending response with orders:", formattedOrders.length); 
 
       res.json({
         success: true,
