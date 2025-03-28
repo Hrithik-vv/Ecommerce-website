@@ -905,7 +905,7 @@ function generatePDF(data, reportInfo) {
         // Add company logo/header
         doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
-        doc.text("COMPANY NAME", pageWidth / 2, currentY, { align: 'center' });
+        doc.text("OXYBOO", pageWidth / 2, currentY, { align: 'center' });
         currentY += lineHeight + 3;
         
         // Add report title
@@ -1060,6 +1060,7 @@ function generateExcel(data, reportInfo) {
         
         // Add title and metadata
         XLSX.utils.sheet_add_aoa(ws, [
+            [{v: 'OXYBOO', t: 's'}],
             [{v: 'SALES REPORT', t: 's'}],
             [{v: `Period: ${reportInfo.periodType.toUpperCase()}`, t: 's'}],
             [{v: `Date Range: ${reportInfo.startDate} to ${reportInfo.endDate}`, t: 's'}],
@@ -1075,7 +1076,7 @@ function generateExcel(data, reportInfo) {
             [{v: `Average Order Value: ${currencySymbol}${data.averageOrderValue.toFixed(2)}`, t: 's'}],
             [{v: `Products Sold: ${data.productsSold}`, t: 's'}],
             [''] // Empty row
-        ], { origin: 'A6' });
+        ], { origin: 'A7' });
         
         // Add orders table
         const tableHeaders = [
@@ -1095,10 +1096,10 @@ function generateExcel(data, reportInfo) {
         // Add table title
         XLSX.utils.sheet_add_aoa(ws, [
             [{v: 'ORDER DETAILS', t: 's'}]
-        ], { origin: 'A12' });
+        ], { origin: 'A13' });
         
         // Add table headers and data
-        XLSX.utils.sheet_add_aoa(ws, [tableHeaders, ...tableRows], { origin: 'A13' });
+        XLSX.utils.sheet_add_aoa(ws, [tableHeaders, ...tableRows], { origin: 'A14' });
         
         // Set column widths
         const columnWidths = [
@@ -1114,6 +1115,7 @@ function generateExcel(data, reportInfo) {
         
         // Add styles (Excel doesn't support full styling via js-xlsx, but we can define a range for the headers)
         ws['!rows'] = [
+            { hpt: 30 }, // Company name row height
             { hpt: 30 }, // Title row height
             { hpt: 20 }, // Period row height
             { hpt: 20 }, // Date range row height

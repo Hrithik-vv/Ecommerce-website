@@ -26,22 +26,24 @@
         justify-content: flex-start;
       }
 
-      /* Centered Header */
+      /* Content Header */
       .content-header {
-        margin: 20px auto;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-left: 20%;
+        text-align: center;
       }
 
-      .content-header .content-title {
+      .content-title {
         font-size: 2rem;
         font-weight: 700;
-        color: #343a40;
-        margin-right: 700px;
+        color: #2d3748;
+        margin-bottom: 1.5rem;
       }
 
-      /* Rest of your existing styles... */
-      /* Search Form Styling */
-      header.card-header {
-        text-align: center;
+      /* Enhanced Search Bar */
+      .card-header {
         margin-bottom: 30px;
       }
 
@@ -50,25 +52,40 @@
         max-width: 500px;
         margin: 0 auto;
         display: flex;
+        gap: 10px;
       }
 
       .input-group .form-control {
-        border-radius: 25px 0 0 25px;
-        padding: 12px 15px;
-        border: 1px solid #ced4da;
+        flex: 1;
+        padding: 12px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .input-group .form-control:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        outline: none;
       }
 
       .input-group .btn {
-        background-color: #007bff;
+        padding: 12px 30px;
+        background: linear-gradient(to right, #4299e1, #667eea);
         color: white;
-        border-radius: 0 25px 25px 0;
-        font-size: 14px;
-        padding: 10px 15px;
-        border: 1px solid #007bff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
       }
 
       .input-group .btn:hover {
-        background-color: #0056b3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(66, 153, 225, 0.3);
       }
 
       /* Search Bar */
@@ -310,11 +327,9 @@
   <body>
     <section class="content-main">
       <div class="content-header">
-        <div>
-          <h2 class="content-title card-title">Customers</h2>
-        </div>
+        <h2 class="content-title">Categories</h2>
       </div>
-      <header class="card-header text-center mb-20">
+      <header class="card-header">
         <form action="/admin/category" method="get" class="d-inline">
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Search categories..." name="search"

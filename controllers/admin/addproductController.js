@@ -49,20 +49,19 @@ const addproduct = async (req, res) => {
     const { _id } = await newproduct.save();
 
     // Create product images directory
-    await fs.mkdir(
-      path.join(
-        "C:\\Users\\Admin\\Desktop\\7th week\\project\\public",
-        "images",
-        `${_id}`
-      ),
-      { recursive: true },
-      (err) => {
-        if (err) {
-          return console.error("Error creating directory:", err);
-        }
-        console.log("Directory created successfully!");
-      }
-    );
+    try {
+      await fs.promises.mkdir(
+        path.join(
+          path.join(__dirname, '../../public'),
+          "images",
+          `${_id}`
+        ),
+        { recursive: true }
+      );
+      console.log("Directory created successfully!");
+    } catch (err) {
+      console.error("Error creating directory:", err);
+    }
 
     // Process uploaded images
     const images = [
@@ -79,23 +78,24 @@ const addproduct = async (req, res) => {
       const base64WithoutPrefix = image.replace(/^data:image\/\w+;base64,/, "");
       const binary = Buffer.from(base64WithoutPrefix, "base64");
 
-      fs.writeFile(
-        path.join(
-          "C:\\Users\\Admin\\Desktop\\7th week\\project\\public",
-          "images",
-          `${_id}`,
-          `image${index}.png`
-        ),
-        binary,
-        (err) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("Image saved successfully");
-          }
-        }
-      );
-      imagesp.push(`images/${_id}/image${index}.png`);
+      try {
+        fs.promises.writeFile(
+          path.join(
+            path.join(__dirname, '../../public'),
+            "images",
+            `${_id}`,
+            `image${index}.png`
+          ),
+          binary
+        ).then(() => {
+          console.log("Image saved successfully");
+        }).catch(err => {
+          console.log(err);
+        });
+        imagesp.push(`images/${_id}/image${index}.png`);
+      } catch (error) {
+        console.error("Error processing image:", error);
+      }
     });
 
     // Update product with real image paths
@@ -148,23 +148,24 @@ const editProduct = async (req, res) => {
         const binary = Buffer.from(base64WithoutPrefix, "base64");
 
         // Save updated image file
-        fs.writeFile(
-          path.join(
-            "C:\\Users\\Admin\\Desktop\\7th week\\project\\public",
-            "images",
-            `${_id}`,
-            `image${index}.png`
-          ),
-          binary,
-          (err) => {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log("Image updated successfully");
-            }
-          }
-        );
-        imagesp[`image${index + 1}`] = `images/${_id}/image${index}.png`;
+        try {
+          fs.promises.writeFile(
+            path.join(
+              path.join(__dirname, '../../public'),
+              "images",
+              `${_id}`,
+              `image${index}.png`
+            ),
+            binary
+          ).then(() => {
+            console.log("Image updated successfully");
+          }).catch(err => {
+            console.log(err);
+          });
+          imagesp[`image${index + 1}`] = `images/${_id}/image${index}.png`;
+        } catch (error) {
+          console.error("Error updating image:", error);
+        }
       }
     });
 
@@ -265,10 +266,10 @@ const editProduct = async (req, res) => {
 async function deleteImageFromFolder(imagePath) {
   try {
     if (!imagePath) return;
-    const fullPath = path.join(__dirname, "../public", imagePath);
+    const fullPath = path.join(path.join(__dirname, '../../public'), imagePath);
     try {
-      await fs.access(fullPath);
-      await fs.unlink(fullPath);
+      await fs.promises.access(fullPath);
+      await fs.promises.unlink(fullPath);
       console.log("Successfully deleted image from folder:", fullPath);
     } catch (err) {
       if (err.code === "ENOENT") {

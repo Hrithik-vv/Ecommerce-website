@@ -325,6 +325,32 @@
 
         function generateInvoice() {
             try {
+                // Order data from page
+                const orderData = {
+                    orderId: '<%= order.orderId %>',
+                    createdAt: '<%= order.createdAt %>',
+                    paymentMethod: '<%= order.paymentMethod %>',
+                    totalAmount: parseFloat('<%= order.totalAmount %>'),
+                    originalSubtotal: parseFloat('<%= order.originalSubtotal || order.totalAmount %>'),
+                    productDiscount: parseFloat('<%= order.productDiscount || 0 %>'),
+                    subtotal: parseFloat('<%= order.subtotal || (order.totalAmount - 40) %>'),
+                    deliveryCharge: parseFloat('<%= order.deliveryCharge || 40 %>')
+                };
+
+                const productData = {
+                    productName: '<%= product.productName %>',
+                    quantity: parseInt('<%= product.quantity %>', 10)
+                };
+
+                const addressData = {
+                    name: '<%= address.name %>',
+                    landMark: '<%= address.landMark %>',
+                    city: '<%= address.city %>',
+                    state: '<%= address.state %>',
+                    pincode: '<%= address.pincode %>',
+                    phone: '<%= address.phone %>'
+                };
+
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
@@ -346,30 +372,31 @@
                 doc.setFontSize(12);
                 doc.text('Order Details:', 20, 55);
                 doc.setFontSize(10);
-                doc.text(`Order ID: <%= order.orderId %>`, 20, 65);
-                doc.text(`Order Date: ${new Date('<%= order.createdAt %>').toLocaleDateString()}`, 20, 75);
-                doc.text(`Payment Method: <%= order.paymentMethod %>`, 20, 85);
+                doc.text(`Order ID: ${orderData.orderId}`, 20, 65);
+                doc.text(`Order Date: ${new Date(orderData.createdAt).toLocaleDateString()}`, 20, 75);
+                doc.text(`Payment Method: ${orderData.paymentMethod}`, 20, 85);
 
                 // Add customer details
                 doc.setFontSize(12);
                 doc.text('Customer Details:', 120, 55);
                 doc.setFontSize(10);
-                doc.text(`Name: <%= address.name %>`, 120, 65);
-                doc.text(`Address: <%= address.landMark %>`, 120, 75);
-                doc.text(`<%= address.city %>, <%= address.state %> - <%= address.pincode %>`, 120, 85);
-                doc.text(`Phone: <%= address.phone %>`, 120, 95);
+                doc.text(`Name: ${addressData.name}`, 120, 65);
+                doc.text(`Address: ${addressData.landMark}`, 120, 75);
+                doc.text(`${addressData.city}, ${addressData.state} - ${addressData.pincode}`, 120, 85);
+                doc.text(`Phone: ${addressData.phone}`, 120, 95);
 
                 // Add product details table
                 const tableColumn = ['Product', 'Quantity', 'Price per Unit', 'Total'];
                 const tableRows = [
                     [
-                        '<%= product.productName %>',
-                        '<%= product.quantity %>',
-                        'Rs. <%= (order.totalAmount / product.quantity).toFixed(2) %>',
-                        'Rs. <%= order.totalAmount %>'
+                        productData.productName,
+                        productData.quantity,
+                        `Rs. ${(orderData.totalAmount / productData.quantity).toFixed(2)}`,
+                        `Rs. ${orderData.totalAmount.toFixed(2)}`
                     ]
                 ];
 
+                // Adjust column widths to fit the page
                 doc.autoTable({
                     head: [tableColumn],
                     body: tableRows,
@@ -381,15 +408,19 @@
                         halign: 'center'
                     },
                     bodyStyles: {
-                        fontSize: 10,
+                        fontSize: 9,
                         halign: 'center'
                     },
                     columnStyles: {
-                        0: { cellWidth: 80 },
-                        1: { cellWidth: 30 },
-                        2: { cellWidth: 40 },
-                        3: { cellWidth: 40 }
-                    }
+                        0: { cellWidth: 65 }, // Further reduced
+                        1: { cellWidth: 20 }, // Further reduced
+                        2: { cellWidth: 30 }, // Further reduced
+                        3: { cellWidth: 30 }  // Further reduced
+                    },
+                    margin: { left: 20, right: 20 }, // Increased margins
+                    tableWidth: 'auto', // Let the table calculate its own width
+                    horizontalPageBreak: true, // Enable horizontal page breaking
+                    horizontalPageBreakRepeat: 0 // Repeat the first column on new pages
                 });
 
                 // Add total amount
@@ -400,39 +431,64 @@
 
                 // Add order summary
                 let yPosition = finalY + 20;
+                
+                // Create a summary box with background for better visibility
+                doc.setFillColor(248, 249, 250);
+                doc.setDrawColor(230, 230, 230);
+                doc.roundedRect(120, finalY + 15, 70, 60, 2, 2, 'FD');
+                
                 const summaryData = [
-                    { label: 'Original Subtotal:', value: 'Rs. <%= (order.originalSubtotal || order.totalAmount).toFixed(2) %>' },
-                    { label: 'Product Discount:', value: 'Rs. <%= (order.productDiscount || 0).toFixed(2) %>', color: [40, 167, 69], prefix: '-' },
-                    { label: 'Subtotal:', value: 'Rs. <%= (order.subtotal || (order.totalAmount - 40)).toFixed(2) %>' },
-                    { label: 'Delivery Charge:', value: 'Rs. <%= (order.deliveryCharge || 40).toFixed(2) %>' },
-                    { label: 'Total Amount:', value: 'Rs. <%= order.totalAmount.toFixed(2) %>', bold: true }
+                    { label: 'Original Subtotal:', value: `Rs. ${orderData.originalSubtotal.toFixed(2)}` },
+                    { label: 'Product Discount:', value: `Rs. ${orderData.productDiscount.toFixed(2)}`, color: [40, 167, 69], prefix: '-' },
+                    { label: 'Subtotal:', value: `Rs. ${orderData.subtotal.toFixed(2)}` },
+                    { label: 'Delivery Charge:', value: `Rs. ${orderData.deliveryCharge.toFixed(2)}` },
+                    { label: 'Total Amount:', value: `Rs. ${orderData.totalAmount.toFixed(2)}`, bold: true }
                 ];
 
                 // Filter out zero discount
-                const finalSummary = order.productDiscount > 0 ? 
+                const finalSummary = orderData.productDiscount > 0 ? 
                     summaryData : 
                     summaryData.filter(item => item.label !== 'Product Discount:');
 
                 finalSummary.forEach((item, i) => {
+                    // Set text color
                     if (item.color) {
                         doc.setTextColor(item.color[0], item.color[1], item.color[2]);
                     } else {
                         doc.setTextColor(0, 0, 0);
                     }
 
+                    // Set font style
                     if (item.bold) {
                         doc.setFont(undefined, 'bold');
+                        doc.setFontSize(12);
                     } else {
                         doc.setFont(undefined, 'normal');
+                        doc.setFontSize(10);
                     }
 
-                    doc.setFontSize(12);
-                    doc.text(item.label, 140, yPosition);
+                    // Draw a separator line before total amount
+                    if (item.label === 'Total Amount:') {
+                        doc.setDrawColor(74, 108, 247);
+                        doc.setLineWidth(0.3);
+                        doc.line(125, yPosition - 5, 185, yPosition - 5);
+                    }
+
+                    // Add label with proper alignment
+                    doc.text(item.label, 125, yPosition);
                     
-                    // If prefix is provided, prepend it to the value
+                    // Format and align the values
                     const displayValue = (item.prefix || '') + item.value;
-                    doc.text(displayValue, 190, yPosition, { align: 'right' });
                     
+                    // Special formatting for discount to make it stand out
+                    if (item.label === 'Product Discount:') {
+                        doc.setFont(undefined, 'bold');
+                        doc.text(displayValue, 185, yPosition, { align: 'right' });
+                    } else {
+                        doc.text(displayValue, 185, yPosition, { align: 'right' });
+                    }
+                    
+                    // Increase Y position for next line
                     yPosition += 10;
                 });
 
@@ -447,7 +503,7 @@
                 doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 280);
 
                 // Save the PDF
-                doc.save(`Oxyboo-Invoice-<%= order.orderId %>.pdf`);
+                doc.save(`Oxyboo-Invoice-${orderData.orderId}.pdf`);
 
                 // Show success message
                 Swal.fire({
