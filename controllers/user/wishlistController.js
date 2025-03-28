@@ -5,8 +5,12 @@ const Wishlist = require("../../models/wishlistSchema");
 const loadWishlist = async (req, res) => {
   try {
     const userId = req.session.user;
-    const a = await Wishlist.findOne({ userId }).populate("Products.productId");
-    const productsinwish = a.Products.map((item) => item.productId);
+    const wishlistDoc = await Wishlist.findOne({ userId }).populate("Products.productId");
+    
+    let productsinwish = [];
+    if (wishlistDoc && wishlistDoc.Products) {
+      productsinwish = wishlistDoc.Products.map((item) => item.productId);
+    }
 
     res.render("wishlist", {
       user: req.session.user,
@@ -73,12 +77,15 @@ const addToWishlist = async (req, res) => {
 const removeProduct = async (req, res) => {
   try {
     const productId = req.query.productId;
-    const user = req.session.user;
+    const userId = req.session.user;
 
     const mongoose = require("mongoose");
 
+    // Check if userId is an object with _id property or just the ID itself
+    const userIdValue = userId && userId._id ? userId._id : userId;
+
     const result = await Wishlist.findOneAndUpdate(
-      { userId: new mongoose.Types.ObjectId(user._id) },
+      { userId: userIdValue },
       {
         $pull: {
           Products: { productId: new mongoose.Types.ObjectId(productId) },
@@ -86,13 +93,13 @@ const removeProduct = async (req, res) => {
       },
       { new: true }
     );
+    
     if (result) {
-      console.log(result);
-
+      console.log("Product removed from wishlist");
       return res.redirect("/wishlist");
     } else {
       console.log("User not found or wishlist update failed.");
-      return res.status(404).send("User not found or update failed.");
+      return res.redirect("/wishlist");
     }
   } catch (error) {
     console.error(error);

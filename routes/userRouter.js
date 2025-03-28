@@ -6,7 +6,7 @@ const profileController = require("../controllers/user/profileController");
 const { userAuth, already } = require("../middlewares/auth");
 const productController = require("../controllers/user/productController");
 const cartController = require("../controllers/user/cartController");
-const wishlistController = require("../controllers/user/whishlistController");
+const wishlistController = require("../controllers/user/wishlistController");
 const {
   createOrder,
   processPayment,
