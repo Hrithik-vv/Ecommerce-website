@@ -175,7 +175,9 @@ const removeFromCart = async (req, res) => {
 // Add these new functions
 const updateQuantity = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.session.user || req.user._id;;
+
+    console.log('ybhjubhjnbjnujnnnnnnnnnnnnnnnnnnnnnnn'+userId);
     const { productId, quantity } = req.body;
 
     // Ensure the quantity is an integer

@@ -201,6 +201,31 @@ const changeEmail = async (req, res) => {
   }
 };
 
+const directEmailChange = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const userData = await User.findById(userId);
+    const email = userData.email;
+    
+    const otp = generateOtp();
+    const emailSent = await sendVerificationEmail(email, otp);
+    
+    if (emailSent) {
+      req.session.userOtp = otp;
+      req.session.email = email;
+      req.session.userData = { email };
+      res.render("change-email-otp");
+      console.log("Email sent:", email);
+      console.log("OTP:", otp);
+    } else {
+      res.status(500).send("Failed to send OTP email");
+    }
+  } catch (error) {
+    res.redirect("/pageNotFound");
+    console.log("direct email change error", error);
+  }
+};
+
 const changeEmailValid = async (req, res) => {
   try {
     const { email } = req.body;
@@ -269,7 +294,7 @@ const changePassword = async (req, res) => {
     req.session.successMessage = undefined;
     req.session.errorMessage = undefined;
     
-    res.render("user/change-password", { 
+    res.render("change-password", { 
       message: errorMessage,
       successMessage: successMessage 
     });
@@ -499,8 +524,6 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-module.exports = { deleteAddress };
-
 module.exports = {
   getForgotPassPage,
   forgotEmailValid,
@@ -520,4 +543,5 @@ module.exports = {
   editAddress,
   postEditAddress,
   deleteAddress,
+  directEmailChange,
 };

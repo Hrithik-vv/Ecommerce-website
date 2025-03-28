@@ -99,6 +99,7 @@ router.post("/resend-forgot-otp", profileController.resendOtp);
 router.post("/reset-password", profileController.postNewPassword);
 router.get("/userProfile", userAuth, profileController.userProfile);
 router.get("/change-email", userAuth, profileController.changeEmail);
+router.get("/direct-email-change", userAuth, profileController.directEmailChange);
 router.post("/change-email", userAuth, profileController.changeEmailValid);
 router.post("/verify-email-otp", userAuth, profileController.verifyEmailOtp);
 router.post("/update-email", userAuth, profileController.updateEmail);
