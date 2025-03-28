@@ -401,7 +401,7 @@ const checkoutController = async (req, res) => {
       usedBy: { $ne: userId },
     });
 
-    res.render("checkout", {
+    res.render("checkOut", {
       user: userData,
       addresses: addresses ? addresses.address : [],
       cartItems: cartItemsWithVariants,
