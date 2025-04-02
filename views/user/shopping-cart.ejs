@@ -340,6 +340,33 @@
                 padding-right: 0.5rem;
             }
         }
+
+        /* Add stock warning styles */
+        .stock-warning {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .stock-warning.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .stock-warning.danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .stock-warning.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
     </style>
 
     <div class="wishlist-header">
@@ -398,6 +425,15 @@
                                                                     <span class="variant-info">Size: <%= item.size %>
                                                                             </span>
                                                                 </div>
+                                                                <% if (item.hasStockIssue) { %>
+                                                                    <div class="stock-warning danger">
+                                                                        <%= item.stockMessage %>
+                                                                    </div>
+                                                                <% } else if (item.productStock < 5) { %>
+                                                                    <div class="stock-warning warning">
+                                                                        <%= item.stockMessage %>
+                                                                    </div>
+                                                                <% } %>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -449,17 +485,7 @@
                             <h3 class="cart-total">Total: ₹<span id="cart-total">
                                     <%= cartItems.reduce((acc, item)=> acc + item.totalPrice, 0).toFixed(2) %>
                                 </span></h3>
-                            <form action="/checkout" method="POST" style="display: inline;">
-                                <% cartItems.forEach((item, index)=> { %>
-                                    <input type="hidden" name="items[<%= index %>][productId]"
-                                        value="<%= item.productId %>">
-                                    <input type="hidden" name="items[<%= index %>][quantity]"
-                                        value="<%= item.quantity %>">
-                                    <input type="hidden" name="items[<%= index %>][price]"
-                                        value="<%= item.productPrice %>">
-                                    <% }); %>
-                                        <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-                            </form>
+                            <a href="/checkout" class="checkout-btn">Proceed to checkout</a>
                         </div>
                     </div>
                     <% } %>
@@ -483,40 +509,47 @@
             return true;
         }
 
+        function updateQuantity(button, change, maxStock) {
+            const input = button.parentElement.querySelector('input');
+            const currentValue = parseInt(input.value, 10);
+            const newValue = currentValue + change;
+            
+            // Prevent reducing below 1
+            if (newValue < 1) return;
+            
+            // Check stock limitations
+            if (maxStock !== undefined && newValue > maxStock) {
+                Swal.fire({
+                    title: 'Stock Limitation',
+                    text: `Only ${maxStock} items available in stock`,
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            
+            input.value = newValue;
+            
+            // Update hidden form input for submission
+            const hiddenInput = button.closest('tr').querySelector('.qty-input-hidden');
+            if (hiddenInput) {
+                hiddenInput.value = newValue;
+            }
+            
+            // Calculate and update item total
+            const priceElement = button.closest('tr').querySelector('td:nth-child(2)');
+            const price = parseFloat(priceElement.textContent.replace('₹', ''));
+            const totalElement = button.closest('tr').querySelector('.item-total');
+            totalElement.textContent = (price * newValue).toFixed(2);
+            
+            // Trigger update in cart
+            updateQuantityInCart(input);
+        }
+
         async function updateQuantityInCart(input) {
             const productId = input.dataset.productId;
-            const quantity = parseInt(input.value);
-            const price = parseFloat(input.dataset.price);
-            const maxStock = parseInt(input.dataset.stock);
-
-            // Validate quantity
-            if (isNaN(quantity) || quantity < 1) {
-                input.value = 1;
-                Swal.fire({
-                    toast: true,
-                    icon: 'warning',
-                    title: 'Minimum quantity is 1',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-                return;
-            }
-
-            // Check stock limit
-            if (quantity > maxStock) {
-                input.value = maxStock;
-                Swal.fire({
-                    toast: true,
-                    icon: 'warning',
-                    title: `Maximum available stock is ${maxStock}`,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-                return;
-            }
-
+            const quantity = parseInt(input.value, 10);
+            
             try {
                 const response = await fetch('/cart/update', {
                     method: 'POST',
@@ -528,115 +561,48 @@
                         quantity
                     })
                 });
-
+                
                 const data = await response.json();
-
+                
                 if (data.success) {
-                    // Update the item total
-                    const row = input.closest('tr');
-                    const itemTotal = row.querySelector('.item-total');
-                    itemTotal.textContent = data.itemTotal;
-
-                    // Update the cart total
+                    // Update total prices
+                    document.querySelectorAll('.item-total').forEach(el => {
+                        if (el.closest('tr').dataset.itemId === productId) {
+                            el.textContent = data.itemTotal;
+                        }
+                    });
+                    
                     document.getElementById('cart-total').textContent = data.cartTotal;
-
-                    // Show success toast
+                } else if (data.stockIssue) {
+                    // Show stock limitation warning
                     Swal.fire({
-                        toast: true,
-                        icon: 'success',
-                        title: 'Cart updated successfully',
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000
+                        title: 'Stock Limitation',
+                        text: data.message,
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
                     });
+                    
+                    // Reset to available stock
+                    input.value = data.availableStock;
+                    
+                    // Update all related elements
+                    updateQuantity(input, 0, data.availableStock);
                 } else {
-                    Swal.fire({
-                        toast: true,
-                        icon: 'error',
-                        title: 'Failed to update quantity',
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
+                    console.error('Error updating quantity:', data.message);
                 }
             } catch (error) {
-                console.error('Error updating quantity:', error);
-                Swal.fire({
-                    toast: true,
-                    icon: 'error',
-                    title: 'Error updating quantity',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
+                console.error('Error updating cart:', error);
             }
         }
-
-        function updateQuantity(button, change, max) {
-            const row = button.closest('tr');
-            const input = row.querySelector('.qty-input');
-            let newVal = parseInt(input.value) + change;
-
-            if (newVal < 1) {
-                newVal = 1;
-                Swal.fire({
-                    toast: true,
-                    icon: 'warning',
-                    title: 'Minimum quantity is 1',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
-            if (max && newVal > max) {
-                newVal = max;
-                Swal.fire({
-                    toast: true,
-                    icon: 'warning',
-                    title: `Maximum available stock is ${max}`,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
-
-            input.value = newVal;
-            updateQuantityInCart(input);
-        }
-
-        // Update the checkout form to include all necessary data
-        document.querySelector('form[action="/checkout"]').addEventListener('submit', function (e) {
-            const cartItems = [];
-            document.querySelectorAll('.shopping__cart__table tbody tr').forEach(row => {
-                const productId = row.querySelector('.qty-input').dataset.productId;
-                const quantity = parseInt(row.querySelector('.qty-input').value);
-                const price = parseFloat(row.querySelector('.qty-input').dataset.price);
-
-                cartItems.push({
-                    productId,
-                    quantity,
-                    price,
-                    totalPrice: quantity * price
-                });
-            });
-
-            // Add cart items data to form
-            const itemsInput = document.createElement('input');
-            itemsInput.type = 'hidden';
-            itemsInput.name = 'cartItems';
-            itemsInput.value = JSON.stringify(cartItems);
-            this.appendChild(itemsInput);
-        });
 
         function confirmRemove(productId) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "This item will be removed from your cart",
+                title: 'Remove Item',
+                text: 'Are you sure you want to remove this item from your cart?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, remove it!'
+                confirmButtonText: 'Yes, remove it',
+                cancelButtonText: 'No, keep it'
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = `/remove-from-cart/${productId}`;
