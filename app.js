@@ -108,8 +108,9 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// 404 Page Not Found middleware - This must be after all routes
 app.use((req, res) => {
-  res.render("page-404");	
+  res.status(404).render("page-404");	
 });
 
 const logout = async (req, res) => {
