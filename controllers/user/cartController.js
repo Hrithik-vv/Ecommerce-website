@@ -120,6 +120,14 @@ const viewCart = async (req, res) => {
           };
           item.productStatus = product.status;
           item.variant = variant;
+          
+          // Check if stock is sufficient
+          item.hasStockIssue = variant && (variant.stock < item.quantity);
+          item.stockMessage = item.hasStockIssue 
+            ? `Only ${variant.stock} available` 
+            : variant.stock < 5 
+              ? `Only ${variant.stock} left` 
+              : "In stock";
 
           // Add color and size from variant
           if (variant) {
@@ -134,6 +142,10 @@ const viewCart = async (req, res) => {
     // Send updated cart items with product details
     res.render("shopping-cart", {
       cartItems: updatedCartItems,
+      messages: {
+        success: req.flash("success"),
+        error: req.flash("error"),
+      },
     });
   } catch (error) {
     console.error(error);
@@ -206,6 +218,34 @@ const updateQuantity = async (req, res) => {
         .json({ success: false, message: "Product not found in cart" });
     }
 
+    // Check stock availability before updating
+    const product = await Product.findById(item.productId._id);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    const variant = product.variants.find(
+      (v) => v._id.toString() === item.variantId?.toString()
+    );
+
+    if (!variant) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product variant not found" });
+    }
+
+    // Check if requested quantity exceeds available stock
+    if (qty > variant.stock) {
+      return res.json({
+        success: false,
+        stockIssue: true,
+        availableStock: variant.stock,
+        message: `Only ${variant.stock} items available in stock`
+      });
+    }
+
     // Update quantity and total price
     item.quantity = qty;
     item.totalPrice = qty * item.productPrice;
@@ -238,6 +278,9 @@ const checkoutController = async (req, res) => {
     const userId = req.user?._id || req.session.user._id;
     
     if (!userId) {
+      if (req.xhr || req.headers.accept.indexOf('json') !== -1) {
+        return res.status(401).json({ success: false, message: "User not authenticated" });
+      }
       req.flash("error", "User not authenticated");
       return res.redirect("/login");
     }
@@ -248,12 +291,65 @@ const checkoutController = async (req, res) => {
       // Validate cart
       const cart = await Cart.findOne({ userId }).populate("items.productId");
       if (!cart || cart.items.length === 0) {
+        if (req.xhr || req.headers.accept.indexOf('json') !== -1) {
+          return res.status(400).json({ success: false, message: "Your cart is empty" });
+        }
         req.flash("error", "Your cart is empty");
         return res.redirect("/shopping-cart");
       }
 
+      // Check product stock availability
+      const stockCheckResults = await Promise.all(
+        cart.items.map(async (item) => {
+          const product = await Product.findById(item.productId._id);
+          if (!product) {
+            return { 
+              available: false, 
+              productName: "Unknown product", 
+              message: "Product not found" 
+            };
+          }
+          
+          const variant = product.variants.find(
+            v => v._id.toString() === item.variantId
+          );
+          
+          if (!variant) {
+            return { 
+              available: false, 
+              productName: product.productName, 
+              message: "Product variant not found" 
+            };
+          }
+          
+          const isAvailable = variant.stock >= item.quantity;
+          return { 
+            available: isAvailable, 
+            productName: product.productName,
+            color: variant.color,
+            size: variant.size,
+            requestedQty: item.quantity,
+            availableStock: variant.stock,
+            message: isAvailable ? "In stock" : "Insufficient stock"
+          };
+        })
+      );
+      
+      // Check if any product has insufficient stock
+      const outOfStockItems = stockCheckResults.filter(item => !item.available);
+      if (outOfStockItems.length > 0) {
+        return res.json({
+          success: false,
+          error: "stockIssue",
+          outOfStockItems
+        });
+      }
+
       // Validate address
       if (!selectedAddressId) {
+        if (req.xhr || req.headers.accept.indexOf('json') !== -1) {
+          return res.status(400).json({ success: false, message: "Please select a delivery address" });
+        }
         req.flash("error", "Please select a delivery address");
         return res.redirect("/checkout");
       }
@@ -295,60 +391,87 @@ const checkoutController = async (req, res) => {
 
       // For COD, validate order amount
       if (paymentMethod === "cod" && totalAmount > 1000) {
+        if (req.xhr || req.headers.accept.indexOf('json') !== -1) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Cash on Delivery is not available for orders above ₹1,000. Please choose online payment." 
+          });
+        }
         req.flash("error", "Cash on Delivery is not available for orders above ₹1,000. Please choose online payment.");
         return res.redirect("/checkout");
       }
 
       // For COD, continue with order creation
-      const order = new Order({
-        couponId: couponCode,
-        userId: userId,
-        products: cart.items.map((item) => ({
-          name: item.productId.productName,
-          productId: item.productId._id,
-          variantId: item.variantId,
-          quantity: item.quantity,
-          totalPrice: item.totalPrice,
-          color: item.color,
-          size: item.size,
-        })),
-        originalSubtotal: originalSubtotal,
-        productDiscount: productDiscount,
-        subtotal: subtotal,
-        deliveryCharge: 40,
-        totalAmount: totalAmount,
-        shippingAddress: selectedAddressId,
-        paymentMethod: "COD",
-        status: "Pending",
-        paymentStatus: "pending",
-      });
+      try {
+        const order = new Order({
+          couponId: couponCode,
+          userId: userId,
+          products: cart.items.map((item) => ({
+            name: item.productId.productName,
+            productId: item.productId._id,
+            variantId: item.variantId,
+            quantity: item.quantity,
+            totalPrice: item.totalPrice,
+            color: item.color,
+            size: item.size,
+          })),
+          originalSubtotal: originalSubtotal,
+          productDiscount: productDiscount,
+          subtotal: subtotal,
+          deliveryCharge: 40,
+          totalAmount: totalAmount,
+          shippingAddress: selectedAddressId,
+          paymentMethod: "COD",
+          status: "Pending",
+          paymentStatus: "pending",
+        });
 
-      await order.save();
+        await order.save();
 
-      // Handle coupon if provided
-      if (couponCode) {
-        await Coupon.findOneAndUpdate(
-          { name: new RegExp("^" + couponCode + "$", "i") },
-          { $addToSet: { usedBy: userId } },
-          { new: true }
-        );
-      }
-
-      // Update product stocks
-      await Promise.all(
-        cart.items.map(async (item) => {
-          await Product.updateOne(
-            { _id: item.productId._id, "variants._id": item.variantId },
-            { $inc: { "variants.$.stock": -item.quantity } }
+        // Handle coupon if provided
+        if (couponCode) {
+          await Coupon.findOneAndUpdate(
+            { name: new RegExp("^" + couponCode + "$", "i") },
+            { $addToSet: { usedBy: userId } },
+            { new: true }
           );
-        })
-      );
+        }
 
-      // Clear cart
-      await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
+        // Update product stocks
+        await Promise.all(
+          cart.items.map(async (item) => {
+            await Product.updateOne(
+              { _id: item.productId._id, "variants._id": item.variantId },
+              { $inc: { "variants.$.stock": -item.quantity } }
+            );
+          })
+        );
 
-      req.flash("success", "Order placed successfully!");
-      return res.redirect("/order-placed");
+        // Clear cart
+        await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
+
+        if (req.xhr || req.headers.accept.indexOf('json') !== -1) {
+          return res.json({
+            success: true,
+            message: "Order placed successfully",
+            redirect: "/order-placed"
+          });
+        }
+        
+        req.flash("success", "Order placed successfully!");
+        return res.redirect("/order-placed");
+      } catch (error) {
+        console.error("Error creating order:", error);
+        if (req.xhr || req.headers.accept.indexOf('json') !== -1) {
+          return res.status(500).json({
+            success: false,
+            message: "Error creating order",
+            error: error.message
+          });
+        }
+        req.flash("error", "Error creating order");
+        return res.redirect("/checkout");
+      }
     }
 
     // GET request - show checkout page
@@ -416,6 +539,13 @@ const checkoutController = async (req, res) => {
     });
   } catch (error) {
     console.error("Checkout error:", error);
+    if (req.xhr || req.headers.accept.indexOf('json') !== -1) {
+      return res.status(500).json({
+        success: false,
+        message: "Error processing checkout",
+        error: error.message
+      });
+    }
     req.flash("error", "Error processing checkout");
     res.redirect("/shopping-cart");
   }
