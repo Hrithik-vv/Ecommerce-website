@@ -160,7 +160,14 @@ const userProfile = async (req, res) => {
     const userId = req.session.user._id;
     
     // Fetch user data
-    const userData = await User.findById(userId);
+    const userData = await User.findById(userId).populate('redeemedUsers');
+    
+    // Generate referral code if user doesn't have one
+    if (!userData.referalCode) {
+      const { generateReferralCode } = require('../../utils/referralUtils');
+      userData.referalCode = generateReferralCode(userData.name);
+      await userData.save();
+    }
     
     // Fetch wallet data with default empty values if not found
     const wallet = await Wallet.findOne({ userId }) || {
@@ -176,11 +183,15 @@ const userProfile = async (req, res) => {
       .populate('products.productId')
       .sort({ createdAt: -1 });
 
+    // Get the site's base URL from environment or use default
+    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+
     res.render('profile', {
       user: userData,
       wallet: wallet,  // This will now always have a value
       addresses: addresses,
-      orders: orders
+      orders: orders,
+      baseUrl: baseUrl
     });
 
   } catch (error) {

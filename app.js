@@ -10,8 +10,10 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy; // Google OA
 const adminRouter = require("./routes/adminRouter"); // Admin routes
 const nocache = require("nocache");
 const flash = require('connect-flash');
-const Cart = require("./models/cartSchema")
+const Cart = require("./models/cartSchema");
+const { ensurePortIsFree } = require('./utils/portUtils'); // Import port utilities
 
+// Database connection
 connectDB();
 
 // Middleware to parse JSON and URL-encoded data in requests
@@ -66,11 +68,10 @@ app.use("/admin", adminRouter);
 // Serve static uploads
 app.use("/uploads", express.static("uploads"));
 
-// Start Server
-const PORT = 3000 || process.env.PORT;
-app.listen(PORT, () => {
-  console.log("Server Running on port 3000");
-});
+// Define the PORT variable for reference
+const PORT = process.env.PORT || 3000;
+
+// Routes
 app.get("/check-session", (req, res) => {
   if (req.session.user) {
     res.send("User is logged in.");
@@ -78,6 +79,7 @@ app.get("/check-session", (req, res) => {
     res.send("No session found.");
   }
 });
+
 // Ensure you are passing categories to the view
 app.get("/admin/addproduct", (req, res) => {
   Category.find({}, (err, categories) => {
@@ -85,6 +87,7 @@ app.get("/admin/addproduct", (req, res) => {
     res.render("admin/addproduct", { categories });
   });
 });
+
 app.get("/admin/product", async (req, res) => {
   const products = await this.product.find();
   res.render("admin/product", { product });

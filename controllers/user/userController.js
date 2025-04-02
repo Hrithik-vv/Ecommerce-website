@@ -8,6 +8,8 @@ const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Brand = require("../../models/brandSchema");
 const OTP = require("../../models/otpschema");
+const { generateReferralCode } = require("../../utils/referralUtils");
+const Wallet = require("../../models/walletschema");
 
 // error page
 const pageNotFound = async (req, res) => {
@@ -103,7 +105,7 @@ async function sendVerificationEmail(email, otp) {
 //handle user signup
 const signup = async (req, res) => {
   try {
-    const { name, email, password, cPassword } = req.body;
+    const { name, email, password, cPassword, referralCode } = req.body;
 
     if (password !== cPassword) {
       return res.render("signup", { message: "Password do not match" }); // Validate passwords
@@ -130,7 +132,9 @@ const signup = async (req, res) => {
     });
 
     await otpEntry.save();
-    req.session.userData = { name, email, password };
+    
+    // Store referral code in session if provided
+    req.session.userData = { name, email, password, referralCode };
 
     // res.render("verify-otp",{message:''});
     res.redirect("/verify-otp");
@@ -161,29 +165,81 @@ const securePassword = async (password) => {
 const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-    console.log(otp === req.session.userOtp);
-    const otpRecord = await OTP.findOne({ sessionId: req.session.id, otp });
-    if (otpRecord) {
-      const user = req.session.userData;
-      console.log(user);
-      const passwordHash = await securePassword(user.password);
+    const sessionId = req.session.id;
+    const userData = req.session.userData;
 
-      const saveUserData = new User({
-        name: user.name,
-        email: user.email,
-        password: passwordHash,
-      });
-      await saveUserData.save();
-      // req.session.user = saveUserData._id;
-      req.session.user = saveUserData;
+    const foundOtp = await OTP.findOne({ sessionId });
 
-      res.redirect("/");
-    } else {
-      res.status(400).render("verify-otp", { message: "OTP invalid" });
+    if (!foundOtp) {
+      return res.render("verify-otp", { message: "OTP expired" });
     }
+
+    if (otp !== foundOtp.otp) {
+      return res.render("verify-otp", { message: "Invalid OTP" });
+    }
+
+    const passwordHash = await securePassword(userData.password);
+    
+    // Generate a referral code for the new user
+    const newReferralCode = generateReferralCode(userData.name);
+    
+    // Create new user with referral code
+    const newUser = new User({
+      name: userData.name,
+      email: userData.email,
+      password: passwordHash,
+      referalCode: newReferralCode,
+    });
+
+    await newUser.save();
+    
+    // Process referral if a valid referral code was provided
+    if (userData.referralCode) {
+      const referrer = await User.findOne({ referalCode: userData.referralCode });
+      
+      if (referrer) {
+        // Credit referrer's wallet (50 units)
+        const REFERRAL_BONUS = 50;
+        
+        // Find or create wallet for referrer
+        let wallet = await Wallet.findOne({ userId: referrer._id });
+        
+        if (!wallet) {
+          wallet = new Wallet({
+            userId: referrer._id,
+            balance: 0,
+            transactions: []
+          });
+        }
+        
+        // Add bonus amount
+        wallet.balance += REFERRAL_BONUS;
+        
+        // Record transaction
+        wallet.transactions.push({
+          amount: REFERRAL_BONUS,
+          type: 'credit',
+          description: `Referral bonus for user ${newUser.email}`,
+          date: new Date()
+        });
+        
+        await wallet.save();
+        
+        // Update referrer's user model
+        referrer.redeemedUsers = referrer.redeemedUsers || [];
+        referrer.redeemedUsers.push(newUser._id);
+        await referrer.save();
+      }
+    }
+
+    // Clean up session
+    await OTP.findOneAndDelete({ sessionId });
+    delete req.session.userData;
+
+    res.redirect("/login");
   } catch (error) {
-    console.error("Error verifying OTP", error);
-    res.status(500).json({ success: false, message: "An error occured" });
+    console.error("verify-otp error", error);
+    res.redirect("/pageNotFound");
   }
 };
 
