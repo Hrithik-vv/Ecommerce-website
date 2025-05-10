@@ -20,21 +20,46 @@ const orderSchema = new Schema({
             ref: 'Product', 
             required: true 
         },
+        name: { type: String, required: true },
         variantId: { type: String },
         quantity: { type: Number, required: true },
         totalPrice: { type: Number, required: true },
         color: { type: String },
-        size: { type: String }
+        size: { type: String },
+        status: { 
+            type: String,
+            required: true,
+            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
+            default: 'Pending'
+        },
+        isReturned: {
+            type: Boolean,
+            default: false
+        },
+        returnReason: {
+            type: String,
+            enum: ['Wrong Size', 'Damaged Product', 'Not as Described', 'Quality Issues', 'Other']
+        },
+        returnComments: {
+            type: String
+        },
+        returnStatus: {
+            type: String,
+            enum: ['Pending', 'Approved', 'Rejected'],
+            default: null
+        },
+        returnRequestDate: {
+            type: Date
+        }
     }],
+    // Checkout summary fields
+    originalSubtotal: { type: Number, required: true },
+    productDiscount: { type: Number, required: true, default: 0 },
+    subtotal: { type: Number, required: true },
+    deliveryCharge: { type: Number, required: true, default: 40 },
     totalAmount: { type: Number, required: true },
     shippingAddress: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
     paymentMethod: { type: String, required: true },
-    status: { 
-        type: String,
-        required: true,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
-        default: 'Pending'
-    },
     paymentStatus: {
         type: String,
         enum: ['pending', 'completed', 'failed'],

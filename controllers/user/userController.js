@@ -1,14 +1,15 @@
-// const { options } = require("../../app");
 const User = require("../../models/userSchema");
 const product = require("../../models/productSchema");
-const env = require("dotenv").config(); //variable configuration
-const nodemailer = require("nodemailer"); // sending email
-const bcrypt = require("bcrypt"); //hashing
-const aswinfn = require("../../utils/nodemailer"); //utilite  function for email sending
+const env = require("dotenv").config(); 
+const nodemailer = require("nodemailer"); 
+const bcrypt = require("bcrypt");
+const aswinfn = require("../../utils/nodemailer");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Brand = require("../../models/brandSchema");
 const OTP = require("../../models/otpschema");
+const { generateReferralCode } = require("../../utils/referralUtils");
+const Wallet = require("../../models/walletschema");
 
 // error page
 const pageNotFound = async (req, res) => {
@@ -22,7 +23,10 @@ const pageNotFound = async (req, res) => {
 //homepage loading
 const loadHomepage = async (req, res) => {
   try {
-    const products = await product.find({ isBlocked: false });
+    const products = await product
+      .find({ isBlocked: false })
+      .sort({ createdAt: -1 })
+      .limit(4);
     const user = req.session.user;
     console.log(req.session);
 
@@ -101,7 +105,7 @@ async function sendVerificationEmail(email, otp) {
 //handle user signup
 const signup = async (req, res) => {
   try {
-    const { name, email, password, cPassword } = req.body;
+    const { name, email, password, cPassword, referralCode } = req.body;
 
     if (password !== cPassword) {
       return res.render("signup", { message: "Password do not match" }); // Validate passwords
@@ -120,15 +124,17 @@ const signup = async (req, res) => {
     if (!emailSent) {
       return res.json("email-error");
     }
-    // Save OTP and user data
 
+    // Save OTP and user data
     const otpEntry = new OTP({
       sessionId: req.session.id,
       otp,
     });
 
     await otpEntry.save();
-    req.session.userData = { name, email, password };
+    
+    // Store referral code in session if provided
+    req.session.userData = { name, email, password, referralCode };
 
     // res.render("verify-otp",{message:''});
     res.redirect("/verify-otp");
@@ -159,30 +165,81 @@ const securePassword = async (password) => {
 const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
+    const sessionId = req.session.id;
+    const userData = req.session.userData;
 
-    console.log(otp === req.session.userOtp);
-    const otpRecord = await OTP.findOne({ sessionId: req.session.id, otp });
-    if (otpRecord) {
-      const user = req.session.userData;
-      console.log(user);
-      const passwordHash = await securePassword(user.password);
+    const foundOtp = await OTP.findOne({ sessionId });
 
-      const saveUserData = new User({
-        name: user.name,
-        email: user.email,
-        password: passwordHash,
-      });
-      await saveUserData.save();
-      // req.session.user = saveUserData._id;
-      req.session.user = saveUserData;
-
-      res.redirect("/");
-    } else {
-      res.status(400).render("verify-otp", { message: "OTP invalid" });
+    if (!foundOtp) {
+      return res.render("verify-otp", { message: "OTP expired" });
     }
+
+    if (otp !== foundOtp.otp) {
+      return res.render("verify-otp", { message: "Invalid OTP" });
+    }
+
+    const passwordHash = await securePassword(userData.password);
+    
+    // Generate a referral code for the new user
+    const newReferralCode = generateReferralCode(userData.name);
+    
+    // Create new user with referral code
+    const newUser = new User({
+      name: userData.name,
+      email: userData.email,
+      password: passwordHash,
+      referalCode: newReferralCode,
+    });
+
+    await newUser.save();
+    
+    // Process referral if a valid referral code was provided
+    if (userData.referralCode) {
+      const referrer = await User.findOne({ referalCode: userData.referralCode });
+      
+      if (referrer) {
+        // Credit referrer's wallet (50 units)
+        const REFERRAL_BONUS = 50;
+        
+        // Find or create wallet for referrer
+        let wallet = await Wallet.findOne({ userId: referrer._id });
+        
+        if (!wallet) {
+          wallet = new Wallet({
+            userId: referrer._id,
+            balance: 0,
+            transactions: []
+          });
+        }
+        
+        // Add bonus amount
+        wallet.balance += REFERRAL_BONUS;
+        
+        // Record transaction
+        wallet.transactions.push({
+          amount: REFERRAL_BONUS,
+          type: 'credit',
+          description: `Referral bonus for user ${newUser.email}`,
+          date: new Date()
+        });
+        
+        await wallet.save();
+        
+        // Update referrer's user model
+        referrer.redeemedUsers = referrer.redeemedUsers || [];
+        referrer.redeemedUsers.push(newUser._id);
+        await referrer.save();
+      }
+    }
+
+    // Clean up session
+    await OTP.findOneAndDelete({ sessionId });
+    delete req.session.userData;
+
+    res.redirect("/login");
   } catch (error) {
-    console.error("Error verifying OTP", error);
-    res.status(500).json({ success: false, message: "An error occured" });
+    console.error("verify-otp error", error);
+    res.redirect("/pageNotFound");
   }
 };
 
@@ -226,7 +283,7 @@ function resendOTP() {
   timer = 60;
   document.getElementById("otp").disabled = false;
   document.getElementById("timerValue").classList.remove("expired");
-  document.getElementById("timerValue").textContent = timer; // Reset displayed timer
+  document.getElementById("timerValue").textContent = timer;
 
   startTimer();
 
@@ -275,6 +332,7 @@ const loadLogin = async (req, res) => {
   }
 };
 
+
 // Handle user login
 const login = async (req, res) => {
   try {
@@ -303,6 +361,7 @@ const login = async (req, res) => {
   }
 };
 
+
 // logout
 const logout = async (req, res) => {
   try {
@@ -322,27 +381,39 @@ const logout = async (req, res) => {
 };
 const loadShoppingPage = async (req, res) => {
   try {
-    const user = req.session.user;
-    const userData = await User.findOne({ _id: user });
+    const userId = req.session.user;
+    const user = userId ? await User.findById(userId) : null;
+    const category = await Category.find({ isListed: true });
+    const products = await Product.find({ isListed: true }).populate('category')
 
-    const categories = await Category.find({ isListed: true });
+    // Initialize filters object with default values
+    const filters = {
+      selectedCategory: 'all',
+      selectedSort: '',
+      minPrice: '',
+      maxPrice: '',
+      search: ''
+    };
 
-    const products = await Product.find({
-      isBlocked: false,
-    });
-
-    console.log("Fetched products:", products);
+    // Update filters from query parameters if they exist
+    if (req.query.category) filters.selectedCategory = req.query.category;
+    if (req.query.sort) filters.selectedSort = req.query.sort;
+    if (req.query.minPrice) filters.minPrice = req.query.minPrice;
+    if (req.query.maxPrice) filters.maxPrice = req.query.maxPrice;
+    if (req.query.search) filters.search = req.query.search;
 
     res.render("shop", {
-      user: userData,
-      products: products,
-      category: categories,
+      user,
+      category,
+      products,
+      filters
     });
   } catch (error) {
-    console.error("Error loading shopping page:", error.message);
-    res.redirect("/pageNotFound");
+    console.error("Error in loadShoppingPage:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
+
 
 // fillter
 const filterProduct = async (req, res) => {

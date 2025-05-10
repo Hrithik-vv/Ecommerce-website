@@ -1,14 +1,15 @@
-const User = require("../../models/userSchema"); //MONGO USER SCHEMA
+const User = require("../../models/userSchema"); 
 const Address = require("../../models/addressSchema");
-const env = require("dotenv").config(); //variable configuration
-const nodemailer = require("nodemailer"); // sending email
-const bcrypt = require("bcrypt"); //hashing
-const aswinfn = require("../../utils/nodemailer"); //utilite  function for email sending
+const env = require("dotenv").config(); 
+const nodemailer = require("nodemailer"); 
+const bcrypt = require("bcrypt");
+const aswinfn = require("../../utils/nodemailer"); 
 const session = require("express-session");
 const { options } = require("../../routes/userRouter");
 const address = require("../../models/addressSchema");
 
-const Wallet = require("../../models/walletSchema");
+const Wallet = require("../../models/walletschema")
+  const Order = require("../../models/orderSchema");
 
 // otp global  fuction
 function generateOtp() {
@@ -156,19 +157,49 @@ const postNewPassword = async (req, res) => {
 
 const userProfile = async (req, res) => {
   try {
-    const userId = req.session.user;
-    const userData = await User.findById(userId);
-    const addressData = await Address.findOne({ userId: userId });
-    const walletData = await Wallet.findOne({ userId: userId });
+    const userId = req.session.user._id;
+    
+    // Fetch user data
+    const userData = await User.findById(userId).populate('redeemedUsers');
+    
+    // Generate referral code if user doesn't have one
+    if (!userData.referalCode) {
+      const { generateReferralCode } = require('../../utils/referralUtils');
+      userData.referalCode = generateReferralCode(userData.name);
+      await userData.save();
+    }
+    
+    // Fetch wallet data with default empty values if not found
+    const wallet = await Wallet.findOne({ userId }) || {
+      balance: 0,
+      transactions: []
+    };
 
-    res.render("profile", {
+    // Fetch address data
+    const addresses = await address.find({ userId });
+    
+    // Fetch orders
+    const orders = await Order.find({ userId })
+      .populate('products.productId')
+      .sort({ createdAt: -1 });
+
+    // Get the site's base URL from environment or use default
+    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+
+    res.render('profile', {
       user: userData,
-      userAddress: addressData,
-      wallet: walletData
+      wallet: wallet,  // This will now always have a value
+      addresses: addresses,
+      orders: orders,
+      baseUrl: baseUrl
     });
+
   } catch (error) {
-    console.error("Error for retrieve profile data", error);
-    res.redirect("/pageNotFound"); 
+    console.error('Error in userProfile:', error);
+    res.status(500).render('error', {
+      message: 'Error loading profile',
+      error: error
+    });
   }
 };
 
@@ -178,6 +209,31 @@ const changeEmail = async (req, res) => {
   } catch (error) {
     res.redirect("/pageNotFound");
     console.log("change email error", error);
+  }
+};
+
+const directEmailChange = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const userData = await User.findById(userId);
+    const email = userData.email;
+    
+    const otp = generateOtp();
+    const emailSent = await sendVerificationEmail(email, otp);
+    
+    if (emailSent) {
+      req.session.userOtp = otp;
+      req.session.email = email;
+      req.session.userData = { email };
+      res.render("change-email-otp");
+      console.log("Email sent:", email);
+      console.log("OTP:", otp);
+    } else {
+      res.status(500).send("Failed to send OTP email");
+    }
+  } catch (error) {
+    res.redirect("/pageNotFound");
+    console.log("direct email change error", error);
   }
 };
 
@@ -241,55 +297,72 @@ const updateEmail = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    res.render("change-password");
+    // Check if there are any success or error messages in the session
+    const successMessage = req.session.successMessage;
+    const errorMessage = req.session.errorMessage;
+    
+    // Clear the messages from session after retrieving them
+    req.session.successMessage = undefined;
+    req.session.errorMessage = undefined;
+    
+    res.render("change-password", { 
+      message: errorMessage,
+      successMessage: successMessage 
+    });
   } catch (error) {
+    console.error("Error loading change password page:", error);
     res.redirect("/pageNotFound");
   }
 };
 
 const changePasswordValid = async (req, res) => {
   try {
-    const { email } = req.body;
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      const otp = generateOtp();
-      const emailSent = await sendVerificationEmail(email, otp);
-      if (emailSent) {
-        req.session.userOtp = otp;
-        req.session.userData = req.body;
-        req.session.email = email;
-        res.render("change-pasword-otp");
-        console.log("OTP:", otp);
-      } else {
-        res.json({
-          success: false,
-          message: "Failed to send OTP. Please try again",
-        });
-      }
-    } else {
-      res.render("change-password");
-      message: "User with this email does not exist";
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.session.user._id;
+    
+    // Validate the passwords
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      req.session.errorMessage = "All fields are required";
+      return res.redirect("/change-password");
     }
-  } catch (error) {
-    console.log("Error in change password validation", error);
-    res.redirect("/pageNotFound");
-  }
-};
-
-const verifyChangePassOtp = async (req, res) => {
-  try {
-    const enteredOtp = req.body.otp;
-    console.log("entered", enteredOtp);
-    if (enteredOtp === req.session.userOtp) {
-      res.json({ success: true, redirectUrl: "/reset-password" });
-    } else {
-      res.json({ success: false, message: "OTP not matching" });
+    
+    if (newPassword !== confirmPassword) {
+      req.session.errorMessage = "New password and confirm password do not match";
+      return res.redirect("/change-password");
     }
+    
+    if (newPassword.length < 6) {
+      req.session.errorMessage = "Password must be at least 6 characters long";
+      return res.redirect("/change-password");
+    }
+    
+    // Get user data
+    const userData = await User.findById(userId);
+    if (!userData) {
+      return res.redirect("/login");
+    }
+    
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, userData.password);
+    if (!isMatch) {
+      req.session.errorMessage = "Current password is incorrect";
+      return res.redirect("/change-password");
+    }
+    
+    // Hash the new password
+    const hashedPassword = await securePassword(newPassword);
+    
+    // Update the password
+    await User.findByIdAndUpdate(userId, { password: hashedPassword });
+    
+    // Set success message in session and redirect
+    req.session.successMessage = "Password changed successfully!";
+    res.redirect("/change-password");
+    
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "An error occured. Pleacse try again leter",
-    });
+    console.error("Error in change password validation:", error);
+    req.session.errorMessage = "An error occurred. Please try again.";
+    res.redirect("/change-password");
   }
 };
 
@@ -317,44 +390,48 @@ const postAddAddress = async (req, res) => {
       phone,
       altPhone,
     } = req.body;
-console.log(addressType)
-if (!addressType || !name || !city || !state || !pincode || !phone) {
-  console.log("Missing required fields:", { addressType, name, city, state, pincode, phone });
-  return res.status(400).send("All fields are required");
-}
+    console.log(addressType);
+    if (!addressType || !name || !city || !state || !pincode || !phone) {
+      console.log("Missing required fields:", {
+        addressType,
+        name,
+        city,
+        state,
+        pincode,
+        phone,
+      });
+      return res.status(400).send("All fields are required");
+    }
 
+    const existingAddress = await Address.findOne({ userId: userData._id });
 
-   
-const existingAddress = await Address.findOne({ userId: userData._id });
+    const newAddressData = {
+      addressType,
+      name,
+      city,
+      landMark,
+      state,
+      pincode,
+      phone,
+      altPhone,
+    };
 
-const newAddressData = {
-  addressType,
-  name,
-  city,
-  landMark,
-  state,
-  pincode,
-  phone,
-  altPhone,
-};
+    if (existingAddress) {
+      // If address document exists, push the new address to the array
+      await Address.updateOne(
+        { userId: userData._id },
+        { $push: { address: newAddressData } }
+      );
+    } else {
+      // If no existing document, create a new one
+      const newAddress = new Address({
+        userId: userData._id,
+        address: [newAddressData],
+      });
+      await newAddress.save();
+    }
 
-if (existingAddress) {
-  // If address document exists, push the new address to the array
-  await Address.updateOne(
-    { userId: userData._id },
-    { $push: { address: newAddressData } }
-  );
-} else {
-  // If no existing document, create a new one
-  const newAddress = new Address({
-    userId: userData._id,
-    address: [newAddressData], // Store the new address in an array
-  });
-  await newAddress.save();
-}
-
-console.log("Address added successfully");
-
+    console.log("Address added successfully");
 
     res.redirect("/userProfile");
   } catch (error) {
@@ -364,8 +441,6 @@ console.log("Address added successfully");
 };
 
 const editAddress = async (req, res) => {
-
-
   try {
     const addressId = req.query.id;
     const user = req.session.user;
@@ -394,7 +469,7 @@ const editAddress = async (req, res) => {
 const postEditAddress = async (req, res) => {
   try {
     const data = req.body;
-    console.log("Request Body:", req.body,"usydghsbzjkjfbijk");
+    console.log("Request Body:", req.body, "usydghsbzjkjfbijk");
     const addressId = req.query.id;
     const user = req.session.user;
     const findAddress = await Address.findOne({ "address._id": addressId });
@@ -460,8 +535,6 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-module.exports = { deleteAddress };
-
 module.exports = {
   getForgotPassPage,
   forgotEmailValid,
@@ -476,10 +549,10 @@ module.exports = {
   updateEmail,
   changePassword,
   changePasswordValid,
-  verifyChangePassOtp,
   addAddress,
   postAddAddress,
   editAddress,
   postEditAddress,
   deleteAddress,
+  directEmailChange,
 };

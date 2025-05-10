@@ -10,8 +10,10 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy; // Google OA
 const adminRouter = require("./routes/adminRouter"); // Admin routes
 const nocache = require("nocache");
 const flash = require('connect-flash');
-const Cart = require("./models/cartSchema")
+const Cart = require("./models/cartSchema");
+const { ensurePortIsFree } = require('./utils/portUtils'); // Import port utilities
 
+// Database connection
 connectDB();
 
 // Middleware to parse JSON and URL-encoded data in requests
@@ -23,28 +25,14 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       secure: false,
       httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false, // Set to true if using https
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
-
-
 
 // Initialize Passport and restore authentication state
 app.use(passport.initialize());
@@ -55,7 +43,7 @@ app.use(nocache());
 
 // Middleware to Set `res.locals.user`
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || "a"; // Assign user to locals for templates
+  res.locals.user = req.session.user || null;
   next();
 });
 app.use((req, res, next) => {
@@ -80,11 +68,10 @@ app.use("/admin", adminRouter);
 // Serve static uploads
 app.use("/uploads", express.static("uploads"));
 
-// Start Server
-const PORT = 3000 || process.env.PORT;
-app.listen(PORT, () => {
-  console.log("Server Running on port 3000");
-});
+// Define the PORT variable for reference
+const PORT = process.env.PORT || 3000;
+
+// Routes
 app.get("/check-session", (req, res) => {
   if (req.session.user) {
     res.send("User is logged in.");
@@ -92,6 +79,7 @@ app.get("/check-session", (req, res) => {
     res.send("No session found.");
   }
 });
+
 // Ensure you are passing categories to the view
 app.get("/admin/addproduct", (req, res) => {
   Category.find({}, (err, categories) => {
@@ -99,6 +87,7 @@ app.get("/admin/addproduct", (req, res) => {
     res.render("admin/addproduct", { categories });
   });
 });
+
 app.get("/admin/product", async (req, res) => {
   const products = await this.product.find();
   res.render("admin/product", { product });
@@ -122,6 +111,25 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// 404 Page Not Found middleware - This must be after all routes
+app.use((req, res) => {
+  res.status(404).render("page-404");	
+});
 
+const logout = async (req, res) => {
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        console.log("Session destruction error:", err.message);
+        return res.redirect("/pageNotFound");
+      }
+      res.clearCookie("connect.sid");
+      return res.redirect("/login");
+    });
+  } catch (error) {
+    console.log("Logout error", error);
+    res.redirect("/pageNotFound");
+  }
+};
 
 module.exports = app;

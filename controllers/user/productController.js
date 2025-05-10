@@ -2,6 +2,7 @@ const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
+const mongoose = require("mongoose");
 
 const productDetails = async (req, res) => {
   try {
@@ -14,8 +15,7 @@ const productDetails = async (req, res) => {
       category: product.category,
       _id: { $ne: id },
       isBlocked: false,
-    }).limit(4); // Limit the number of related products
-
+    }).limit(4);
     res.render("product-details", {
       product,
       relatedProducts,
@@ -27,47 +27,102 @@ const productDetails = async (req, res) => {
 
 //filtter
 const getProducts = async (req, res) => {
+  console.log(req.query);
   try {
-    console.log("Sort Option:", req.query.sort);
-    let sortOption = req.query.sort || "popularity";
-    let sortQuery = {};
+    const page = parseInt(req.query.page) || 1;
+    const limit = 4;
+    const skip = (page - 1) * limit;
 
-    switch (sortOption) {
-      case "popularity":
-        sortQuery = { popularity: -1 };
-        break;
-      case "priceLowHigh":
-        sortQuery = { salePrice: 1 };
-        break;
-      case "priceHighLow":
-        sortQuery = { salePrice: -1 };
-        break;
-      case "rating":
-        sortQuery = { rating: -1 };
-        break;
-      case "newArrivals":
-        sortQuery = { createdAt: -1 };
-        break;
-      case "aToZ":
-        sortQuery = { productName: 1 };
-        break;
-      case "zToA":
-        sortQuery = { productName: -1 };
-        break;
-      default:
-        sortQuery = { popularity: -1 };
+    // Base query
+    let query = { isBlocked: false };
+
+    // Add category filter if category exists
+    if (req.query.category && req.query.category !== 'all') {
+      // Convert string category ID to MongoDB ObjectId
+      query.category = new mongoose.Types.ObjectId(req.query.category);
     }
-    console.log("🔹 Sorting by:", sortQuery);
 
-    const products = await Product.find().sort(sortQuery);
-    console.log("🔹 Total products fetched:", products.length);
+    // Add search condition if search query exists
+    if (req.query.search) {
+      query.productName = { $regex: req.query.search, $options: 'i' };
+    }
 
-    res.render("shop", { products });
+    // Add price range conditions if they exist and are not 'all'
+    if (
+      req.query.minPrice !== undefined && 
+      req.query.maxPrice !== undefined && 
+      req.query.minPrice !== 'all'
+    ) {
+      // Only add price filter if not "all"
+      const minPrice = parseInt(req.query.minPrice);
+      const maxPrice = parseInt(req.query.maxPrice);
+      
+      // Verify the numbers are valid before adding to query
+      if (!isNaN(minPrice) && !isNaN(maxPrice)) {
+        query['variants.price'] = {
+          $gte: minPrice,
+          $lte: maxPrice
+        };
+      }
+    }
+
+    // Get total count for pagination
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Build sort object
+    let sortOption = {};
+    if (req.query.sort) {
+      switch (req.query.sort) {
+        case 'newArrivals':
+          sortOption = { createdAt: -1 };
+          break;
+        case 'priceLowHigh':
+        case 'priceLowToHigh':
+          sortOption = { 'variants.price': 1 };
+          break;
+        case 'priceHighLow':
+        case 'priceHighToLow':  
+          sortOption = { 'variants.price': -1 };
+          break;
+        case 'popularity':
+          sortOption = { popularity: -1 };
+          break;
+        case 'aToZ':
+          sortOption = { productName: 1 };
+          break;
+        case 'zToA':
+          sortOption = { productName: -1 };
+          break;
+        default:
+          sortOption = { createdAt: -1 };
+      }
+    }
+
+    // Fetch products with pagination, sorting and populate category
+    const products = await Product.find(query)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .populate('category');
+
+    // Send response
+    res.json({
+      products,
+      currentPage: page,
+      totalPages,
+      totalProducts
+    });
+
   } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).send("Server Error");
+    console.error('Error in getProducts:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
-};
+  
+}
 
 module.exports = {
   productDetails,

@@ -26,22 +26,24 @@
         justify-content: flex-start;
       }
 
-      /* Centered Header */
+      /* Content Header */
       .content-header {
-        margin: 20px auto;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-left: 20%;
+        text-align: center;
       }
 
-      .content-header .content-title {
+      .content-title {
         font-size: 2rem;
         font-weight: 700;
-        color: #343a40;
-        margin-right: 700px;
+        color: #2d3748;
+        margin-bottom: 1.5rem;
       }
 
-      /* Rest of your existing styles... */
-      /* Search Form Styling */
-      header.card-header {
-        text-align: center;
+      /* Enhanced Search Bar */
+      .card-header {
         margin-bottom: 30px;
       }
 
@@ -50,25 +52,40 @@
         max-width: 500px;
         margin: 0 auto;
         display: flex;
+        gap: 10px;
       }
 
       .input-group .form-control {
-        border-radius: 25px 0 0 25px;
-        padding: 12px 15px;
-        border: 1px solid #ced4da;
+        flex: 1;
+        padding: 12px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .input-group .form-control:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        outline: none;
       }
 
       .input-group .btn {
-        background-color: #007bff;
+        padding: 12px 30px;
+        background: linear-gradient(to right, #4299e1, #667eea);
         color: white;
-        border-radius: 0 25px 25px 0;
-        font-size: 14px;
-        padding: 10px 15px;
-        border: 1px solid #007bff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
       }
 
       .input-group .btn:hover {
-        background-color: #0056b3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(66, 153, 225, 0.3);
       }
 
       /* Search Bar */
@@ -310,14 +327,13 @@
   <body>
     <section class="content-main">
       <div class="content-header">
-        <div>
-          <h2 class="content-title card-title">Customers</h2>
-        </div>
+        <h2 class="content-title">Categories</h2>
       </div>
-      <header class="card-header text-center mb-20">
-        <form action="/admin/category/" method="get" class="d-inline">
+      <header class="card-header">
+        <form action="/admin/category" method="get" class="d-inline">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search products or brands" name="search" />
+            <input type="text" class="form-control" placeholder="Search categories..." name="search"
+              value="<%= typeof search !== 'undefined' ? search : '' %>" />
             <button class="btn" type="submit">Search</button>
           </div>
         </form>
@@ -341,7 +357,8 @@
                 </div>
                 <div class="mb-4">
                   <label class="form-label">Offer (%)</label>
-                  <input type="number" name="offer" placeholder="Enter offer percentage" class="form-control" id="offerId" min="0" max="100" />
+                  <input type="number" name="offer" placeholder="Enter offer percentage" class="form-control"
+                    id="offerId" min="0" max="100" />
                   <div id="offer-error" class="error-message"></div>
                 </div>
                 <div class="d-grid">
@@ -366,7 +383,15 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <%cat.reverse().forEach((category,index)=>{%>
+                    <%cat.reverse().forEach((category,index)=>{
+                      if (typeof search !== 'undefined' && search !== '') {
+                      const name = category.name.toLowerCase();
+                      const description = category.description.toLowerCase();
+                      if (!name.includes(search) && !description.includes(search)) {
+                      return;
+                      }
+                      }
+                      %>
                       <tr>
                         <td></td>
                         <td class="text-start">
@@ -376,7 +401,7 @@
                           <%=category.description%>
                         </td>
                         <td class="text-start">
-                          <%=category.categoryOffer ? category.categoryOffer + '%' : 'No offer'%>
+                          <%=category.categoryOffer ? category.categoryOffer + '%' : 'No offer' %>
                         </td>
                         <td class="text-start">
                           <%if(category.isListed){%>
@@ -388,14 +413,16 @@
                         <td class="text-start">
                           <% if (category.isListed) { %>
                             <button class="btn btn-danger" style="width: 70px">
-                              <a href="/admin/UnlistCategory?id=<%= category._id %>&action=unlist" class="text-white">Unlist</a>
+                              <a href="/admin/UnlistCategory?id=<%= category._id %>&action=unlist"
+                                class="text-white">Unlist</a>
                             </button>
-                          <% } else { %>
-                            <button class="btn btn-success" style="width: 70px">
-                              <a href="/admin/UnlistCategory?id=<%= category._id %>&action=list" class="text-white">List</a>
-                            </button>
-                          <% } %>
-                          
+                            <% } else { %>
+                              <button class="btn btn-success" style="width: 70px">
+                                <a href="/admin/UnlistCategory?id=<%= category._id %>&action=list"
+                                  class="text-white">List</a>
+                              </button>
+                              <% } %>
+
                         </td>
                         <td class="text-start">
                           <a href="/admin/editCategory?id=<%=category._id%>" class="btn btn-info text-white">Edit</a>
@@ -531,6 +558,27 @@
           element.style.display = "none";
         });
       }
+
+      // Add this function for real-time search filtering
+      function filterCategories() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchTerm = searchInput.value.toLowerCase();
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        tableRows.forEach(row => {
+          const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          const description = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+
+          if (name.includes(searchTerm) || description.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+
+      // Add event listener for real-time search
+      document.querySelector('input[name="search"]').addEventListener('input', filterCategories);
     </script>
     <%- include("../../views/partials/admin/adminFooter.ejs") %>
   </body>

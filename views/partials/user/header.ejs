@@ -13,6 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
     rel="stylesheet" />
 
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <!-- Css Styles -->
   <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
   <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
@@ -33,171 +36,714 @@
   <!-- Offcanvas Menu Begin -->
   <div class="offcanvas-menu-overlay"></div>
   <div class="offcanvas-menu-wrapper">
-
     <div class="offcanvas__nav__option">
-      <a href="#" class="search-switch"><img src="img/icon/search.png" alt="" /></a>
-      <a href="#"><img src="img/icon/heart.png" alt="" /></a>
-      <a href="#"><img src="img/icon/cart.png" alt="" /> <span>0</span></a>
-      <div class="price">$0.00</div>
+        <div class="mobile-menu-links">
+            <a href="/" class="mobile-link">Home</a>
+            <a href="/shop" class="mobile-link">Shop</a>
+            <a href="/shopping-cart" class="mobile-link">Cart</a>
+            <a href="/wishlist" class="mobile-link">Wishlist</a>
+        </div>
+        <% if (user) { %>
+            <div class="mobile-user-menu">
+                <a href="#" class="mobile-user"><%= locals.user.name %></a>
+                <div class="mobile-dropdown">
+                    <a href="/userProfile">My Profile</a>
+                    <a href="/wishlist">My Wishlist</a>
+                    <a href="/orders">My Orders</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="mobile-auth">
+                <a href="/signup" class="mobile-link">Sign Up</a>
+                <a href="/login" class="mobile-link">Log in</a>
+            </div>
+        <% } %>
     </div>
-    <div id="mobile-menu-wrap"></div>
-    <div class="offcanvas__text"></div>
   </div>
 
-
   <style>
-    .header .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
+  /* Base styles */
+:root {
+  --primary-color: #010203;
+  --secondary-color: #f0f8ff;
+  --accent-color: #333;
+  --light-gray: #f1f1f1;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
 
-    /* .log-1 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f8ff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  } */
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-    .log-1 h1 {
-      font-family: 'Arial', sans-serif;
-      font-size: 3rem;
-      font-weight: bold;
-      color: #010203;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-      margin: 0;
-    }
+/* Header styling */
+.header {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
 
-    .log-1 h1 {
-      position: absolute;
-      margin-left: 1px;
-      margin: 0%;
-      right: 84%;
-      top: 10%;
-
-
-    }
-
-    .header__menu {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-
-    .header__menu ul {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .header__nav__option {
-      position: absolute;
-      right: -100px;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .mobile-menu {
-      width: auto;
-      margin: 0 auto;
-    }
-
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #f9f9f9;
-      min-width: 6%;
-      box-shadow: 0px 8px 16px rgba(10, 8, 8, 0.2);
-      z-index: 9999;
-      /* Ensure it appears above other content */
-      padding: 5px;
-    }
-
-
-    .dropdown-content li {
-      list-style: none;
-    }
-
-    .dropdown-content a {
-      color: black;
-      text-decoration: none;
-      display: block;
-      padding: 8px 8px;
-
-    }
-
-    .dropdown-content a:hover {
-      background-color: #f1f1f1;
-    }
-
-    .dropdown:hover .dropdown-content {
-      display: block;
-      align-items: center;
-
-    }
-
-    .dropdown {
-      align-items: center;
-      font-size: larger;
-
-
-    }
-
-
-    @media (max-width: 768px) {
-      .header__menu {
-        display: none;
-      }
-
-      .header__nav__option {
-        position: static;
-        justify-content: center;
-        margin-top: 1rem;
-      }
-    }
-    .header__nav__option a {
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
   position: relative;
-  display: inline-block;
-  margin-left: 15px;
+}
+
+/* Logo styling */
+.log-1 {
+  padding: 0.5rem 0;
+}
+
+.log-1 h1 {
+  font-family: 'Arial', sans-serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  transition: var(--transition);
+}
+
+/* Navigation menu */
+.header__menu {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.header__menu ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.header__menu ul li {
+  position: relative;
+}
+
+.header__menu ul li a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  display: block;
+  transition: var(--transition);
+}
+
+.header__menu ul li a:hover {
+  color: #000;
+}
+
+.header__menu ul li.active a {
+  color: #000;
+  position: relative;
+}
+
+.header__menu ul li.active a:after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #000;
+}
+
+/* Dropdown menu */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  position: absolute;
+  background-color: white;
+  min-width: 180px;
+  box-shadow: var(--shadow);
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: var(--transition);
+  border-radius: 5px;
+  padding: 0.5rem 0;
+}
+
+.dropdown-content li {
+  list-style: none;
+  width: 100%;
+}
+
+.dropdown-content a {
+  color: var(--accent-color);
+  text-decoration: none;
+  display: block;
+  padding: 0.5rem 1rem;
+  transition: var(--transition);
+  font-weight: normal;
+}
+
+.dropdown-content a:hover {
+  background-color: var(--light-gray);
+}
+
+.dropdown:hover .dropdown-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Header nav options (user menu, cart, search) */
+.header__nav__option {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header__nav__option a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--accent-color);
 }
 
 .header__nav__option a img {
   width: 20px;
   height: 20px;
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
-
-
 
 .header__nav__option a:hover img {
   transform: scale(1.1);
 }
 
-.wishlist-icon img {
-  filter: grayscale(100%);
+.sign-in-link {
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.sign-in-link:hover {
+  color: #000 !important;
+}
+
+/* Icon styles */
+.wishlist-icon img,
+.cart-icon img {
+  filter: grayscale(50%);
   transition: filter 0.3s ease;
 }
 
-.wishlist-icon:hover img {
+.wishlist-icon:hover img,
+.cart-icon:hover img {
   filter: grayscale(0%);
 }
 
-.wishlist-icon.active img {
+.wishlist-icon.active img,
+.cart-icon.active img {
   filter: grayscale(0%);
+}
+
+/* Cart and wishlist count */
+.cart-count,
+.wishlist-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #e53935;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.cart-count:not(:empty),
+.wishlist-count:not(:empty) {
+  opacity: 1;
+}
+
+/* Mobile menu */
+.canvas__open {
+  display: none;
+  cursor: pointer;
+  z-index: 999;
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: var(--transition);
+}
+
+.canvas__open:hover {
+  background-color: var(--light-gray);
+}
+
+.canvas__open i {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background-color: var(--accent-color);
+  position: relative;
+  transition: var(--transition);
+}
+
+.canvas__open i:before,
+.canvas__open i:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--accent-color);
+  transition: var(--transition);
+}
+
+.canvas__open i:before {
+  top: -8px;
+}
+
+.canvas__open i:after {
+  bottom: -8px;
+}
+
+/* Offcanvas menu */
+.offcanvas-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  visibility: hidden;
+  opacity: 0;
+  transition: var(--transition);
+  backdrop-filter: blur(2px);
+}
+
+.offcanvas-menu-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.offcanvas-menu-wrapper {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100%;
+  background: white;
+  padding: 2rem 1.5rem;
+  z-index: 9999;
+  transition: var(--transition);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.offcanvas-menu-wrapper.active {
+  right: 0;
+}
+
+.offcanvas-menu-wrapper .close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.mobile-link {
+  color: var(--accent-color);
+  font-size: 1.125rem;
+  text-decoration: none;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+  transition: var(--transition);
+  font-weight: 600;
+}
+
+.mobile-link:hover {
+  color: #000;
+  padding-left: 0.625rem;
+}
+
+.mobile-user-menu {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.mobile-user {
+  display: flex;
+  align-items: center;
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.mobile-user:before {
+  content: '\f007';
+  font-family: 'FontAwesome';
+  margin-right: 8px;
+  color: #4a6baf;
+}
+
+.mobile-dropdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-dropdown a {
+  color: #333;
+  font-size: 0.95rem;
+  text-decoration: none;
+  padding: 0.75rem 0;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.mobile-dropdown a:before {
+  font-family: 'FontAwesome';
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+}
+
+.mobile-dropdown a[href="/userProfile"]:before {
+  content: '\f007';
+  color: #4a6baf;
+}
+
+.mobile-dropdown a[href="/wishlist"]:before {
+  content: '\f004';
+  color: #e83e8c;
+}
+
+.mobile-dropdown a[href="/orders"]:before {
+  content: '\f291';
+  color: #28a745;
+}
+
+.mobile-dropdown a[href="/logout"]:before {
+  content: '\f08b';
+  color: #dc3545;
+}
+
+.mobile-dropdown a[href="/logout"] {
+  color: #dc3545;
+  margin-top: 5px;
+  border-bottom: none;
+}
+
+.mobile-dropdown a:hover {
+  color: #000;
+  padding-left: 0.625rem;
+  background-color: rgba(0,0,0,0.03);
+}
+
+/* Page preloder */
+#preloder {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: white;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive styles */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1170px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .log-1 h1 {
+    font-size: 2.25rem;
+  }
+  
+  .header__menu ul {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .log-1 h1 {
+    font-size: 2rem;
+  }
+  
+  .header__menu ul {
+    gap: 4rem;
+  }
+  
+  .header__menu ul li a {
+    font-size: 0.95rem;
+  }
+  
+  .header__nav__option {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header .container {
+    padding: 0.75rem 1rem;
+    justify-content: space-between;
+  }
+  
+  .log-1 {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .log-1 h1 {
+    position: static;
+    font-size: 1.75rem;
+    text-align: center;
+    margin: 0;
+  }
+  
+  .header__menu {
+    display: none;
+  }
+  
+  .header__nav__option {
+    display: none;
+  }
+  
+  .canvas__open {
+    display: block;
+    position: absolute;
+    right: 1rem;
+  }
+  
+  .mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 2rem;
+  }
+  
+  .mobile-menu-links a {
+    padding: 1rem 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .log-1 h1 {
+    font-size: 1.5rem;
+  }
+  
+  .offcanvas-menu-wrapper {
+    width: 270px;
+  }
+  
+  .mobile-link {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .log-1 h1 {
+    font-size: 1.25rem;
+  }
+  
+  .offcanvas-menu-wrapper {
+    width: 250px;
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Enhanced profile dropdown styling */
+.dropdown .sign-in-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.dropdown .sign-in-link:hover {
+  background-color: #e9ecef;
+}
+
+.dropdown .sign-in-link:before {
+  content: '\f007';
+  font-family: 'FontAwesome';
+  color: #333;
+}
+
+.dropdown-content {
+  right: 0;
+  left: auto;
+  min-width: 200px;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  padding: 0.75rem 0;
+  margin-top: 10px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.dropdown-content:before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+}
+
+.dropdown-content li {
+  margin: 2px 0;
+}
+
+.dropdown-content a {
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+}
+
+.dropdown-content a:before {
+  font-family: 'FontAwesome';
+  font-size: 14px;
+}
+
+.dropdown-content li a:before {
+  content: '\f007';
+  color: #4a6baf;
+}
+
+.dropdown-content a[href="/logout"]:before {
+  content: '\f08b';
+  color: #dc3545;
+}
+
+.dropdown-content a:hover {
+  background-color: #f8f9fa;
+  color: #000;
+}
+
+.dropdown-content a[href="/logout"] {
+  color: #dc3545;
+  border-top: 1px solid #eee;
+  margin-top: 5px;
+  padding-top: 10px;
+}
+
+.dropdown-content a[href="/logout"]:hover {
+  background-color: #fef5f5;
+}
+
+.mobile-auth {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.mobile-auth a {
+  color: #333;
+  font-size: 0.95rem;
+  text-decoration: none;
+  padding: 0.75rem 0;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  font-weight: 500;
+}
+
+.mobile-auth a:last-child {
+  border-bottom: none;
+}
+
+.mobile-auth a:before {
+  font-family: 'FontAwesome';
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+}
+
+.mobile-auth a[href="/signup"]:before {
+  content: '\f234';
+  color: #28a745;
+}
+
+.mobile-auth a[href="/login"]:before {
+  content: '\f2f6';
+  color: #007bff;
+}
+
+.mobile-auth a:hover {
+  color: #000;
+  padding-left: 0.625rem;
+  background-color: rgba(0,0,0,0.03);
 }
   </style>
 
@@ -221,24 +767,8 @@
         <div class="col-lg-6 col-md-6">
           <nav class="header__menu mobile-menu">
             <ul>
-
               <li class="active"><a href="/">Home</a></li>
-              <li>
-                <a href="#">Pages</a>
-                <ul class="dropdown">
-                  <li><a href="./about.html">About Us</a></li>
-                  <li><a href="/shop">Shop</a></li>
-                  <li><a href="./shopping-cart.html">Shopping Cart</a></li>
-                  <li><a href="./checkout.html">Check Out</a></li>
-                  <li><a href="./blog-details.html">Blog Details</a></li>
-                </ul>
-              </li>
-
-              <!-- Uncomment for Blog or Contact links -->
               <li><a href="/shop">Shop</a></li>
-              <li><a href="./blog.html">Blog</a></li>
-              <li><a href="./contact.html">Contacts</a></li>
-
             </ul>
           </nav>
         </div>
@@ -247,12 +777,12 @@
         <div class="header__nav__option">
           <% if (user) { %>
             <div class="dropdown">
-              <a href="#" class="sign-in-link" style="color: #010203;">
+              <a href="#" class="sign-in-link">
                 <%= locals.user.name %>
               </a>
               <div class="dropdown-content">
-                <!-- <li class="active"><a href="./index.html">Home</a></li> -->
-                <li><a href="/userProfile">Profile</a></li>
+                <li><a href="/userProfile">My Profile</a></li>
+           
                 <a href="/logout">Logout</a>
               </div>
             </div>
@@ -269,7 +799,7 @@
                   <span class="cart-count"></span> <!-- Optional: Add a dynamic cart count -->
                 </a>
 
-                <a href="wishlist" class="wishlist-icon">
+                <a href="/wishlist" class="wishlist-icon">
                   <img src="img/icon/heart.png" alt="Wishlist" />
                   <span class="wishlist-count"></span> <!-- Add dynamic count if needed -->
                 </a>
@@ -287,6 +817,24 @@
 
     <!-- Add this line to include SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvasOpen = document.querySelector('.canvas__open');
+        const canvasWrapper = document.querySelector('.offcanvas-menu-wrapper');
+        const canvasOverlay = document.querySelector('.offcanvas-menu-overlay');
+
+        canvasOpen.addEventListener('click', function() {
+            canvasWrapper.classList.add('active');
+            canvasOverlay.classList.add('active');
+        });
+
+        canvasOverlay.addEventListener('click', function() {
+            canvasWrapper.classList.remove('active');
+            canvasOverlay.classList.remove('active');
+        });
+    });
+    </script>
   </body>
 </body>
 

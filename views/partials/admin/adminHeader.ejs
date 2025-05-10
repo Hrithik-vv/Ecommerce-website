@@ -3,23 +3,17 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Oxyboo</title>
+  <title>Oxyboo - Admin Dashboard</title>
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
-  <meta name="description" content="" />
+  <meta name="description" content="Oxyboo Admin Dashboard" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta property="og:title" content="" />
-  <meta property="og:type" content="" />
+  <meta property="og:title" content="Oxyboo Admin" />
+  <meta property="og:type" content="website" />
   <meta property="og:url" content="" />
   <meta property="og:image" content="" />
   <link rel="shortcut icon" type="image/x-icon" href="#" />
   <link href="/admin/main.css" rel="stylesheet" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css" />
-  <script>
-    function show() {
-      document.getElementById("logout").style.display = "block";
-    }
-  </script>
-
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <style>
     body {
@@ -138,21 +132,25 @@
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
-      <a href="#" class="brand-wrap">
+      <a href="/admin/dashboard" class="brand-wrap">
         <h3>Oxyboo</h3>
       </a>
       <div>
-        <!-- <button class="btn btn-icon btn-aside-minimize"> -->
         <i class="text-muted material-icons md-menu_open"></i>
-        </button>
       </div>
     </div>
     <nav>
       <ul class="menu-aside">
         <li class="menu-item">
-          <a class="menu-link" href="/admin/sales-report">
+          <a class="menu-link" href="/admin/dashboard">
             <i class="icon material-icons md-home"></i>
             <span class="text">Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/sales-report">
+            <i class="icon material-icons md-assessment"></i>
+            <span class="text">Sales Reports</span>
           </a>
         </li>
         <li class="menu-item">
@@ -163,14 +161,8 @@
         </li>
         <li class="menu-item">
           <a class="menu-link" href="/admin/category">
-            <i class="icon material-icons md-person"></i>
+            <i class="icon material-icons md-category"></i>
             <span class="text">Category</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a class="menu-link" href="/admin/brands">
-            <i class="icon material-icons md-stars"></i>
-            <span class="text">Brands</span>
           </a>
         </li>
         <li class="menu-item">
@@ -185,24 +177,28 @@
             <span class="text">Products</span>
           </a>
         </li>
-
         <li class="menu-item">
           <a class="menu-link" href="/admin/coupon">
             <i class="icon material-icons md-class"></i>
             <span class="text">Coupon</span>
           </a>
         </li>
-        <li class="menu-item">
+        <!-- <li class="menu-item">
           <a class="menu-link" href="/admin/banner">
             <i class="icon material-icons md-photo_size_select_actual"></i>
             <span class="text">Banner</span>
           </a>
-        </li>
-
+        </li> -->
         <li class="menu-item">
           <a class="menu-link" href="/admin/ordermanage">
             <i class="icon material-icons md-shopping_cart"></i>
             <span class="text">Orders</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" href="/admin/return-management">
+            <i class="icon material-icons md-assignment_return"></i>
+            <span class="text">Return Management</span>
           </a>
         </li>
       </ul>
@@ -211,13 +207,34 @@
   <main class="main-wrap">
     <header class="main-header navbar">
       <div style="margin-left: auto; display: flex; align-items: center">
-        <img onclick="show()" class="img-xs rounded-circle dropdown-toggle"
-          src="/admin/img/Screenshot 2025-01-19 202913.png" alt="User" />
-        <a id="logout" style="display: none; margin-left: 10px" class="dropdown-item text-danger" href="/admin/logout">
-          <i class="material-icons md-exit_to_app"></i> Logout
-        </a>
+        <div class="dropdown">
+          <img class="img-xs rounded-circle dropdown-toggle" 
+               src="/admin/img/Screenshot 2025-01-19 202913.png" 
+               alt="User" 
+               onclick="toggleDropdown()" />
+          <div id="logoutDropdown" style="display: none; position: absolute; right: 0; margin-top: 5px; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            <a class="dropdown-item text-danger" href="/admin/logout">
+              <i class="material-icons md-exit_to_app"></i> Logout
+            </a>
+          </div>
+        </div>
       </div>
     </header>
+    
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.getElementById('logoutDropdown');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+      }
+      
+      // Close dropdown when clicking elsewhere
+      window.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('logoutDropdown');
+        if (dropdown && !e.target.classList.contains('dropdown-toggle') && dropdown.style.display === 'block') {
+          dropdown.style.display = 'none';
+        }
+      });
+    </script>
   </main>
 </body>
 

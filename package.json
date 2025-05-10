@@ -1,20 +1,26 @@
 {
   "name": "project",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon app"
+    "start": "node start.js",
+    "dev": "nodemon start.js",
+    "debug": "node --inspect start.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "chalk": "^4.1.2",
     "connect-flash": "^0.1.1",
     "csurf": "^1.10.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "figlet": "^1.8.0",
+    "jspdf": "^3.0.0",
+    "jspdf-autotable": "^5.0.2",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.3",
     "multer": "^1.4.5-lts.1",
@@ -25,7 +31,8 @@
     "passport-google-oauth2": "^0.2.0",
     "passport-google-oauth20": "^2.0.0",
     "razorpay": "^2.9.5",
-    "uuid": "^11.0.5"
+    "uuid": "^11.0.5",
+    "xlsx": "^0.18.5"
   },
-  "description": ""
+  "description": "Oxyboo E-commerce Platform"
 }

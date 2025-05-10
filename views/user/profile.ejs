@@ -127,15 +127,34 @@
     .breadcrumb a:hover::after {
       transform: scaleX(1);
     }
-  </style>
 
+    .pagination-buttons .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .transaction-history {
+      min-height: 400px;
+      position: relative;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .table td {
+      vertical-align: middle;
+    }
+  </style>
 
   <main class="main">
     <div class="page-header breadcrumb-wrap mb-3">
       <div class="container">
         <div class="breadcrumb">
-          <a href="#" rel="nofollow">Home</a>
-          <span></span> Profile <span></span> Account
+          <a href="/" rel="nofollow">Home</a>
+          <span></span> Profile <span></span>
         </div>
       </div>
     </div>
@@ -178,9 +197,9 @@
                       </a> -->
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#referal" role="tab"
-                        aria-controls="track-orders" aria-selected="false">
-                        <i class="fi-rs-shopping-cart-check mr-10"></i>Referals
+                      <a class="nav-link" id="referral-tab" data-bs-toggle="tab" href="#referral" role="tab"
+                        aria-controls="referral" aria-selected="false">
+                        <i class="fi-rs-share mr-10"></i>Referrals
                       </a>
                     </li>
                     <li class="nav-item">
@@ -211,7 +230,7 @@
                           <strong>Email:</strong>
                           <%=user.email%>
                         </p>
-                        <a href="/change-email" class="btn btn-sm btn-success ml-2">Change Email</a>
+                        <a href="/direct-email-change" class="btn btn-sm btn-success ml-2">Change Email</a>
                         <a href="/change-password" class="btn btn-sm btn-success">Change Password</a>
                       </div>
                     </div>
@@ -220,47 +239,47 @@
 
                   <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                     <div class="row">
-                      <%if(userAddress){%>
-                        <%userAddress.address.forEach((address)=>{%>
+                      <%if(addresses && addresses.length > 0){%>
+                        <%addresses.forEach((address)=>{%>
+                          <%address.address.forEach((addr)=>{%>
+                            <div class="col-lg-6">
+                              <div class="card mb-3 mb-lg-0">
+                                <div class="card-header">
+                                  <h5 class="mb-0"><%=addr.addressType%></h5>
+                                </div>
 
-                      <div class="col-lg-6">
-                        <div class="card mb-3 mb-lg-0">
-                          <div class="card-header">
-                            <h5 class="mb-0"><%=address.addressType%></h5>
-                          </div>
-
-                          <div class="card-body">
-                            <address>
-                              <%=address.name%><br/>
-                              <%=address.city%><br/>
-                              <%=address.landMark%><br/>
-                              <%=address.state%>
-                            </address>
-                            <p><%=address.pincode%></p>
-                            <p><%=address.phone%></p>
-                            <p><%=address.altPhone%></p>
-                            <div class="d-flex justify-content-between">
-                              <a href="/editAddress?id=<%=address._id%>" class="btn-small">Edit</a>
-                              <a href="/deleteAddress?id=<%= address._id %>" class="btn-small" onclick="return confirm('Are you sure you want to delete this address?')">Delete</a>
-
+                                <div class="card-body">
+                                  <address>
+                                    <%=addr.name%><br/>
+                                    <%=addr.city%><br/>
+                                    <%=addr.landMark%><br/>
+                                    <%=addr.state%>
+                                  </address>
+                                  <p><%=addr.pincode%></p>
+                                  <p><%=addr.phone%></p>
+                                  <p><%=addr.altPhone%></p>
+                                  <div class="d-flex justify-content-between">
+                                    <a href="/editAddress?id=<%=addr._id%>" class="btn-small">Edit</a>
+                                    <a href="/deleteAddress?id=<%=addr._id%>" class="btn-small" onclick="return confirm('Are you sure you want to delete this address?')">Delete</a>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-
+                          <%})%>
+                        <%})%>
+                      <%}else{%>
+                        <div class="col-lg-6">
+                          <div class="card mb-3 mb-lg-0">
+                            <div class="card-header">
+                              <h5 class="mb-0"></h5>
+                            </div>
+                            <div class="card-body">
+                              <address>No address</address>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <%})%><%}else {%>
-                      <div class="col-lg-6">
-                        <div class="card mb-3 mb-lg-0">
-                          <div class="card-header">
-                            <h5 class="mb-0"></h5>
-                          </div>
-                          <div class="card-body">
-                            <address>No address</address>
-                          </div>
-                        </div>
-                      </div>
                       <%}%>
-                      <div class = "address-btn">
+                      <div class="address-btn">
                         <a href="/addAddress">
                           <button class="btn btn-primary w-70">
                             Add address
@@ -335,27 +354,28 @@
                             <table class="table">
                               <thead>
                                 <tr>
+                                  <th>Transaction ID</th>
                                   <th>Date</th>
                                   <th>Description</th>
                                   <th>Type</th>
                                   <th>Amount</th>
                                 </tr>
                               </thead>
-                              <tbody>
-                                <% wallet.transactions.forEach(transaction => { %>
-                                  <tr>
-                                    <td><%= new Date(transaction.date).toLocaleDateString() %></td>
-                                    <td><%= transaction.description %></td>
-                                    <td>
-                                      <span class="badge <%= transaction.type === 'credit' ? 'bg-success' : 'bg-danger' %>">
-                                        <%= transaction.type.toUpperCase() %>
-                                      </span>
-                                    </td>
-                                    <td>₹<%= transaction.amount %></td>
-                                  </tr>
-                                <% }) %>
+                              <tbody id="transactionTableBody">
+                                <!-- Table body will be populated by JavaScript -->
                               </tbody>
                             </table>
+
+                            <!-- Pagination -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                              <div class="pagination-info">
+                                Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> transactions
+                              </div>
+                              <div class="pagination-buttons">
+                                <button id="prevPage" class="btn btn-sm btn-outline-primary me-2">&laquo; Previous</button>
+                                <button id="nextPage" class="btn btn-sm btn-outline-primary">Next &raquo;</button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -366,15 +386,88 @@
 
 
 
-                  <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
+                  <div class="tab-pane fade" id="referral" role="tabpanel" aria-labelledby="referral-tab">
                     <div class="card">
                       <div class="card-header">
-                        <h5 class="mb-0">Referal</h5>
+                        <h3 class="mb-0 text-center">My Referrals</h3>
                       </div>
                       <div class="card-body">
-                        <h6 class="mb-3">Refer your friends and earn money!</h6>
-                        <p>Share this link: <strong>></strong></p>
-                        <p>Earned: ₹</p>
+                        <div class="text-center mb-4">
+                          <h5>Your Referral Code</h5>
+                          <div class="d-flex justify-content-center align-items-center">
+                            <div class="input-group" style="max-width: 300px;">
+                              <input type="text" class="form-control" id="referralCode" value="<%= user.referalCode || 'No referral code available' %>" readonly>
+                              <button class="btn btn-outline-secondary" type="button" id="copyCodeBtn" onclick="copyReferralCode()">
+                                <i class="fi-rs-copy"></i> Copy
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="text-center mb-4">
+                          <h5>Share Your Referral Link</h5>
+                          <div class="d-flex justify-content-center align-items-center">
+                            <div class="input-group" style="max-width: 300px;">
+                              <input type="text" class="form-control" id="referralLink" 
+                                value="<%= user.referalCode ? `${process.env.BASE_URL || 'http://localhost:3000'}/signup?ref=${user.referalCode}` : 'No referral link available' %>" readonly>
+                              <button class="btn btn-outline-secondary" type="button" id="copyLinkBtn" onclick="copyReferralLink()">
+                                <i class="fi-rs-copy"></i> Copy
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="text-center mb-4">
+                          <h5>Referral Benefits</h5>
+                          <p>Earn ₹50 in your wallet for each friend who signs up using your referral code!</p>
+                        </div>
+
+                        <% if (user.redeemedUsers && user.redeemedUsers.length > 0) { %>
+                        <div class="referred-users mt-4">
+                          <h5>Successful Referrals</h5>
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th>No.</th>
+                                  <th>User</th>
+                                  <th>Date</th>
+                                  <th>Reward</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% user.redeemedUsers.forEach((referredUser, index) => { %>
+                                <tr>
+                                  <td><%= index + 1 %></td>
+                                  <td><%= referredUser.email || 'User' %></td>
+                                  <td><%= new Date(referredUser.createdAt || Date.now()).toLocaleDateString() %></td>
+                                  <td>₹50</td>
+                                </tr>
+                                <% }); %>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <% } else { %>
+                        <div class="no-referrals text-center">
+                          <p>You haven't referred anyone yet. Share your referral code to start earning rewards!</p>
+                        </div>
+                        <% } %>
+
+                        <div class="social-sharing text-center mt-4">
+                          <h5>Share on Social Media</h5>
+                          <div class="d-flex justify-content-center">
+                            <a href="javascript:void(0)" onclick="shareOnWhatsApp()" class="btn btn-outline-success me-2">
+                              <i class="fa fa-whatsapp"></i> WhatsApp
+                            </a>
+                            <a href="javascript:void(0)" onclick="shareOnFacebook()" class="btn btn-outline-primary me-2">
+                              <i class="fa fa-facebook"></i> Facebook
+                            </a>
+                            <a href="javascript:void(0)" onclick="shareOnTwitter()" class="btn btn-outline-info">
+                              <i class="fa fa-twitter"></i> Twitter
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -457,6 +550,115 @@
 
   function confirmReturnOrder(orderId) {
       // ... existing return order code ...
+  }
+
+  // Pagination configuration
+  const itemsPerPage = 5;
+  let currentPage = 1;
+  
+  // Get all transactions with safety check
+  const allTransactions = <%- JSON.stringify((wallet && wallet.transactions) || []) %>;
+  const totalPages = Math.ceil(allTransactions.length / itemsPerPage);
+
+  function displayTransactions(page) {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, allTransactions.length);
+    const transactionsToShow = allTransactions.slice(startIndex, endIndex);
+
+    const tableBody = document.getElementById('transactionTableBody');
+    tableBody.innerHTML = '';
+
+    transactionsToShow.forEach(transaction => {
+      const row = document.createElement('tr');
+      // Use a default 'N/A' if transactionId is not available (for compatibility with existing data)
+      const transactionId = transaction.transactionId || `TXN${Math.floor(Math.random() * 1000000)}`;
+      
+      row.innerHTML = `
+        <td>${transactionId}</td>
+        <td>${new Date(transaction.date).toLocaleDateString()}</td>
+        <td>${transaction.description}</td>
+        <td>
+          <span class="badge ${transaction.type === 'credit' ? 'bg-success' : 'bg-danger'}">
+            ${transaction.type.toUpperCase()}
+          </span>
+        </td>
+        <td>₹${transaction.amount}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    // Update pagination info
+    document.getElementById('startIndex').textContent = startIndex + 1;
+    document.getElementById('endIndex').textContent = endIndex;
+    document.getElementById('totalItems').textContent = allTransactions.length;
+
+    // Update button states
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+  }
+
+  // Event listeners for pagination buttons
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      displayTransactions(currentPage);
+    }
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      displayTransactions(currentPage);
+    }
+  });
+
+  // Initialize the display
+  displayTransactions(1);
+
+  // Referral code and link copy functions
+  function copyReferralCode() {
+    const codeElement = document.getElementById('referralCode');
+    codeElement.select();
+    document.execCommand('copy');
+    
+    const copyBtn = document.getElementById('copyCodeBtn');
+    copyBtn.innerHTML = '<i class="fi-rs-check"></i> Copied';
+    setTimeout(() => {
+      copyBtn.innerHTML = '<i class="fi-rs-copy"></i> Copy';
+    }, 2000);
+  }
+  
+  function copyReferralLink() {
+    const linkElement = document.getElementById('referralLink');
+    linkElement.select();
+    document.execCommand('copy');
+    
+    const copyBtn = document.getElementById('copyLinkBtn');
+    copyBtn.innerHTML = '<i class="fi-rs-check"></i> Copied';
+    setTimeout(() => {
+      copyBtn.innerHTML = '<i class="fi-rs-copy"></i> Copy';
+    }, 2000);
+  }
+  
+  // Social sharing functions
+  function shareOnWhatsApp() {
+    const referralLink = document.getElementById('referralLink').value;
+    const message = "Join me on Oxyboo! Use my referral code and get exclusive offers: " + referralLink;
+    const whatsappUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(message);
+    window.open(whatsappUrl, '_blank');
+  }
+  
+  function shareOnFacebook() {
+    const referralLink = document.getElementById('referralLink').value;
+    const facebookUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(referralLink);
+    window.open(facebookUrl, '_blank');
+  }
+  
+  function shareOnTwitter() {
+    const referralLink = document.getElementById('referralLink').value;
+    const message = "Join me on Oxyboo! Use my referral link and get exclusive offers:";
+    const twitterUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(message) + "&url=" + encodeURIComponent(referralLink);
+    window.open(twitterUrl, '_blank');
   }
   </script>
 

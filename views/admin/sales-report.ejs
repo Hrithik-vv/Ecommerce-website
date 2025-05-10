@@ -1,0 +1,1189 @@
+<%- include("../partials/admin/adminHeader.ejs") %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.27/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+/* Classic Dashboard Styles */
+.content-main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #f8f9fa;
+    margin-left: 330px;
+    margin-top: 80px;
+    min-height: calc(100vh - 80px);
+    position: relative;
+    z-index: 1;
+}
+
+/* Header Styles */
+.content-header {
+    margin-bottom: 2rem;
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 2px solid #e9ecef;
+    background: #f8f9fa;
+    position: relative;
+    z-index: 2;
+}
+
+.content-title {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Filter Section */
+.filter-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    background-color: #34495e;
+    border-color: #34495e;
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+    transform: translateY(-2px);
+}
+
+/* Summary Cards */
+.summary-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.summary-card .icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.summary-card .title {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.summary-card .value {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Orders Table */
+.orders-table {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 2rem;
+}
+
+.table {
+    margin: 0;
+}
+
+.table thead th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.table tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #34495e;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Export Buttons */
+.export-buttons {
+    margin-bottom: 1rem;
+}
+
+.btn-export {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    color: #2c3e50;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    color: #2c3e50;
+}
+
+/* Date Inputs */
+.form-control {
+    border: 1px solid #e9ecef;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #34495e;
+    box-shadow: 0 0 0 0.2rem rgba(52, 73, 94, 0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-main {
+        margin-left: 0;
+        padding: 15px;
+        margin-top: 60px;
+    }
+
+    .content-title {
+        font-size: 2rem;
+    }
+
+    .summary-card {
+        margin-bottom: 15px;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+    }
+}
+
+/* Status Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.badge-success {
+    background: #27ae60;
+    color: #fff;
+}
+
+.badge-warning {
+    background: #f1c40f;
+    color: #2c3e50;
+}
+
+.badge-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.summary-card, .orders-table {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.pagination-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination-info {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 0.5rem;
+}
+
+.page-numbers .btn {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-secondary {
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #212529;
+    transform: translateY(-2px);
+}
+
+.btn-outline-secondary:disabled {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-primary {
+    background-color: #34495e;
+    border-color: #34495e;
+}
+
+.btn-primary:hover {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+@media (max-width: 576px) {
+    .pagination-wrapper {
+        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .pagination-info {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Sales Dashboard</h2>
+    </div>
+
+    <!-- Date Filter Section -->
+    <div class="filter-section">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <button class="btn btn-primary" onclick="filterSales('today')">Today</button>
+            <button class="btn btn-primary" onclick="filterSales('week')">This Week</button>
+            <button class="btn btn-primary" onclick="filterSales('month')">This Month</button>
+            <button class="btn btn-primary" onclick="filterSales('year')">This Year</button>
+            <div class="d-flex gap-2 mt-2 mt-md-0">
+                <input type="date" id="startDate" class="form-control">
+                <input type="date" id="endDate" class="form-control">
+                <button class="btn btn-primary" onclick="filterSales('custom')">Apply Range</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-shopping-cart icon text-primary"></i>
+                <div class="title">Total Orders</div>
+                <div class="value" id="totalOrders">0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-rupee-sign icon text-success"></i>
+                <div class="title">Total Revenue</div>
+                <div class="value" id="totalRevenue">₹0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-chart-line icon text-info"></i>
+                <div class="title">Average Order</div>
+                <div class="value" id="avgOrderValue">₹0</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="summary-card text-center">
+                <i class="fas fa-box icon text-warning"></i>
+                <div class="title">Products Sold</div>
+                <div class="value" id="productsSold">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="orders-table">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Recent Orders</h5>
+                <div class="export-buttons">
+                    <button class="btn btn-export" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    
+                    <button class="btn btn-export" onclick="exportReport('excel')">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Products</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <!-- Table content will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination-wrapper">
+        <!-- <div class="pagination-info">
+            Showing <span id="currentRange">1-10</span> of <span id="totalItems">0</span> orders
+        </div> -->
+        <div class="pagination-controls">
+            <button id="firstPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToPage(1)" title="First Page">
+                <i class="fas fa-angle-double-left"></i>
+            </button>
+            <button id="prevPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToPrevPage()" title="Previous Page">
+                <i class="fas fa-angle-left"></i>
+            </button>
+            <div id="pageNumbers" class="page-numbers"></div>
+            <button id="nextPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToNextPage()" title="Next Page">
+                <i class="fas fa-angle-right"></i>
+            </button>
+            <button id="lastPageBtn" class="btn btn-sm btn-outline-secondary" onclick="goToLastPage()" title="Last Page">
+                <i class="fas fa-angle-double-right"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<script>
+let currentPage = 1;
+let totalPages = 1;
+const itemsPerPage = 10;
+const maxVisiblePages = 5;
+
+function getCurrentPeriod() {
+    // Check which period is currently selected based on the dates
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (startDate && endDate) {
+        return 'custom';
+    }
+    
+    // Default to 'today' if no specific period is detected
+    return 'today';
+}
+
+async function filterSales(period, page = 1) {
+    try {
+        console.log('Filter period:', period, 'Page:', page);
+        let startDate, endDate;
+        const today = new Date();
+        
+        switch(period) {
+            case 'today':
+                // Today (midnight to 11:59:59 PM)
+                startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+                endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+                break;
+                
+            case 'week':
+                // Last 7 days
+                startDate = new Date(today);
+                startDate.setDate(today.getDate() - 6); // Get last 7 days including today
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+                
+            case 'month':
+                // Current month (1st to today)
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+                
+            case 'year':
+                // Current year (Jan 1st to today)
+                startDate = new Date(today.getFullYear(), 0, 1, 0, 0, 0);
+                endDate = new Date(today);
+                endDate.setHours(23, 59, 59, 999);
+                break;
+                
+            case 'custom':
+                // Handle custom date range with proper time
+                const startInput = document.getElementById('startDate').value;
+                const endInput = document.getElementById('endDate').value;
+                
+                if (!startInput || !endInput) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+                
+                // Create dates using the input values
+                startDate = new Date(startInput);
+                endDate = new Date(endInput);
+                
+                // Check if dates are valid
+                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                    alert('Please enter valid dates');
+                    return;
+                }
+                
+                // Check if end date is not before start date
+                if (endDate < startDate) {
+                    alert('End date cannot be before start date');
+                    return;
+                }
+                
+                // Set proper time for start and end dates
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+                
+                // Show visual feedback that filter is applied
+                const customRangeBtn = document.querySelector('button[onclick="filterSales(\'custom\')"]');
+                customRangeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Filtering...';
+                
+                break;
+        }
+        
+        // Format dates to ensure they're displayed correctly in the UI
+        if (period !== 'custom') {
+            // Update date inputs to reflect the period
+            document.getElementById('startDate').value = formatDateForInput(startDate);
+            document.getElementById('endDate').value = formatDateForInput(endDate);
+        }
+
+        console.log('Request payload:', {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            page,
+            limit: itemsPerPage
+        });
+
+        const response = await fetch('/admin/sales-report/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                page: page,
+                limit: itemsPerPage
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Received response:', result);
+
+        // Reset button text if it was a custom filter
+        if (period === 'custom') {
+            const customRangeBtn = document.querySelector('button[onclick="filterSales(\'custom\')"]');
+            customRangeBtn.innerHTML = 'Apply Range';
+        }
+
+        if (result.success) {
+            // Validate data structure before using it
+            if (!result.data) {
+                console.error('Response is missing data property:', result);
+                alert('Error: Server returned a success response but with invalid data structure');
+                return;
+            }
+            
+            // Check for required properties in data
+            const requiredProps = ['totalOrders', 'totalRevenue', 'productsSold', 'averageOrderValue', 'orders', 'pagination'];
+            const missingProps = requiredProps.filter(prop => result.data[prop] === undefined);
+            
+            if (missingProps.length > 0) {
+                console.error('Response data is missing required properties:', missingProps, result.data);
+                alert(`Error: Server response is missing required data: ${missingProps.join(', ')}`);
+                return;
+            }
+            
+            updateDashboard(result.data);
+            updatePagination(result.data.pagination);
+            
+            // Add a visual indicator showing the currently active filter
+            const allFilterButtons = document.querySelectorAll('.filter-section .btn-primary');
+            allFilterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '';
+            });
+            
+            const activeButton = document.querySelector(`button[onclick="filterSales('${period}')"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                activeButton.style.backgroundColor = '#2c3e50';
+            }
+            
+            // Show date range in a more visible way for custom ranges
+            if (period === 'custom') {
+                const formattedStartDate = new Date(startDate).toLocaleDateString();
+                const formattedEndDate = new Date(endDate).toLocaleDateString();
+                
+                // Add or update a date range indicator
+                let dateRangeIndicator = document.getElementById('dateRangeIndicator');
+                const filterSection = document.querySelector('.filter-section');
+                
+                if (!filterSection) {
+                    console.warn('Filter section element not found');
+                    return;
+                }
+                
+                if (!dateRangeIndicator) {
+                    dateRangeIndicator = document.createElement('div');
+                    dateRangeIndicator.id = 'dateRangeIndicator';
+                    dateRangeIndicator.className = 'alert alert-info mt-2 text-center';
+                    filterSection.appendChild(dateRangeIndicator);
+                }
+                dateRangeIndicator.textContent = `Showing data from ${formattedStartDate} to ${formattedEndDate}`;
+                dateRangeIndicator.style.display = 'block';
+            } else {
+                // Hide the indicator for non-custom ranges
+                const dateRangeIndicator = document.getElementById('dateRangeIndicator');
+                if (dateRangeIndicator) {
+                    dateRangeIndicator.style.display = 'none';
+                }
+            }
+            
+        } else {
+            throw new Error(result.message || 'Failed to fetch data');
+        }
+    } catch (error) {
+        console.error('Error in filterSales:', error);
+        alert('Error fetching sales data: ' + error.message);
+    }
+}
+
+function formatDateForInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function updateDashboard(data) {
+    try {
+        // Update summary cards - add null checks for each element
+        const totalOrdersElement = document.getElementById('totalOrders');
+        const totalRevenueElement = document.getElementById('totalRevenue');
+        const avgOrderValueElement = document.getElementById('avgOrderValue');
+        const productsSoldElement = document.getElementById('productsSold');
+        const tableBody = document.getElementById('salesTableBody');
+        
+        // Log which elements were not found to help debugging
+        if (!totalOrdersElement) console.warn('Element with ID "totalOrders" not found');
+        if (!totalRevenueElement) console.warn('Element with ID "totalRevenue" not found');
+        if (!avgOrderValueElement) console.warn('Element with ID "avgOrderValue" not found');
+        if (!productsSoldElement) console.warn('Element with ID "productsSold" not found');
+        if (!tableBody) console.warn('Element with ID "salesTableBody" not found');
+        
+        // Only update elements that exist
+        if (totalOrdersElement) totalOrdersElement.textContent = data.totalOrders;
+        if (totalRevenueElement) totalRevenueElement.textContent = '₹' + data.totalRevenue.toFixed(2);
+        if (avgOrderValueElement) avgOrderValueElement.textContent = '₹' + data.averageOrderValue.toFixed(2);
+        if (productsSoldElement) productsSoldElement.textContent = data.productsSold;
+
+        // Update table if the table body exists
+        if (tableBody) {
+            tableBody.innerHTML = data.orders.map(order => `
+                <tr>
+                    <td>${order.orderId}</td>
+                    <td>${new Date(order.date).toLocaleDateString()}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.products}</td>
+                    <td>₹${order.totalAmount.toFixed(2)}</td>
+                    <td>${order.paymentMethod}</td>
+                    <td>${order.status}</td>
+                </tr>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error updating dashboard:', error);
+        alert('Error updating dashboard display: ' + error.message);
+    }
+}
+
+function updatePagination(pagination) {
+    try {
+        // Update global variables
+        currentPage = pagination.currentPage;
+        totalPages = pagination.totalPages;
+        
+        // Get button elements
+        const firstPageBtn = document.getElementById('firstPageBtn');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const lastPageBtn = document.getElementById('lastPageBtn');
+        const pageNumbersContainer = document.getElementById('pageNumbers');
+        
+        // Check if pagination elements exist
+        if (!firstPageBtn || !prevPageBtn || !nextPageBtn || !lastPageBtn || !pageNumbersContainer) {
+            console.warn('Some pagination elements were not found:', {
+                firstPageBtn: !!firstPageBtn,
+                prevPageBtn: !!prevPageBtn,
+                nextPageBtn: !!nextPageBtn,
+                lastPageBtn: !!lastPageBtn,
+                pageNumbersContainer: !!pageNumbersContainer
+            });
+            return; // Exit early if elements are missing
+        }
+        
+        // Enable/disable prev/next buttons
+        const isFirstPage = currentPage <= 1;
+        const isLastPage = currentPage >= totalPages;
+        
+        firstPageBtn.disabled = isFirstPage;
+        prevPageBtn.disabled = isFirstPage;
+        nextPageBtn.disabled = isLastPage;
+        lastPageBtn.disabled = isLastPage;
+        
+        // Add visual indication for disabled buttons
+        firstPageBtn.classList.toggle('disabled', isFirstPage);
+        prevPageBtn.classList.toggle('disabled', isFirstPage);
+        nextPageBtn.classList.toggle('disabled', isLastPage);
+        lastPageBtn.classList.toggle('disabled', isLastPage);
+        
+        // Update info text
+        const currentRangeElement = document.getElementById('currentRange');
+        const totalItemsElement = document.getElementById('totalItems');
+        
+        if (currentRangeElement && totalItemsElement) {
+            const startItem = pagination.totalCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+            const endItem = Math.min(currentPage * itemsPerPage, pagination.totalCount);
+            currentRangeElement.textContent = `${startItem}-${endItem}`;
+            totalItemsElement.textContent = pagination.totalCount;
+        }
+        
+        // Generate page numbers
+        pageNumbersContainer.innerHTML = '';
+        
+        // If no pages, don't show pagination
+        if (totalPages <= 0) {
+            return;
+        }
+        
+        // Determine range of pages to show
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = startPage + maxVisiblePages - 1;
+        
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        // Add ellipsis at beginning if needed
+        if (startPage > 1) {
+            const ellipsisStart = document.createElement('span');
+            ellipsisStart.className = 'btn btn-sm btn-outline-secondary disabled';
+            ellipsisStart.innerHTML = '...';
+            ellipsisStart.style.pointerEvents = 'none';
+            pageNumbersContainer.appendChild(ellipsisStart);
+        }
+        
+        // Add page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-secondary'}`;
+            pageBtn.textContent = i;
+            
+            // Use a closure to capture the correct page number
+            pageBtn.addEventListener('click', function() {
+                goToPage(i);
+            });
+            
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+        
+        // Add ellipsis at end if needed
+        if (endPage < totalPages) {
+            const ellipsisEnd = document.createElement('span');
+            ellipsisEnd.className = 'btn btn-sm btn-outline-secondary disabled';
+            ellipsisEnd.innerHTML = '...';
+            ellipsisEnd.style.pointerEvents = 'none';
+            pageNumbersContainer.appendChild(ellipsisEnd);
+        }
+    } catch (error) {
+        console.error('Error updating pagination:', error);
+    }
+}
+
+function goToPage(page) {
+    console.log('Going to page:', page);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page; // Update current page before calling filterSales
+        filterSales(getCurrentPeriod(), page);
+    }
+}
+
+function goToPrevPage() {
+    console.log('Going to previous page from:', currentPage);
+    if (currentPage > 1) {
+        goToPage(currentPage - 1);
+    }
+}
+
+function goToNextPage() {
+    console.log('Going to next page from:', currentPage);
+    if (currentPage < totalPages) {
+        goToPage(currentPage + 1);
+    }
+}
+
+function goToLastPage() {
+    console.log('Going to last page:', totalPages);
+    goToPage(totalPages);
+}
+
+function exportReport(format) {
+    try {
+        // Get the date range for the report
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (!startDate || !endDate) {
+            alert('Please select a date range first');
+            return;
+        }
+        
+        // First fetch the complete data for the export
+        fetchDataForExport(format, startDate, endDate);
+    } catch (error) {
+        console.error('Error exporting report:', error);
+        alert('Error exporting report: ' + error.message);
+    }
+}
+
+async function fetchDataForExport(format, startDate, endDate) {
+    try {
+        // Show loading indicator
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.id = 'exportLoadingIndicator';
+        loadingIndicator.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Generating export...';
+        loadingIndicator.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); padding: 20px; border-radius: 8px; z-index: 9999; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);';
+        document.body.appendChild(loadingIndicator);
+        
+        // Determine which period is currently selected
+        let periodType = getCurrentPeriod();
+        
+        // Convert dates to Date objects for processing
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+        
+        // Format dates for display
+        const formattedStartDate = startDateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        const formattedEndDate = endDateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        
+        // Fetch all data for the given period (without pagination)
+        const response = await fetch('/admin/sales-report/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                startDate: startDateObj.toISOString(),
+                endDate: endDateObj.toISOString(),
+                page: 1,
+                limit: 1000 // Request a larger limit to get more data for the export
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to fetch data');
+        }
+        
+        // Remove loading indicator
+        document.body.removeChild(loadingIndicator);
+        
+        // Generate the appropriate export format
+        if (format === "pdf") {
+            generatePDF(result.data, {
+                startDate: formattedStartDate,
+                endDate: formattedEndDate,
+                rawStartDate: startDate,
+                rawEndDate: endDate,
+                periodType: periodType
+            });
+        } else if (format === "excel") {
+            generateExcel(result.data, {
+                startDate: formattedStartDate,
+                endDate: formattedEndDate,
+                rawStartDate: startDate,
+                rawEndDate: endDate,
+                periodType: periodType
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching data for export:', error);
+        
+        // Remove loading indicator if it exists
+        const loadingIndicator = document.getElementById('exportLoadingIndicator');
+        if (loadingIndicator) {
+            document.body.removeChild(loadingIndicator);
+        }
+        
+        alert('Error generating export: ' + error.message);
+    }
+}
+
+function generatePDF(data, reportInfo) {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Set up document properties
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 14;
+        const lineHeight = 7;
+        let currentY = margin;
+        
+        // Currency symbol - using "Rs." as a reliable text alternative to the rupee symbol
+        const currencySymbol = "Rs.";
+        
+        // Add company logo/header
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text("OXYBOO", pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight + 3;
+        
+        // Add report title
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Sales Report", pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight + 3;
+        
+        // Add report generation timestamp
+        const now = new Date();
+        const generatedTimestamp = now.toLocaleDateString('en-US', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.text(`Generated on: ${generatedTimestamp}`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight;
+        
+        // Add period type information
+        let periodTypeText = "Custom Period";
+        switch(reportInfo.periodType) {
+            case 'today':
+                periodTypeText = "Daily Report";
+                break;
+            case 'week':
+                periodTypeText = "Weekly Report";
+                break;
+            case 'month':
+                periodTypeText = "Monthly Report";
+                break;
+            case 'year':
+                periodTypeText = "Yearly Report";
+                break;
+        }
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text(periodTypeText, pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight;
+        
+        // Add date range
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Period: ${reportInfo.startDate} to ${reportInfo.endDate}`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += lineHeight * 2;
+        
+        // Add horizontal line
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, currentY - 3, pageWidth - margin, currentY - 3);
+        
+        // Add summary statistics
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Summary", margin, currentY);
+        currentY += lineHeight;
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        // Create a 2x2 grid for summary data
+        const colWidth = (pageWidth - (margin * 2)) / 2;
+        
+        // Row 1
+        doc.text(`Total Orders: ${data.totalOrders}`, margin, currentY);
+        doc.text(`Total Revenue: ${currencySymbol}${data.totalRevenue.toFixed(2)}`, margin + colWidth, currentY);
+        currentY += lineHeight;
+        
+        // Row 2
+        doc.text(`Average Order Value: ${currencySymbol}${data.averageOrderValue.toFixed(2)}`, margin, currentY);
+        doc.text(`Products Sold: ${data.productsSold}`, margin + colWidth, currentY);
+        currentY += lineHeight * 2;
+        
+        // Add table title
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Order Details", margin, currentY);
+        currentY += lineHeight;
+        
+        // Prepare table data
+        const headers = [
+            { header: 'Order ID', dataKey: 'orderId' },
+            { header: 'Date', dataKey: 'date' },
+            { header: 'Customer', dataKey: 'customerName' },
+            { header: 'Products', dataKey: 'products' },
+            { header: 'Amount', dataKey: 'totalAmount' },
+            { header: 'Payment', dataKey: 'paymentMethod' },
+            { header: 'Status', dataKey: 'status' }
+        ];
+        
+        const tableRows = data.orders.map(order => {
+            return {
+                orderId: order.orderId,
+                date: new Date(order.date).toLocaleDateString(),
+                customerName: order.customerName,
+                products: order.products,
+                totalAmount: `${currencySymbol}${order.totalAmount.toFixed(2)}`,
+                paymentMethod: order.paymentMethod,
+                status: order.status
+            };
+        });
+        
+        // Add table
+        doc.autoTable({
+            startY: currentY,
+            head: [headers.map(h => h.header)],
+            body: tableRows.map(row => headers.map(h => row[h.dataKey])),
+            theme: 'grid',
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            headStyles: {
+                fillColor: [52, 73, 94],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [240, 240, 240]
+            },
+            margin: { top: currentY, left: margin, right: margin }
+        });
+        
+        // Add footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'italic');
+            doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+            doc.text('Confidential - For internal use only', pageWidth / 2, doc.internal.pageSize.getHeight() - 6, { align: 'center' });
+        }
+        
+        // Save the PDF
+        doc.save(`Sales_Report_${reportInfo.rawStartDate}_to_${reportInfo.rawEndDate}.pdf`);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+    }
+}
+
+function generateExcel(data, reportInfo) {
+    try {
+        // Currency symbol - using "Rs." as a reliable text alternative to the rupee symbol
+        const currencySymbol = "Rs.";
+        
+        // Create workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet([]);
+        
+        // Add title and metadata
+        XLSX.utils.sheet_add_aoa(ws, [
+            [{v: 'OXYBOO', t: 's'}],
+            [{v: 'SALES REPORT', t: 's'}],
+            [{v: `Period: ${reportInfo.periodType.toUpperCase()}`, t: 's'}],
+            [{v: `Date Range: ${reportInfo.startDate} to ${reportInfo.endDate}`, t: 's'}],
+            [{v: `Generated on: ${new Date().toLocaleString()}`, t: 's'}],
+            [''] // Empty row
+        ], { origin: 'A1' });
+        
+        // Add summary section
+        XLSX.utils.sheet_add_aoa(ws, [
+            [{v: 'SUMMARY', t: 's'}],
+            [{v: `Total Orders: ${data.totalOrders}`, t: 's'}],
+            [{v: `Total Revenue: ${currencySymbol}${data.totalRevenue.toFixed(2)}`, t: 's'}],
+            [{v: `Average Order Value: ${currencySymbol}${data.averageOrderValue.toFixed(2)}`, t: 's'}],
+            [{v: `Products Sold: ${data.productsSold}`, t: 's'}],
+            [''] // Empty row
+        ], { origin: 'A7' });
+        
+        // Add orders table
+        const tableHeaders = [
+            'Order ID', 'Date', 'Customer', 'Products', 'Amount', 'Payment Method', 'Status'
+        ];
+        
+        const tableRows = data.orders.map(order => [
+            order.orderId,
+            new Date(order.date).toLocaleDateString(),
+            order.customerName,
+            order.products,
+            `${currencySymbol}${order.totalAmount.toFixed(2)}`,
+            order.paymentMethod,
+            order.status
+        ]);
+        
+        // Add table title
+        XLSX.utils.sheet_add_aoa(ws, [
+            [{v: 'ORDER DETAILS', t: 's'}]
+        ], { origin: 'A13' });
+        
+        // Add table headers and data
+        XLSX.utils.sheet_add_aoa(ws, [tableHeaders, ...tableRows], { origin: 'A14' });
+        
+        // Set column widths
+        const columnWidths = [
+            { wch: 15 }, // Order ID
+            { wch: 12 }, // Date
+            { wch: 20 }, // Customer
+            { wch: 30 }, // Products
+            { wch: 12 }, // Amount
+            { wch: 15 }, // Payment Method
+            { wch: 12 }  // Status
+        ];
+        ws['!cols'] = columnWidths;
+        
+        // Add styles (Excel doesn't support full styling via js-xlsx, but we can define a range for the headers)
+        ws['!rows'] = [
+            { hpt: 30 }, // Company name row height
+            { hpt: 30 }, // Title row height
+            { hpt: 20 }, // Period row height
+            { hpt: 20 }, // Date range row height
+            { hpt: 20 }, // Generation date row height
+            { hpt: 10 }, // Empty row
+            { hpt: 25 }, // Summary title row height
+            { hpt: 18 }, // Total orders row height
+            { hpt: 18 }, // Total revenue row height
+            { hpt: 18 }, // Avg order value row height
+            { hpt: 18 }, // Products sold row height
+            { hpt: 10 }, // Empty row
+            { hpt: 25 }, // Table title row height
+            { hpt: 22 }  // Table header row height
+        ];
+        
+        // Append the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+        
+        // Download the Excel file
+        XLSX.writeFile(wb, `Sales_Report_${reportInfo.rawStartDate}_to_${reportInfo.rawEndDate}.xlsx`);
+    } catch (error) {
+        console.error('Error generating Excel:', error);
+        alert('Error generating Excel: ' + error.message);
+    }
+}
+
+// Initialize with today's data
+document.addEventListener('DOMContentLoaded', () => {
+    // Set default dates for today
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    
+    // Set up date inputs with constraints
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    // Set max date to today for both inputs
+    startDateInput.max = formattedDate;
+    endDateInput.max = formattedDate;
+    
+    // Set initial values
+    startDateInput.value = formattedDate;
+    endDateInput.value = formattedDate;
+    
+    // Add event listeners for date validation
+    startDateInput.addEventListener('change', function() {
+        // End date can't be before start date
+        endDateInput.min = this.value;
+        
+        // If end date is now invalid (before start date), update it
+        if (endDateInput.value < this.value) {
+            endDateInput.value = this.value;
+        }
+    });
+    
+    endDateInput.addEventListener('change', function() {
+        // Start date can't be after end date
+        startDateInput.max = this.value;
+        
+        // If start date is now invalid (after end date), update it
+        if (startDateInput.value > this.value) {
+            startDateInput.value = this.value;
+        }
+    });
+    
+    // Initialize the report
+    filterSales('today');
+});
+</script>
+
+<%- include("../partials/admin/adminFooter.ejs") %>

@@ -2,6 +2,7 @@
 
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
@@ -282,7 +283,7 @@
 
   <body>
     <div class="container">
-      <form id="addform" >
+      <form id="addform">
         <!-- Basic Information -->
         <div class="card">
           <h3 class="section-title">Edit Product</h3>
@@ -302,22 +303,14 @@
           </div>
           <div class="form-group">
             <label class="form-label">Offer (%)</label>
-            <input 
-              type="number" 
-              id="offer" 
-              name="offer" 
-              class="form-control" 
-              value="<%= product.offer || 0 %>"
-              placeholder="Enter offer percentage"
-              min="0"
-              max="100"
-            />
+            <input type="number" id="offer" name="offer" class="form-control" value="<%= product.offer || 0 %>"
+              placeholder="Enter offer percentage" min="0" max="100" />
             <div id="offer-error" class="error-message"></div>
           </div>
         </div>
 
         <!-- Pricing and Inventory -->
-       
+
 
         <!-- Categories and Attributes -->
         <div class="card">
@@ -330,7 +323,7 @@
                   <option value="<%= category._id %>">
                     <%= category.name %>
                   </option>
-                <% }) %>
+                  <% }) %>
               </select>
               <div id="category-error" class="error-message"></div>
             </div>
@@ -344,7 +337,7 @@
             <i class="fas fa-plus"></i> Add Variant
           </button>
           <div id="variant-container" class="form-row">
-            <% product.variants.forEach((variant, index) => { %>
+            <% product.variants.forEach((variant, index)=> { %>
               <div class="variant-card">
                 <div class="variant-header">
                   <%= variant.color %> - <%= variant.size %>
@@ -352,31 +345,20 @@
                 <div class="variant-grid">
                   <div class="variant-input-group">
                     <label class="form-label">Stock</label>
-                    <input 
-                      type="number" 
-                      name="variants[<%= index %>][stock]" 
-                      class="form-control"
-                      value="<%= variant.stock %>"
-                      min="0"
-                    />
+                    <input type="number" name="variants[<%= index %>][stock]" class="form-control"
+                      value="<%= variant.stock %>" min="0" />
                   </div>
                   <div class="variant-input-group">
                     <label class="form-label">Price ($)</label>
-                    <input 
-                      type="number" 
-                      name="variants[<%= index %>][price]" 
-                      class="form-control"
-                      value="<%= variant.price %>"
-                      min="0"
-                      step="0.01"
-                    />
+                    <input type="number" name="variants[<%= index %>][price]" class="form-control"
+                      value="<%= variant.price %>" min="0" step="0.01" />
                   </div>
                 </div>
                 <input type="hidden" name="variants[<%= index %>][color]" value="<%= variant.color %>" />
                 <input type="hidden" name="variants[<%= index %>][size]" value="<%= variant.size %>" />
                 <input type="hidden" name="variants[<%= index %>][_id]" value="<%= variant._id %>" />
               </div>
-            <% }) %>
+              <% }) %>
           </div>
         </div>
 
@@ -435,31 +417,32 @@
           <p class="mb-3">
             Upload up to 4 images. First image will be the cover (main) image.
           </p>
-<% console.log(product); %>
-          <div class="image-upload-container">
-            <% for(let i=1; i <=4; i++) { %>
-              <div class="form-group">
-                <div class="image-upload-box" onclick="document.getElementById('image<%= i %>').click()">
-                  <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+            <div class="image-upload-container">
+              <% for(let i=1; i <=4; i++) { %>
+                <div class="form-group">
+                  <div class="image-upload-box" onclick="document.getElementById('image<%= i %>').click()">
+                    <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
                   <p>Click to upload image <%= i %></p>
-                  <input type="file" id="image<%= i %>" name="images" 
-                    accept="image/png, image/jpeg, image/jpg"
-                    style="display: none" 
-                    onchange="handleImageSelect(<%= i %>)" />
+                    <input type="file" id="image<%= i %>" name="images" accept="image/png, image/jpeg, image/jpg"
+                    style="display: none" onchange="cropper(<%= i %>)" />
+                  </div>
+                  <div class="preview-container" id="previewContainer<%= i %>">
+                    <% if(product['image' + i]) { %>
+                    <img src="/<%= product['image' + i] %>" alt="Image <%= i %>" id="prev<%= i %>" class="preview-image" />
+                      <% } %>
+                  </div>
+                <div class="cropper-container" style="display: none">
+                  <img src="" id="croppedImg<%= i %>" alt="" />
+                  <div class="actions-container">
+                    <button type="button" id="saveButton<%= i %>" class="btn btn-primary">
+                      Save Crop
+                    </button>
+                  </div>
                 </div>
-
-                <div class="preview-container" id="previewContainer<%= i %>">
-                  <% if(product['image' + i]) { %>
-                    <img src="/<%= product['image' + i] %>" alt="Image <%= i %>" 
-                      id="prev<%= i %>" class="preview-image" />
-                  <% } %>
+                  <input type="hidden" id="photo<%= i %>" name="image<%= i %>" value="<%= product['image' + i] %>" />
                 </div>
-
-                <input type="hidden" id="photo<%= i %>" name="image<%= i %>" 
-                  value="<%= product['image' + i] %>" />
-              </div>
-            <% } %>
-          </div>
+                <% } %>
+            </div>
         </div>
 
         <!-- Submit Button -->
@@ -473,57 +456,135 @@
     </div>
 
     <script>
+      // Initialize cropper instances object
       let croppers = {};
+      let croppedImages = {};
 
-      function handleImageSelect(imageNumber) {
-        const files = document.getElementById(`image${imageNumber}`);
-        const preview = document.getElementById(`prev${imageNumber}`);
-        const file = files.files[0];
+      function cropper(imageNumber) {
+        const file = document.getElementById(`image${imageNumber}`).files[0];
+        const reader = new FileReader();
 
-        if (file) {
-          const objectURL = URL.createObjectURL(file);
-          preview.src = objectURL;
-          preview.style.display = "block";
+        reader.onload = function (e) {
+          // Show cropper container and hide preview
+          const cropperContainer = document
+            .querySelector(`#image${imageNumber}`)
+            .closest(".form-group")
+            .querySelector(".cropper-container");
+          const previewContainer = document
+            .querySelector(`#image${imageNumber}`)
+            .closest(".form-group")
+            .querySelector(".preview-container");
+          cropperContainer.style.display = "block";
+          previewContainer.style.display = "none";
 
+          // Initialize cropper
+          const image = document.getElementById(`croppedImg${imageNumber}`);
+          image.src = e.target.result;
+
+          // Destroy existing cropper if it exists
           if (croppers[imageNumber]) {
             croppers[imageNumber].destroy();
           }
 
-          // Initialize a new Cropper
-          croppers[imageNumber] = new Cropper(preview, {
+          // Create new cropper
+          croppers[imageNumber] = new Cropper(image, {
             aspectRatio: 1,
-            cropBoxResizable: false,
-            cropBoxMovable: true,
-            dragMode: "none",
-            ready: function () {
-              this.cropper.setCropBoxData({
-                width: 100,
-                height: 100,
-              });
-            },
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false,
           });
+
+          // Add save button handler
+          document.getElementById(`saveButton${imageNumber}`).onclick = function () {
+            saveCroppedImage(imageNumber);
+          };
+        };
+
+        if (file) {
+          reader.readAsDataURL(file);
         }
       }
 
-      // Add form submit handler
-      document.getElementById("addform").addEventListener("submit", (event) => {
-        let images = []; // Initialize the array
-        for (let i = 1; i <= 4; i++) {
-          const canvas = croppers[i]?.getCroppedCanvas();
-          const base64Image = canvas ? canvas.toDataURL("image/png") : ""; 
-          images.push(base64Image);
+      function saveCroppedImage(imageNumber) {
+        if (!croppers[imageNumber]) return;
+
+        // Get cropped canvas
+        const canvas = croppers[imageNumber].getCroppedCanvas();
+
+        // Convert to base64
+        const croppedImageData = canvas.toDataURL("image/jpeg");
+
+        // Store cropped image data
+        croppedImages[imageNumber] = croppedImageData;
+        document.getElementById(`photo${imageNumber}`).value = croppedImageData;
+
+        // Update preview
+        const previewImg = document.getElementById(`prev${imageNumber}`);
+        previewImg.src = croppedImageData;
+
+        // Show preview and hide cropper
+        const cropperContainer = document
+          .querySelector(`#image${imageNumber}`)
+          .closest(".form-group")
+          .querySelector(".cropper-container");
+        const previewContainer = document
+          .querySelector(`#image${imageNumber}`)
+          .closest(".form-group")
+          .querySelector(".preview-container");
+        cropperContainer.style.display = "none";
+        previewContainer.style.display = "block";
+
+        // Add delete button if it doesn't exist
+        if (!document.getElementById(`deleteButton${imageNumber}`)) {
+          const deleteButton = document.createElement("button");
+          deleteButton.id = `deleteButton${imageNumber}`;
+          deleteButton.className = "btn btn-danger mt-2";
+          deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
+          deleteButton.onclick = function () {
+            deleteImage(imageNumber);
+          };
+          previewContainer.appendChild(deleteButton);
         }
 
-        // Set the hidden input fields' values
-        document.getElementById("photo1").value = images[0];
-        document.getElementById("photo2").value = images[1];
-        document.getElementById("photo3").value = images[2];
-        document.getElementById("photo4").value = images[3];
+        // Destroy cropper instance
+        croppers[imageNumber].destroy();
+        croppers[imageNumber] = null;
+      }
 
-        // Now submit the form
-        event.preventDefault(); 
-        event.target.submit(); 
-      });
+      function deleteImage(imageNumber) {
+        // Clear file input
+        const fileInput = document.getElementById(`image${imageNumber}`);
+        fileInput.value = "";
+
+        // Clear preview
+        const previewImg = document.getElementById(`prev${imageNumber}`);
+        previewImg.src = "";
+
+        // Clear hidden input
+        document.getElementById(`photo${imageNumber}`).value = "";
+
+        // Remove delete button
+        const deleteButton = document.getElementById(`deleteButton${imageNumber}`);
+        if (deleteButton) {
+          deleteButton.remove();
+        }
+
+        // Clear stored cropped image
+        delete croppedImages[imageNumber];
+
+        // Show upload box
+        const previewContainer = document
+          .querySelector(`#image${imageNumber}`)
+          .closest(".form-group")
+          .querySelector(".preview-container");
+        previewContainer.style.display = "none";
+
+        // Reset cropper if it exists
+        if (croppers[imageNumber]) {
+          croppers[imageNumber].destroy();
+          croppers[imageNumber] = null;
+        }
+      }
     </script>
 
     <script>
@@ -663,14 +724,13 @@
           if (imagesErrorElement) {
             imagesErrorElement.textContent = '';
           }
-       
-          
+
+
 
           // If all validations pass, proceed with form submission
           if (1) {
             const formData = new FormData(this);
             const productId = new URLSearchParams(window.location.search).get("id");
-            alert(productId)
             const formDataObject = {};
 
             formData.forEach((value, key) => {
@@ -687,7 +747,7 @@
                 obj[key] = formDataObject[key];
                 return obj;
               }, {});
-console.log(filteredProduct);
+            console.log(filteredProduct);
 
             try {
               const response = await fetch(`/admin/editProduct/${productId}`, {
@@ -699,15 +759,18 @@ console.log(filteredProduct);
               });
 
               const data = await response.json();
-              
+
               if (data.success) {
-                
-             
-                  
-               
-                    window.location.href = "/admin/product";
-                  
-                
+                // Add success SweetAlert
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success!',
+                  text: 'Product updated successfully',
+                  showConfirmButton: false,
+                  timer: 1500
+                }).then(() => {
+                  window.location.href = "/admin/product";
+                });
               } else {
                 throw new Error(data.message);
               }
@@ -723,10 +786,11 @@ console.log(filteredProduct);
         });
       });
     </script>
-    
+
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
     <script>
       function openVariantModal() {
@@ -797,7 +861,7 @@ console.log(filteredProduct);
       }
 
       // Close modal when clicking outside
-      window.onclick = function(event) {
+      window.onclick = function (event) {
         const modal = document.getElementById('variantModal');
         if (event.target === modal) {
           closeVariantModal();
